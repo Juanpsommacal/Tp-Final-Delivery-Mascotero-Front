@@ -1,27 +1,51 @@
 <article class="contenedor-list">
 
-    <h3>Listado de Productos</h3>
+    <div class="encabezado">
+        <h2>Listado de Productos</h2>
+        <a class="boton" routerLink="/productos/nuevo">Nuevo producto</a>
+    </div>
+
+    <div class="filtros">
+        <label>
+            Buscar por nombre
+            <input type="search" placeholder="Ej: Dog Chow"
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+        </label>
+
+        <label>
+            Tipo de producto
+            <select [value]="filtroTipo()" (change)="cambiarFiltroTipo($any($event.target).value)">
+                <option value="">Todos</option>
+                @for (tipo of tipos; track tipo) {
+                    <option [value]="tipo">{{ tipo | formatoEnum }}</option>
+                }
+            </select>
+        </label>
+    </div>
 
     <div class="lista">
-        
-        @for (producto of productos(); track producto.id) {
+
+        @for (producto of productosFiltrados(); track producto.id) {
 
             <div class="tarjeta">
 
-                <h3> {{producto.nombre}} </h3>
+                <span class="tipo">{{ producto.tipoProducto | formatoEnum }}</span>
 
-                <p>Marca: {{producto.marca}}</p>
-                <p>Descripcion: {{producto.descripcion}}</p>
-                <p>Precio: {{producto.precio}}</p>
-                <p>Stock: {{producto.stock}}</p>
+                <h3>{{ producto.marca }} {{ producto.nombre }}</h3>
+
+                @if (producto.precioOferta != null) {
+                    <p class="precio oferta">{{ producto.precioOferta | currency:'ARS':'symbol-narrow' }}</p>
+                    <p class="precio-anterior">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
+                } @else {
+                    <p class="precio">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
+                }
+
+                <a class="boton" [routerLink]="['/productos', producto.tipoProducto?.toLowerCase(), producto.id]">Ver detalles</a>
 
             </div>
 
-            <div class="acciones">
-                <a [routerLink]="['productos', producto.id]">Ver Detalles</a>
-                <button (click)="eliminarProducto(producto.id!)">Eliminar</button>
-            </div>
-
+        } @empty {
+            <p class="vacio">No hay productos que coincidan con la busqueda.</p>
         }
 
     </div>

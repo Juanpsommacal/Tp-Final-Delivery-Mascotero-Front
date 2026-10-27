@@ -1,0 +1,81 @@
+.contenedor-form {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+h2 {
+    margin-bottom: 16px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 12px;
+}
+
+legend {
+    font-weight: bold;
+    padding: 0 4px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    /* 240px: el mensaje de error mas largo entra en una linea */
+    flex: 1 1 240px;
+}
+
+.fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+input,
+select,
+textarea {
+    padding: 8px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    font: inherit;
+}
+
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+    border-color: #b3261e;
+}
+
+.error {
+    color: #b3261e;
+    font-size: 0.85rem;
+}
+
+/* El espacio del error queda reservado aunque este vacio, asi el formulario no se mueve al aparecer un mensaje */
+.campo .error {
+    min-height: 1lh;
+}
+
+.mensaje {
+    font-size: 1rem;
+}
+
+.acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}

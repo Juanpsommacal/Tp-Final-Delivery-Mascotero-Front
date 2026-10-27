@@ -1,0 +1,46 @@
+<section class="registro">
+  <h2>Crear cuenta</h2>
+
+  <form [formGroup]="formulario" (ngSubmit)="crearCuenta()" novalidate>
+
+    <label class="campo">
+      Nombre *
+      <input type="text" formControlName="nombre" autocomplete="given-name" />
+      <span class="error">{{ mensajeError('nombre') }}</span>
+    </label>
+
+    <label class="campo">
+      Apellido *
+      <input type="text" formControlName="apellido" autocomplete="family-name" />
+      <span class="error">{{ mensajeError('apellido') }}</span>
+    </label>
+
+    <label class="campo">
+      Email *
+      <input type="email" formControlName="email" autocomplete="email" />
+      <span class="error">{{ mensajeError('email') }}</span>
+    </label>
+
+    <label class="campo">
+      Contraseña *
+      <input type="password" formControlName="password" autocomplete="new-password" />
+      <span class="error">{{ mensajeError('password') }}</span>
+    </label>
+
+    <label class="campo">
+      Repetir contraseña *
+      <input type="password" formControlName="repetirPassword" autocomplete="new-password" />
+      <span class="error">{{ mensajeError('repetirPassword') ?? (errorClaves() ? 'Las contraseñas no coinciden' : '') }}</span>
+    </label>
+
+    @if (mensaje()) {
+      <p class="error mensaje">{{ mensaje() }}</p>
+    }
+
+    <button type="submit" class="boton" [disabled]="guardando()">
+      {{ guardando() ? 'Creando cuenta...' : 'Crear cuenta' }}
+    </button>
+  </form>
+
+  <p class="alternativa">¿Ya tenes cuenta? <a routerLink="/login">Inicia sesion</a></p>
+</section>

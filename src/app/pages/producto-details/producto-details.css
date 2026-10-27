@@ -1,0 +1,53 @@
+.contenedor-detalle {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.tipo {
+    font-size: 0.8rem;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.precio {
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+.precio.oferta {
+    color: #b3261e;
+}
+
+.precio-anterior {
+    text-decoration: line-through;
+    color: #777;
+}
+
+.datos {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 16px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+}
+
+.datos dt {
+    font-weight: bold;
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}

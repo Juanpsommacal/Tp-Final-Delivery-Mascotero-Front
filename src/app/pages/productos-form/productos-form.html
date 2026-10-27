@@ -1,1 +1,163 @@
-<p>productos-form works!</p>
+<section class="contenedor-form">
+
+    <h2>{{ id() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+
+        <label class="campo">
+            Tipo de producto *
+            <select formControlName="tipoProducto" (change)="cambiarTipo()">
+                <option [ngValue]="null" disabled>Elegi un tipo</option>
+                @for (tipo of tipos; track tipo) {
+                    <option [ngValue]="tipo">{{ tipo | formatoEnum }}</option>
+                }
+            </select>
+            <span class="error">{{ mensajeError('tipoProducto') }}</span>
+        </label>
+
+        <fieldset>
+            <legend>Datos del producto</legend>
+
+            <label class="campo">
+                Nombre *
+                <input type="text" formControlName="nombre" />
+                <span class="error">{{ mensajeError('nombre') }}</span>
+            </label>
+
+            <label class="campo">
+                Marca *
+                <input type="text" formControlName="marca" />
+                <span class="error">{{ mensajeError('marca') }}</span>
+            </label>
+
+            <label class="campo">
+                Descripcion
+                <textarea rows="3" formControlName="descripcion"></textarea>
+                <span class="error">{{ mensajeError('descripcion') }}</span>
+            </label>
+
+            <div class="fila">
+                <label class="campo">
+                    Precio *
+                    <input type="number" min="0" step="0.01" formControlName="precio" />
+                    <span class="error">{{ mensajeError('precio') }}</span>
+                </label>
+
+                <label class="campo">
+                    Stock *
+                    <input type="number" min="0" step="1" formControlName="stock" />
+                    <span class="error">{{ mensajeError('stock') }}</span>
+                </label>
+            </div>
+        </fieldset>
+
+        @switch (tipoSeleccionado()) {
+
+            @case ('ALIMENTO') {
+                <fieldset formGroupName="alimento">
+                    <legend>Datos del alimento</legend>
+
+                    <div class="fila">
+                        <label class="campo">
+                            Peso *
+                            <input type="number" min="0" step="1" formControlName="peso" />
+                            <span class="error">{{ mensajeError('alimento.peso') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Unidad de medida *
+                            <select formControlName="unidadMedida">
+                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                @for (unidad of unidadesMedida; track unidad) {
+                                    <option [ngValue]="unidad">{{ unidad | formatoEnum }}</option>
+                                }
+                            </select>
+                            <span class="error">{{ mensajeError('alimento.unidadMedida') }}</span>
+                        </label>
+                    </div>
+
+                    <div class="fila">
+                        <label class="campo">
+                            Etapa de vida *
+                            <select formControlName="etapaVida">
+                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                @for (etapa of etapasVida; track etapa) {
+                                    <option [ngValue]="etapa">{{ etapa | formatoEnum }}</option>
+                                }
+                            </select>
+                            <span class="error">{{ mensajeError('alimento.etapaVida') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Tipo de animal *
+                            <select formControlName="tipoAnimal">
+                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                @for (animal of tiposAnimal; track animal) {
+                                    <option [ngValue]="animal">{{ animal | formatoEnum }}</option>
+                                }
+                            </select>
+                            <span class="error">{{ mensajeError('alimento.tipoAnimal') }}</span>
+                        </label>
+                    </div>
+                </fieldset>
+            }
+
+            @case ('ANTIPULGAS') {
+                <fieldset formGroupName="antipulgas">
+                    <legend>Datos del antipulgas</legend>
+
+                    <div class="fila">
+                        <label class="campo">
+                            Tipo de antipulgas *
+                            <select formControlName="tipoAntipulgas">
+                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                @for (tipoAntipulgas of tiposAntipulgas; track tipoAntipulgas) {
+                                    <option [ngValue]="tipoAntipulgas">{{ tipoAntipulgas | formatoEnum }}</option>
+                                }
+                            </select>
+                            <span class="error">{{ mensajeError('antipulgas.tipoAntipulgas') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Tipo de animal *
+                            <select formControlName="tipoAnimal">
+                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                @for (animal of tiposAnimal; track animal) {
+                                    <option [ngValue]="animal">{{ animal | formatoEnum }}</option>
+                                }
+                            </select>
+                            <span class="error">{{ mensajeError('antipulgas.tipoAnimal') }}</span>
+                        </label>
+                    </div>
+
+                    <div class="fila">
+                        <label class="campo">
+                            Peso minimo (kg) *
+                            <input type="number" min="0" step="0.01" formControlName="kgMin" />
+                            <span class="error">{{ mensajeError('antipulgas.kgMin') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Peso maximo (kg) *
+                            <input type="number" min="0" step="0.01" formControlName="kgMax" />
+                            <span class="error">{{ mensajeError('antipulgas.kgMax') ?? (errorRangoPeso() ? 'No puede ser menor al peso minimo' : '') }}</span>
+                        </label>
+                    </div>
+                </fieldset>
+            }
+        }
+
+        @if (mensaje()) {
+            <p class="error mensaje">{{ mensaje() }}</p>
+        }
+
+        <div class="acciones">
+            <button type="button" class="boton boton-secundario" (click)="volver()">Cancelar</button>
+            <button type="submit" class="boton" [disabled]="guardando()">
+                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+            </button>
+        </div>
+
+    </form>
+
+</section>

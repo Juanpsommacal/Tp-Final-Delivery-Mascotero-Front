@@ -1,1 +1,68 @@
-<p>producto-details works!</p>
+<section class="contenedor-detalle">
+
+    @if (producto(); as producto) {
+
+        <article class="detalle">
+
+            <span class="tipo">{{ tipo() | formatoEnum }}</span>
+            <h2>{{ producto.marca }} {{ producto.nombre }}</h2>
+
+            @if (producto.precioOferta != null) {
+                <p class="precio oferta">{{ producto.precioOferta | currency:'ARS':'symbol-narrow' }}</p>
+                <p class="precio-anterior">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
+            } @else {
+                <p class="precio">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
+            }
+
+            @if (producto.descripcion) {
+                <p class="descripcion">{{ producto.descripcion }}</p>
+            }
+
+            <dl class="datos">
+                <dt>Marca</dt>
+                <dd>{{ producto.marca }}</dd>
+
+                <dt>Stock</dt>
+                <dd>{{ producto.stock }} {{ producto.stock === 1 ? 'unidad' : 'unidades' }}</dd>
+
+                @if (alimento(); as alimento) {
+                    <dt>Peso</dt>
+                    <dd>{{ alimento.peso }} {{ alimento.unidadMedida | formatoEnum }}</dd>
+
+                    <dt>Tipo de animal</dt>
+                    <dd>{{ alimento.tipoAnimal | formatoEnum }}</dd>
+
+                    <dt>Etapa de vida</dt>
+                    <dd>{{ alimento.etapaVida | formatoEnum }}</dd>
+                }
+
+                @if (antipulgas(); as antipulgas) {
+                    <dt>Tipo de antipulgas</dt>
+                    <dd>{{ antipulgas.tipoAntipulgas | formatoEnum }}</dd>
+
+                    <dt>Tipo de animal</dt>
+                    <dd>{{ antipulgas.tipoAnimal | formatoEnum }}</dd>
+
+                    <dt>Peso del animal</dt>
+                    <dd>De {{ antipulgas.kgMin }} a {{ antipulgas.kgMax }} kg</dd>
+                }
+            </dl>
+
+            <div class="acciones">
+                <a class="boton boton-secundario" routerLink="/productos">Volver</a>
+
+                @if (esAdmin) {
+                    <a class="boton" [routerLink]="['/productos', tipo()?.toLowerCase(), producto.id, 'editar']">Editar</a>
+                    <button type="button" class="boton boton-peligro" [disabled]="eliminando()" (click)="eliminarProducto()">
+                        {{ eliminando() ? 'Eliminando...' : 'Eliminar' }}
+                    </button>
+                }
+            </div>
+
+        </article>
+
+    } @else {
+        <p>Cargando producto...</p>
+    }
+
+</section>

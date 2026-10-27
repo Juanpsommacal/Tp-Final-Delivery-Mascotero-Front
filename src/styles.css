@@ -1,3 +1,31 @@
 * { 
     margin: 0;
 }
+
+/* Botones compartidos por las pantallas de productos */
+.boton {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 1px solid black;
+    border-radius: 4px;
+    background-color: black;
+    color: white;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.boton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.boton-secundario {
+    background-color: white;
+    color: black;
+}
+
+.boton-peligro {
+    border-color: #b3261e;
+    background-color: #b3261e;
+}

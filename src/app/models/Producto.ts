@@ -1,9 +1,13 @@
+import { TipoProducto } from './Enums'
+
 export default interface Producto {
-    id?: string
+    id?: number
     nombre: string
-    descripcion: string
+    descripcion: string | null
     precio: number
+    precioOferta?: number | null
     stock: number
     marca: string
-    activo: boolean
+    activo?: boolean
+    tipoProducto?: TipoProducto
 }

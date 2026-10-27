@@ -1,0 +1,80 @@
+.contenedor-list {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.filtros label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 220px;
+}
+
+.filtros input,
+.filtros select {
+    padding: 8px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    font: inherit;
+}
+
+.lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.tarjeta .boton {
+    margin-top: auto;
+    text-align: center;
+}
+
+.tipo {
+    font-size: 0.8rem;
+    color: #555;
+    text-transform: uppercase;
+}
+
+.precio {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.precio.oferta {
+    color: #b3261e;
+}
+
+.precio-anterior {
+    text-decoration: line-through;
+    color: #777;
+}
+
+.vacio {
+    grid-column: 1 / -1;
+}
