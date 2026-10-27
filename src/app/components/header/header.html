@@ -1,0 +1,35 @@
+<header class="header">
+
+    <h1>Delivery Mascotero</h1>
+
+    @if (auth.logueado()) {
+        <li>
+            <button (click)="auth.logout()">Cerrar Sesion</button>
+        </li>
+    } @else {
+        <li>
+            <a routerLink="/login" routerLinkActive="activo">Iniciar sesión</a>
+        </li>
+    }
+
+    <ul class="menu">
+
+        <li>
+            <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+        </li>
+    
+        <li>
+            <a routerLink="/productos" routerLinkActive="activo">Productos</a>
+        </li>
+    
+        <li>
+            <a routerLink="/pedidos" routerLinkActive="activo">Pedidos</a>
+        </li>
+        
+        <li>
+            <a routerLink="/listas" routerLinkActive="activo">Listas</a>
+        </li>
+    
+    </ul>
+
+</header>

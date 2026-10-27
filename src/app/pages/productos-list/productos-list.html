@@ -1,0 +1,29 @@
+<article class="contenedor-list">
+
+    <h3>Listado de Productos</h3>
+
+    <div class="lista">
+        
+        @for (producto of productos(); track producto.id) {
+
+            <div class="tarjeta">
+
+                <h3> {{producto.nombre}} </h3>
+
+                <p>Marca: {{producto.marca}}</p>
+                <p>Descripcion: {{producto.descripcion}}</p>
+                <p>Precio: {{producto.precio}}</p>
+                <p>Stock: {{producto.stock}}</p>
+
+            </div>
+
+            <div class="acciones">
+                <a [routerLink]="['productos', producto.id]">Ver Detalles</a>
+                <button (click)="eliminarProducto(producto.id!)">Eliminar</button>
+            </div>
+
+        }
+
+    </div>
+
+</article>

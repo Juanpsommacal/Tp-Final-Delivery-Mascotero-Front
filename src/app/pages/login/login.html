@@ -1,0 +1,21 @@
+<section class="login">
+  <h2>Iniciar sesión</h2>
+
+  <form (ngSubmit)="iniciarSesion()">
+    <label for="email">Email</label>
+    <input id="email" type="email" name="email"
+           [ngModel]="email()" (ngModelChange)="email.set($event)" required />
+
+    <label for="password">Contraseña</label>
+    <input id="password" type="password" name="password"
+           [ngModel]="password()" (ngModelChange)="password.set($event)" required />
+
+    <button type="submit" [disabled]="cargando()">
+      {{ cargando() ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+  </form>
+
+  @if (mensaje()) {
+    <p class="error">{{ mensaje() }}</p>
+  }
+</section>

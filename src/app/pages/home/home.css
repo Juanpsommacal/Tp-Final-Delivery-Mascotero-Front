@@ -1,0 +1,14 @@
+.home {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #472727;
+    color: #ebeca8;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+.home span {
+    color: white;
+}
