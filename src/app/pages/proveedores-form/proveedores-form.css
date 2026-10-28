@@ -1,0 +1,96 @@
+.contenedor-form {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+h2 {
+  margin-bottom: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+legend {
+  font-weight: bold;
+  padding: 0 4px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+input[type="text"] {
+  padding: 8px 12px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  font: inherit;
+}
+
+input[type="text"]:focus {
+  outline: 2px solid black;
+  border-color: black;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #b3261e;
+}
+
+.checkbox-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+
+.checkbox-campo input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.error {
+  color: #b3261e;
+  font-size: 0.85rem;
+}
+
+.campo .error {
+  min-height: 1.2em;
+}
+
+.mensaje {
+  font-size: 1rem;
+}
+
+.cargando {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+

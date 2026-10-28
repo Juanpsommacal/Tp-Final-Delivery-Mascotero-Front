@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import Producto from '../models/Producto';
-import Alimento from '../models/Alimento';
-import Antipulgas from '../models/Antipulgas';
-import { TipoProducto } from '../models/Enums';
+import Producto from '../../models/Producto';
+import Alimento from '../../models/Alimento';
+import Antipulgas from '../../models/Antipulgas';
+import { TipoProducto } from '../../models/Enums';
+import { environment } from '../../../environments/environment';
 
 export type ProductoDetalle = Alimento | Antipulgas
 export type ProductoRequest = Omit<Alimento, 'id' | 'precioOferta'> | Omit<Antipulgas, 'id' | 'precioOferta'>
@@ -12,7 +13,7 @@ export type ProductoRequest = Omit<Alimento, 'id' | 'precioOferta'> | Omit<Antip
 export class ProductosService {
 
     private http = inject(HttpClient);
-    private url = 'http://localhost:8080/api';
+    private url = environment.apiUrl
 
     // El listado es general, pero el resto del CRUD va al endpoint de cada tipo
     private endpoints: Record<TipoProducto, string> = {

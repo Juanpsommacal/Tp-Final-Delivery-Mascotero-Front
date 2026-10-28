@@ -1,0 +1,49 @@
+<section class="contenedor-form">
+  <h2>{{ id() ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
+
+  @if (cargando()) {
+    <p class="cargando">Cargando datos del proveedor...</p>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+      <fieldset>
+        <legend>Datos del proveedor</legend>
+
+        <label class="campo">
+          Nombre *
+          <input type="text" formControlName="nombre" placeholder="Ej: Distribuidora Pet" />
+          <span class="error">{{ mensajeError('nombre') }}</span>
+        </label>
+
+        <label class="campo">
+          Teléfono *
+          <input
+            type="text"
+            inputmode="numeric"
+            formControlName="telefono"
+            placeholder="Ej: 1123456789"
+            (input)="filtrarSoloNumeros($event)"
+          />
+          <span class="error">{{ mensajeError('telefono') }}</span>
+        </label>
+
+        <label class="checkbox-campo">
+          <input type="checkbox" formControlName="activo" />
+          <span>Proveedor activo</span>
+        </label>
+      </fieldset>
+
+      @if (mensaje()) {
+        <p class="error mensaje">{{ mensaje() }}</p>
+      }
+
+      <div class="acciones">
+        <button type="button" class="boton boton-secundario" (click)="volver()">
+          Cancelar
+        </button>
+        <button type="submit" class="boton" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

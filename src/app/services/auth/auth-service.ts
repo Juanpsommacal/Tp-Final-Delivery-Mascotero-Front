@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface LoginRequest {
     email: string
@@ -24,7 +25,8 @@ export class AuthService {
 
     private http = inject(HttpClient)
     private router = inject(Router)
-    private url = 'http://localhost:8080/api/auth'
+    private url = environment.apiUrl.concat('/auth');
+    
     
     private token = signal<string | null>(localStorage.getItem('token'))
     readonly logueado = computed(() => this.token() !== null)

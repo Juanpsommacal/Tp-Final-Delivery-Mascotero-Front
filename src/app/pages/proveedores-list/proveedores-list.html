@@ -1,0 +1,118 @@
+<article class="contenedor-list">
+  <div class="encabezado">
+    <h2>Listado de Proveedores</h2>
+    <a class="boton" routerLink="/proveedores/nuevo">Nuevo proveedor</a>
+  </div>
+
+  <div class="filtros">
+    <label>
+      Buscar por nombre
+      <input
+        type="search"
+        placeholder="Ej: Distribuidora..."
+        [value]="busqueda()"
+        (input)="cambiarBusqueda($any($event.target).value)"
+      />
+    </label>
+  </div>
+
+  @if (cargando()) {
+    <p class="cargando">Cargando proveedores...</p>
+  } @else {
+    <div class="tabla-contenedor">
+      <table class="tabla-proveedores">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th class="col-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (proveedor of proveedoresPaginados(); track proveedor.id) {
+            <tr>
+              <td>{{ proveedor.id }}</td>
+              <td class="nombre-proveedor">{{ proveedor.nombre }}</td>
+              <td>{{ proveedor.telefono || '-' }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-activo]="proveedor.activo"
+                  [class.badge-inactivo]="!proveedor.activo"
+                >
+                  {{ proveedor.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="col-acciones">
+                <div class="acciones-celda">
+                  <a class="boton boton-secundario boton-sm" [routerLink]="['/proveedores', proveedor.id, 'editar']">
+                    Editar
+                  </a>
+                  <button
+                    type="button"
+                    class="boton boton-peligro boton-sm"
+                    [disabled]="eliminandoId() === proveedor.id"
+                    (click)="eliminarProveedor(proveedor)"
+                  >
+                    {{ eliminandoId() === proveedor.id ? 'Eliminando...' : 'Eliminar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="vacio">
+                @if (busqueda()) {
+                  No se encontraron proveedores que coincidan con "{{ busqueda() }}".
+                } @else {
+                  No hay proveedores registrados.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (proveedoresFiltrados().length > 0) {
+      <div class="paginacion">
+        <span class="info-paginacion">
+          Mostrando {{ inicioRango() }} - {{ finRango() }} de {{ proveedoresFiltrados().length }} proveedores
+        </span>
+
+        <div class="botones-paginacion">
+          <button
+            type="button"
+            class="boton boton-secundario"
+            (click)="paginaAnterior()"
+            [disabled]="paginaActual() === 1"
+          >
+            &laquo; Anterior
+          </button>
+
+          @for (pag of paginas(); track pag) {
+            <button
+              type="button"
+              class="boton-pagina"
+              [class.activo]="pag === paginaActual()"
+              (click)="cambiarPagina(pag)"
+            >
+              {{ pag }}
+            </button>
+          }
+
+          <button
+            type="button"
+            class="boton boton-secundario"
+            (click)="paginaSiguiente()"
+            [disabled]="paginaActual() >= totalPaginas()"
+          >
+            Siguiente &raquo;
+          </button>
+        </div>
+      </div>
+    }
+  }
+</article>
