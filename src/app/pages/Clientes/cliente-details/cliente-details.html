@@ -1,0 +1,103 @@
+<section class="contenedor-detalle">
+
+    @if (cliente(); as cliente) {
+
+        <article class="detalle">
+
+            <h2>{{ cliente.nombre }} {{ cliente.apellido }}</h2>
+
+            <dl class="datos">
+                <dt>Teléfono</dt>
+                <dd>{{ cliente.telefono }}</dd>
+            </dl>
+
+            <div class="acciones">
+                <a class="boton boton-secundario" routerLink="/clientes">Volver</a>
+                <a class="boton" [routerLink]="['/clientes/editar', cliente.id]">Editar</a>
+            </div>
+
+        </article>
+
+        <article class="detalle">
+
+            <h3>Direcciones</h3>
+
+            <ul class="lista-direcciones">
+
+                @for (direccion of cliente.direcciones; track direccion.id) {
+
+                    <li>
+                        <div class="direccion">
+                            <strong>{{ direccion.direccionCompleta }}</strong>
+                            <span>{{ direccion.pisoDepto }}</span>
+                            @if (direccion.observaciones) {
+                                <small>{{ direccion.observaciones }}</small>
+                            }
+                        </div>
+
+                        <button type="button" class="boton boton-peligro" (click)="eliminarDireccion(direccion)">Quitar</button>
+                    </li>
+
+                } @empty {
+                    <li class="vacio">Este cliente no tiene direcciones cargadas.</li>
+                }
+
+            </ul>
+
+            <form [formGroup]="formularioDireccion" (ngSubmit)="agregarDireccion()" novalidate>
+
+                <h4>Agregar dirección</h4>
+
+                <div class="fila">
+                    <label class="campo">
+                        Calle *
+                        <input type="text" formControlName="calle" />
+                        <span class="error">{{ mensajeError('calle') }}</span>
+                    </label>
+
+                    <label class="campo">
+                        Número *
+                        <input type="number" min="0" step="1" formControlName="numero" />
+                        <span class="error">{{ mensajeError('numero') }}</span>
+                    </label>
+                </div>
+
+                <div class="fila">
+                    <label class="campo">
+                        Piso
+                        <input type="number" min="0" step="1" formControlName="piso" />
+                        <span class="error">{{ mensajeError('piso') }}</span>
+                    </label>
+
+                    <label class="campo">
+                        Departamento
+                        <input type="text" formControlName="departamento" />
+                        <span class="error">{{ mensajeError('departamento') }}</span>
+                    </label>
+                </div>
+
+                <label class="campo">
+                    Observaciones
+                    <input type="text" formControlName="observaciones" />
+                    <span class="error">{{ mensajeError('observaciones') }}</span>
+                </label>
+
+                @if (mensajeDireccion()) {
+                    <p class="error mensaje">{{ mensajeDireccion() }}</p>
+                }
+
+                <div class="acciones">
+                    <button type="submit" class="boton" [disabled]="agregando()">
+                        {{ agregando() ? 'Agregando...' : 'Agregar dirección' }}
+                    </button>
+                </div>
+
+            </form>
+
+        </article>
+
+    } @else {
+        <p>Cargando cliente...</p>
+    }
+
+</section>
