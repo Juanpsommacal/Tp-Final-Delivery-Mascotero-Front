@@ -1,42 +1,40 @@
 <header class="header">
+    <div class="marca">
+        <a routerLink="/" class="logo-link">
+            <img src="/DeliveryMascoteroLogo.jpg" alt="Delivery Mascotero Logo" class="logo-img" />
+            <div class="logo-textos">
+                <span class="logo-titulo">Delivery Mascotero</span>
+                <span class="logo-subtitulo">Pet Shop & Envíos</span>
+            </div>
+        </a>
+    </div>
 
-    <h1>Delivery Mascotero</h1>
+    <nav class="nav-container">
+        <ul class="menu">
+            <li>
+                <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+            </li>
+            <li>
+                <a routerLink="/productos" routerLinkActive="activo">Productos</a>
+            </li>
+            <li>
+                <a routerLink="/clientes" routerLinkActive="activo">Clientes</a>
+            </li>
+            <li>
+                <a routerLink="/proveedores" routerLinkActive="activo">Proveedores</a>
+            </li>
+            <li>
+                <a routerLink="/pedidos" routerLinkActive="activo">Pedidos</a>
+            </li>
+        </ul>
 
-    @if (auth.logueado()) {
-        <li>
-            <button (click)="auth.logout()">Cerrar Sesion</button>
-        </li>
-    } @else {
-        <li>
-            <a routerLink="/login" routerLinkActive="activo">Iniciar sesión</a>
-        </li>
-        <li>
-            <a routerLink="/registro" routerLinkActive="activo">Crear cuenta</a>
-        </li>
-    }
-
-    <ul class="menu">
-
-        <li>
-            <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
-        </li>
-    
-        <li>
-            <a routerLink="/productos" routerLinkActive="activo">Productos</a>
-        </li>
-    
-        <li>
-            <a routerLink="/clientes" routerLinkActive="activo">Clientes</a>
-        </li>
-
-        <li>
-            <a routerLink="/proveedores" routerLinkActive="activo">Proveedores</a>
-        </li>
-    
-        <li>
-            <a routerLink="/pedidos" routerLinkActive="activo">Pedidos</a>
-        </li>
-    
-    </ul>
-
+        <div class="auth-acciones">
+            @if (auth.logueado()) {
+                <button class="boton-logout" (click)="auth.logout()">Cerrar Sesión</button>
+            } @else {
+                <a routerLink="/login" class="boton-login" routerLinkActive="activo">Iniciar sesión</a>
+                <a routerLink="/registro" class="boton-registro" routerLinkActive="activo">Crear cuenta</a>
+            }
+        </div>
+    </nav>
 </header>
