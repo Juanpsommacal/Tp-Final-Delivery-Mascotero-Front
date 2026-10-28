@@ -1,8 +1,8 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
-import { ProductoDetalle, ProductosService } from '../../services/productos-service';
-import { AuthService } from '../../services/auth-service';
+import { ProductoDetalle, ProductosService } from '../../services/productos/productos-service';
+import { AuthService } from '../../services/auth/auth-service';
 import { TipoProducto, tipoDesdeRuta } from '../../models/Enums';
 import Alimento from '../../models/Alimento';
 import Antipulgas from '../../models/Antipulgas';

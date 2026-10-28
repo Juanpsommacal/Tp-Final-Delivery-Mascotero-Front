@@ -1,0 +1,176 @@
+.contenedor-list {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.filtros label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 280px;
+  max-width: 400px;
+  font-weight: 500;
+}
+
+.filtros input {
+  padding: 8px 12px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.filtros input:focus {
+  outline: 2px solid black;
+  border-color: black;
+}
+
+.cargando {
+  padding: 32px;
+  text-align: center;
+  color: #666;
+}
+
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.tabla-proveedores {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.tabla-proveedores th,
+.tabla-proveedores td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-proveedores th {
+  background-color: #f7f7f7;
+  font-weight: 600;
+  color: #333;
+}
+
+.tabla-proveedores tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-proveedores tr:hover {
+  background-color: #fafafa;
+}
+
+.nombre-proveedor {
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-activo {
+  background-color: #e6f4ea;
+  color: #137333;
+}
+
+.badge-inactivo {
+  background-color: #fce8e6;
+  color: #c5221f;
+}
+
+.vacio {
+  text-align: center;
+  padding: 32px 16px;
+  color: #666;
+}
+
+.paginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.info-paginacion {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.botones-paginacion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.col-acciones {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.acciones-celda {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.boton-sm {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+.boton-pagina {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boton-pagina:hover {
+  background-color: #f0f0f0;
+}
+
+.boton-pagina.activo {
+  background-color: black;
+  color: white;
+  border-color: black;
+  font-weight: 600;
+}
+
