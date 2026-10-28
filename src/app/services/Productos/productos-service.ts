@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
-import Producto from '../models/Producto';
-import Alimento from '../models/Alimento';
-import Antipulgas from '../models/Antipulgas';
-import { TipoProducto } from '../models/Enums';
+import Producto from '../../models/Producto';
+import Alimento from '../../models/Alimento';
+import Antipulgas from '../../models/Antipulgas';
+import { TipoProducto } from '../../models/Enums';
 
 export type ProductoDetalle = Alimento | Antipulgas
 export type ProductoRequest = Omit<Alimento, 'id' | 'precioOferta'> | Omit<Antipulgas, 'id' | 'precioOferta'>

@@ -1,0 +1,44 @@
+<section class="contenedor-form">
+
+    <h2> {{ idCliente() ? 'Editar cliente' : 'Nuevo cliente' }} </h2>
+
+    <form [formGroup]="formulario" (ngSubmit)="onSubmit()" novalidate>
+
+        <fieldset>
+            <legend>Datos del cliente</legend>
+
+            <div class="fila">
+                <label class="campo">
+                    Nombre *
+                    <input type="text" formControlName="nombre" />
+                    <span class="error">{{ mensajeError('nombre') }}</span>
+                </label>
+
+                <label class="campo">
+                    Apellido *
+                    <input type="text" formControlName="apellido" />
+                    <span class="error">{{ mensajeError('apellido') }}</span>
+                </label>
+            </div>
+
+            <label class="campo">
+                Teléfono *
+                <input type="tel" placeholder="Ej: 2235551234" formControlName="telefono" />
+                <span class="error">{{ mensajeError('telefono') }}</span>
+            </label>
+        </fieldset>
+
+        @if (mensaje()) {
+            <p class="error mensaje">{{ mensaje() }}</p>
+        }
+
+        <div class="acciones">
+            <button type="button" class="boton boton-secundario" (click)="volver()">Cancelar</button>
+            <button type="submit" class="boton" [disabled]="guardando()">
+                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+            </button>
+        </div>
+
+    </form>
+
+</section>

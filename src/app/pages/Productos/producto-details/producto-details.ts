@@ -1,13 +1,13 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
-import { ProductoDetalle, ProductosService } from '../../services/productos-service';
-import { AuthService } from '../../services/auth-service';
-import { TipoProducto, tipoDesdeRuta } from '../../models/Enums';
-import Alimento from '../../models/Alimento';
-import Antipulgas from '../../models/Antipulgas';
-import { FormatoEnumPipe } from '../../pipes/formato-enum-pipe';
-import { extraerMensajeError } from '../../utils/error-util';
+import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
+import { ProductoDetalle, ProductosService } from '../../../services/Productos/productos-service';
+import { AuthService } from '../../../services/Authentication/auth-service';
+import { tipoDesdeRuta, TipoProducto } from '../../../models/Enums';
+import { extraerMensajeError } from '../../../utils/error-util';
+import Alimento from '../../../models/Alimento';
+import Antipulgas from '../../../models/Antipulgas';
 
 @Component({
   imports: [RouterLink, CurrencyPipe, FormatoEnumPipe],

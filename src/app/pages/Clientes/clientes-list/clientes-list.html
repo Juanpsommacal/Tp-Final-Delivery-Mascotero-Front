@@ -1,0 +1,41 @@
+<article class="contenedor-list">
+
+    <div class="encabezado">
+        <h2>Listado de Clientes</h2>
+        <a class="boton" routerLink="/clientes/nuevo">Nuevo cliente</a>
+    </div>
+
+    <div class="filtros">
+        <label>
+            Buscar
+            <input type="search" placeholder="Ej: Pérez o 2235551234"
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+        </label>
+    </div>
+
+    <div class="lista">
+
+        @for (cliente of clientesFiltrados(); track cliente.id) {
+
+            <div class="tarjeta">
+
+                <h3>{{ cliente.nombre }} {{ cliente.apellido }}</h3>
+
+                <p>Teléfono: {{ cliente.telefono }}</p>
+
+                <p class="direcciones">
+                    {{ cliente.direcciones.length }}
+                    {{ cliente.direcciones.length === 1 ? 'dirección' : 'direcciones' }}
+                </p>
+
+                <a class="boton" [routerLink]="['/clientes', cliente.id]">Ver detalles</a>
+
+            </div>
+
+        } @empty {
+            <p class="vacio">No hay clientes que coincidan con la búsqueda.</p>
+        }
+
+    </div>
+
+</article>
