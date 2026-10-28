@@ -1,10 +1,10 @@
 import { Component, computed, OnInit, signal } from '@angular/core';
-import Producto from '../../models/Producto';
-import { ProductosService } from '../../services/productos/productos-service';
 import { Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
-import { TipoProducto, TIPOS_PRODUCTO } from '../../models/Enums';
-import { FormatoEnumPipe } from '../../pipes/formato-enum-pipe';
+import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
+import { TipoProducto, TIPOS_PRODUCTO } from '../../../models/Enums';
+import Producto from '../../../models/Producto';
+import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
   imports: [RouterLink, CurrencyPipe, FormatoEnumPipe],

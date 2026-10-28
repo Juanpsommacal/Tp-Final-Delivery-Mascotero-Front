@@ -5,7 +5,6 @@ import Alimento from '../../models/Alimento';
 import Antipulgas from '../../models/Antipulgas';
 import { TipoProducto } from '../../models/Enums';
 import { environment } from '../../../environments/environment';
-
 export type ProductoDetalle = Alimento | Antipulgas
 export type ProductoRequest = Omit<Alimento, 'id' | 'precioOferta'> | Omit<Antipulgas, 'id' | 'precioOferta'>
 

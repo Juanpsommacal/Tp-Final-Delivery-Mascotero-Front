@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
-import { AuthService } from '../../services/auth/auth-service';
+import { AuthService } from '../../services/Authentication/auth-service';
 import { noVacio } from '../../validators/producto-validators';
 import { clavesIguales, SOLO_LETRAS } from '../../validators/usuario-validators';
 import { extraerMensajeError } from '../../utils/error-util';

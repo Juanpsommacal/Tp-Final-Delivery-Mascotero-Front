@@ -1,16 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductosService, ProductoRequest } from '../../services/productos/productos-service';
+import { ProductosService, ProductoRequest } from '../../../services/productos/productos-service';
 import {
   ETAPAS_VIDA, EtapaVida, TIPOS_ANIMAL, TIPOS_ANTIPULGAS, TIPOS_PRODUCTO, TipoAnimal,
   TipoAntipulgas, TipoProducto, tipoDesdeRuta, UNIDADES_MEDIDA, UnidadMedida
-} from '../../models/Enums';
-import Alimento from '../../models/Alimento';
-import Antipulgas from '../../models/Antipulgas';
-import { digitos, noVacio, rangoPeso } from '../../validators/producto-validators';
-import { extraerMensajeError } from '../../utils/error-util';
-import { FormatoEnumPipe } from '../../pipes/formato-enum-pipe';
+} from '../../../models/Enums';
+import Alimento from '../../../models/Alimento';
+import Antipulgas from '../../../models/Antipulgas';
+import { digitos, noVacio, rangoPeso } from '../../../validators/producto-validators';
+import { extraerMensajeError } from '../../../utils/error-util';
+import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 
 @Component({
   imports: [ReactiveFormsModule, FormatoEnumPipe],

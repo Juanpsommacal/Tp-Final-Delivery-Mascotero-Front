@@ -1,0 +1,112 @@
+.contenedor-detalle {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.datos {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 16px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+}
+
+.datos dt {
+    font-weight: bold;
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.lista-direcciones {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lista-direcciones li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.direccion {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.direccion small {
+    color: #555;
+}
+
+.vacio {
+    color: #555;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 200px;
+}
+
+.fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+input {
+    padding: 8px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    font: inherit;
+}
+
+input.ng-invalid.ng-touched {
+    border-color: #b3261e;
+}
+
+.error {
+    color: #b3261e;
+    font-size: 0.85rem;
+}
+
+.campo .error {
+    min-height: 1lh;
+}
+
+.mensaje {
+    font-size: 1rem;
+}
