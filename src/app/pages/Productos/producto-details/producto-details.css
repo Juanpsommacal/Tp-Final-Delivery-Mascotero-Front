@@ -1,53 +1,76 @@
 .contenedor-detalle {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 24px 16px;
+    max-width: 680px;
+    margin: 32px auto;
+    padding: 0 16px;
 }
 
 .detalle {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
+    gap: 16px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+.detalle h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
 }
 
 .tipo {
-    font-size: 0.8rem;
-    color: #555;
+    align-self: flex-start;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .precio {
-    font-size: 1.6rem;
-    font-weight: bold;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
 }
 
 .precio.oferta {
-    color: #b3261e;
+    color: var(--color-accent);
 }
 
 .precio-anterior {
+    font-size: 1.1rem;
     text-decoration: line-through;
-    color: #777;
+    color: var(--color-text-muted);
 }
 
 .datos {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 8px 16px;
-    padding-top: 12px;
-    border-top: 1px solid #ddd;
+    gap: 12px 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
 }
 
 .datos dt {
-    font-weight: bold;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.datos dd {
+    color: var(--color-text);
 }
 
 .acciones {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-top: 8px;
+    margin-top: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
 }

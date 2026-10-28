@@ -14,7 +14,7 @@
 
 #main {
     grid-area: main;
-    background-color: #ebeca8;
+    background-color: var(--color-bg);
 }
 
 #footer {

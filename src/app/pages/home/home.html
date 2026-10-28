@@ -1,4 +1,49 @@
-<div class="home">
-    <h1>TP Final - Delivery Mascotero</h1>
-    <span>Matias Garcia - Juan Pablo Sommacal - Vega Matias</span>
-</div>
+<section class="home-container">
+    <div class="hero-card">
+        <div class="hero-badge">🐾 Pet Shop & Envíos a Domicilio</div>
+        <img src="/DeliveryMascoteroLogo.jpg" alt="Delivery Mascotero Logo" class="hero-logo" />
+        <h1 class="hero-titulo">Delivery Mascotero</h1>
+        <p class="hero-subtitulo">
+            Todo para tus mascotas: alimentos balanceados, antipulgas y accesorios con entrega directa en tu puerta.
+        </p>
+
+        <div class="hero-acciones">
+            <a routerLink="/productos" class="boton boton-accent">Ver Catálogo de Productos</a>
+            <a routerLink="/clientes" class="boton boton-secundario">Gestionar Clientes</a>
+        </div>
+    </div>
+
+    <div class="modulos-grid">
+        <a routerLink="/productos" class="modulo-card">
+            <span class="modulo-icono">🥫</span>
+            <h3>Productos</h3>
+            <p>Consultá el catálogo, ofertas, stock y gestioná alimentos y antipulgas.</p>
+            <span class="modulo-link">Explorar productos &rarr;</span>
+        </a>
+
+        <a routerLink="/clientes" class="modulo-card">
+            <span class="modulo-icono">👥</span>
+            <h3>Clientes</h3>
+            <p>Administrá los datos de contacto y las direcciones de entrega de tus clientes.</p>
+            <span class="modulo-link">Ver clientes &rarr;</span>
+        </a>
+
+        <a routerLink="/proveedores" class="modulo-card">
+            <span class="modulo-icono">🚚</span>
+            <h3>Proveedores</h3>
+            <p>Control de proveedores y distribuidores asociados para abastecimiento.</p>
+            <span class="modulo-link">Ver proveedores &rarr;</span>
+        </a>
+
+        <a routerLink="/pedidos" class="modulo-card">
+            <span class="modulo-icono">📦</span>
+            <h3>Pedidos</h3>
+            <p>Seguimiento de órdenes, estado de envíos y entregas programadas.</p>
+            <span class="modulo-link">Ir a pedidos &rarr;</span>
+        </a>
+    </div>
+
+    <div class="creditos">
+        <span>TP Final · Matias Garcia - Juan Pablo Sommacal - Matias Vega</span>
+    </div>
+</section>

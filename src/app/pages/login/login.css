@@ -1,0 +1,121 @@
+.login-contenedor {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-accent);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 12px;
+}
+
+.login-header h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.login-header p {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.campo input {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.95rem;
+  background-color: #faf7f2;
+  transition: all 0.2s ease;
+}
+
+.campo input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: white;
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.boton-submit {
+  width: 100%;
+  padding: 11px;
+  font-size: 1rem;
+  margin-top: 6px;
+}
+
+.error-banner {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid #f8b4b4;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.login-footer {
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.login-footer a {
+  font-weight: 700;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+  color: var(--color-accent-dark);
+}
+
