@@ -1,38 +1,48 @@
 .contenedor-detalle {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 24px 16px;
+    max-width: 680px;
+    margin: 32px auto;
+    padding: 0 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
 }
 
 .detalle {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
+    gap: 16px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+.detalle h2,
+.detalle h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary);
 }
 
 .datos {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 8px 16px;
-    padding-top: 12px;
-    border-top: 1px solid #ddd;
+    gap: 12px 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
 }
 
 .datos dt {
-    font-weight: bold;
+    font-weight: 700;
+    color: var(--color-primary-dark);
 }
 
 .acciones {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 .lista-direcciones {
@@ -40,7 +50,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .lista-direcciones li {
@@ -48,106 +58,130 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid #ddd;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lista-direcciones li:last-child {
+    border-bottom: none;
 }
 
 .direccion {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
-.direccion small {
-    color: #555;
+.direccion strong {
+    color: var(--color-text);
+}
+
+.direccion span {
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
 }
 
 .vacio {
-    color: #555;
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: 8px 0;
 }
 
-form {
+.form-direccion {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #ddd;
+    gap: 14px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
 }
 
 .campo {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    flex: 1 1 200px;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.campo input {
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.95rem;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.campo input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.error {
+    color: var(--color-danger);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.form-direccion h4 {
+    color: var(--color-primary-dark);
 }
 
 .fila {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
 }
 
-input {
-    padding: 8px;
-    border: 1px solid #999;
-    border-radius: 4px;
-    font: inherit;
-}
-
-input.ng-invalid.ng-touched {
-    border-color: #b3261e;
-}
-
-.error {
-    color: #b3261e;
-    font-size: 0.85rem;
-}
-
-.campo .error {
-    min-height: 1lh;
+.fila .campo {
+    flex: 1 1 200px;
 }
 
 .mensaje {
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
+
+/* Autocompletado de calle con direcciones ya cargadas */
 .autocompletar {
     position: relative;
 }
 
 .sugerencias {
     position: absolute;
-    top: calc(1lh + 4px + 2.4rem);
+    top: calc(1lh + 6px + 2.6rem);
     left: 0;
     right: 0;
     z-index: 10;
     list-style: none;
     margin: 0;
-    padding: 4px 0;
+    padding: 6px 0;
     max-height: 260px;
     overflow-y: auto;
-    background-color: white;
-    border: 1px solid #999;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
 }
 
 .sugerencias li {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding: 8px 10px;
+    padding: 8px 14px;
     cursor: pointer;
-    font-weight: normal;
+    font-weight: 400;
 }
 
 .sugerencias li span {
-    color: #555;
+    color: var(--color-text-muted);
     font-size: 0.85rem;
 }
 
 .sugerencias li:hover,
 .sugerencias li.activa {
-    background-color: #eef3fb;
+    background-color: var(--color-primary-light);
 }
 
 .seleccionada {
@@ -156,8 +190,8 @@ input.ng-invalid.ng-touched {
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f7f7f7;
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg);
 }

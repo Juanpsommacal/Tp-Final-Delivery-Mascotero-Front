@@ -1,77 +1,95 @@
 .contenedor-form {
   max-width: 640px;
-  margin: 0 auto;
-  padding: 24px 16px;
+  margin: 32px auto;
+  padding: 0 16px;
 }
 
 h2 {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-primary);
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
+  gap: 18px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-md);
 }
 
 fieldset {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 16px;
+  gap: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  background-color: #fdfbf7;
 }
 
 legend {
-  font-weight: bold;
-  padding: 0 4px;
+  font-weight: 700;
+  color: var(--color-primary);
+  padding: 0 6px;
+  font-size: 0.95rem;
 }
 
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 input[type="text"] {
-  padding: 8px 12px;
-  border: 1px solid #999;
-  border-radius: 4px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font: inherit;
+  font-size: 0.95rem;
+  background-color: white;
+  transition: all 0.2s ease;
 }
 
 input[type="text"]:focus {
-  outline: 2px solid black;
-  border-color: black;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 input.ng-invalid.ng-touched {
-  border-color: #b3261e;
+  border-color: var(--color-danger);
 }
 
 .checkbox-campo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   user-select: none;
   font-size: 0.95rem;
+  font-weight: 600;
   margin-top: 4px;
+  color: var(--color-text);
 }
 
 .checkbox-campo input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
   cursor: pointer;
 }
 
 .error {
-  color: #b3261e;
-  font-size: 0.85rem;
+  color: var(--color-danger);
+  font-size: 0.82rem;
+  font-weight: 500;
 }
 
 .campo .error {
@@ -79,18 +97,34 @@ input.ng-invalid.ng-touched {
 }
 
 .mensaje {
-  font-size: 1rem;
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid #f8b4b4;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .cargando {
-  padding: 24px;
+  padding: 36px;
   text-align: center;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .acciones {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  margin-top: 8px;
 }
 
+.acciones button[type="submit"] {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.acciones button[type="submit"]:hover:not(:disabled) {
+  background-color: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+}
