@@ -48,39 +48,87 @@
 
                 <h4>Agregar dirección</h4>
 
-                <div class="fila">
-                    <label class="campo">
-                        Calle *
-                        <input type="text" formControlName="calle" />
-                        <span class="error">{{ mensajeError('calle') }}</span>
-                    </label>
+                @if (direccionSeleccionada(); as seleccionada) {
+
+                    <div class="seleccionada">
+                        <div class="direccion">
+                            <small>Dirección existente</small>
+                            <strong>{{ seleccionada.direccionCompleta }}</strong>
+                            <span>{{ seleccionada.pisoDepto }}</span>
+                            @if (seleccionada.observaciones) {
+                                <small>{{ seleccionada.observaciones }}</small>
+                            }
+                        </div>
+                        <button type="button" class="boton boton-secundario" (click)="cancelarSeleccion()">Cargar otra</button>
+                    </div>
+
+                } @else {
+
+                    <div class="fila">
+                        <label class="campo autocompletar">
+                            Calle *
+                            <input
+                                type="text"
+                                formControlName="calle"
+                                autocomplete="off"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-controls="sugerencias-direccion"
+                                [attr.aria-expanded]="mostrarSugerencias() && sugerencias().length > 0"
+                                [attr.aria-activedescendant]="indiceActivo() >= 0 ? 'sugerencia-' + indiceActivo() : null"
+                                (focus)="abrirSugerencias()"
+                                (input)="abrirSugerencias()"
+                                (blur)="cerrarSugerencias()"
+                                (keydown)="navegarSugerencias($event)" />
+
+                            @if (mostrarSugerencias() && sugerencias().length > 0) {
+                                <ul id="sugerencias-direccion" class="sugerencias" role="listbox">
+                                    @for (sugerencia of sugerencias(); track sugerencia.id; let i = $index) {
+                                        <!-- mousedown + preventDefault: elige antes de que el blur cierre la lista -->
+                                        <li
+                                            [id]="'sugerencia-' + i"
+                                            role="option"
+                                            [class.activa]="i === indiceActivo()"
+                                            [attr.aria-selected]="i === indiceActivo()"
+                                            (mousedown)="$event.preventDefault(); seleccionarDireccion(sugerencia)">
+                                            <strong>{{ sugerencia.direccionCompleta }}</strong>
+                                            <span>{{ sugerencia.pisoDepto }}</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                            <span class="error">{{ mensajeError('calle') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Número *
+                            <input type="number" min="0" step="1" formControlName="numero" />
+                            <span class="error">{{ mensajeError('numero') }}</span>
+                        </label>
+                    </div>
+
+                    <div class="fila">
+                        <label class="campo">
+                            Piso
+                            <input type="number" min="0" step="1" formControlName="piso" />
+                            <span class="error">{{ mensajeError('piso') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Departamento
+                            <input type="text" formControlName="departamento" />
+                            <span class="error">{{ mensajeError('departamento') }}</span>
+                        </label>
+                    </div>
 
                     <label class="campo">
-                        Número *
-                        <input type="number" min="0" step="1" formControlName="numero" />
-                        <span class="error">{{ mensajeError('numero') }}</span>
-                    </label>
-                </div>
-
-                <div class="fila">
-                    <label class="campo">
-                        Piso
-                        <input type="number" min="0" step="1" formControlName="piso" />
-                        <span class="error">{{ mensajeError('piso') }}</span>
+                        Observaciones
+                        <input type="text" formControlName="observaciones" />
+                        <span class="error">{{ mensajeError('observaciones') }}</span>
                     </label>
 
-                    <label class="campo">
-                        Departamento
-                        <input type="text" formControlName="departamento" />
-                        <span class="error">{{ mensajeError('departamento') }}</span>
-                    </label>
-                </div>
-
-                <label class="campo">
-                    Observaciones
-                    <input type="text" formControlName="observaciones" />
-                    <span class="error">{{ mensajeError('observaciones') }}</span>
-                </label>
+                }
 
                 @if (mensajeDireccion()) {
                     <p class="error mensaje">{{ mensajeDireccion() }}</p>
@@ -88,7 +136,7 @@
 
                 <div class="acciones">
                     <button type="submit" class="boton" [disabled]="agregando()">
-                        {{ agregando() ? 'Agregando...' : 'Agregar dirección' }}
+                        {{ agregando() ? 'Agregando...' : (direccionSeleccionada() ? 'Asociar dirección' : 'Agregar dirección') }}
                     </button>
                 </div>
 

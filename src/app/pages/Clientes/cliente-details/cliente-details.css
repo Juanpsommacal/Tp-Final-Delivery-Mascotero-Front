@@ -110,3 +110,54 @@ input.ng-invalid.ng-touched {
 .mensaje {
     font-size: 1rem;
 }
+.autocompletar {
+    position: relative;
+}
+
+.sugerencias {
+    position: absolute;
+    top: calc(1lh + 4px + 2.4rem);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    max-height: 260px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #999;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sugerencias li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.sugerencias li span {
+    color: #555;
+    font-size: 0.85rem;
+}
+
+.sugerencias li:hover,
+.sugerencias li.activa {
+    background-color: #eef3fb;
+}
+
+.seleccionada {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+}

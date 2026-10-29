@@ -4,7 +4,7 @@ import { CurrencyPipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import { TipoProducto, TIPOS_PRODUCTO } from '../../../models/Enums';
 import Producto from '../../../models/Producto';
-import { ProductosService } from '../../../services/productos/productos-service';
+import { ProductosService } from '../../../services/Productos/productos-service';
 
 @Component({
   imports: [RouterLink, CurrencyPipe, FormatoEnumPipe],

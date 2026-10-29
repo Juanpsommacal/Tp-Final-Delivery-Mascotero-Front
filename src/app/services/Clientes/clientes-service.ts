@@ -33,6 +33,11 @@ export class ClientesService {
         return this.http.post<Cliente>(`${this.url}/${clienteId}/direcciones`, direccion)
     }
 
+    // Asocia una direccion que ya existe en la BDD (por ejemplo, la de otro cliente que vive en el mismo lugar)
+    asociarDireccionExistente(clienteId: string, direccionId: string) {
+        return this.http.post<Cliente>(`${this.url}/${clienteId}/direcciones/${direccionId}`, null)
+    }
+
     removeDireccion(clienteId: string, direccionId: string) {
         return this.http.delete<Cliente>(`${this.url}/${clienteId}/direcciones/${direccionId}`)
     }
