@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProveedoresService } from '../../services/proveedores/proveedores-service';
+import { AlertaService } from '../../services/Alerta/alerta-service';
 import { ProveedorRequest } from '../../models/Proveedor';
 import { noVacio } from '../../validators/producto-validators';
 import { extraerMensajeError } from '../../utils/error-util';
@@ -15,6 +16,7 @@ import { extraerMensajeError } from '../../utils/error-util';
 export class ProveedoresForm implements OnInit {
   private fb = inject(FormBuilder);
   private proveedoresService = inject(ProveedoresService);
+  private alertaService = inject(AlertaService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -65,9 +67,9 @@ export class ProveedoresForm implements OnInit {
         });
         this.cargando.set(false);
       },
-      error: (error) => {
+      error: async (error) => {
         console.error('Error al cargar proveedor:', error);
-        alert('Error: No se pudo cargar el proveedor');
+        await this.alertaService.error('No se pudo cargar el proveedor');
         this.router.navigate(['/proveedores']);
       },
     });
@@ -112,8 +114,8 @@ export class ProveedoresForm implements OnInit {
       : this.proveedoresService.create(proveedorDatos);
 
     peticion.subscribe({
-      next: () => {
-        alert(id ? 'Proveedor actualizado correctamente' : 'Proveedor creado correctamente');
+      next: async () => {
+        await this.alertaService.exito(id ? 'Proveedor actualizado correctamente' : 'Proveedor creado correctamente');
         this.router.navigate(['/proveedores']);
       },
       error: (error) => {

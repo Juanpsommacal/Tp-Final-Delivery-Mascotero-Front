@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { AuthService } from '../../services/Authentication/auth-service';
+import { AlertaService } from '../../services/Alerta/alerta-service';
 import { noVacio } from '../../validators/producto-validators';
 import { clavesIguales, SOLO_LETRAS } from '../../validators/usuario-validators';
 import { extraerMensajeError } from '../../utils/error-util';
@@ -17,6 +18,7 @@ export class Registro {
 
   private fb = inject(FormBuilder)
   private auth = inject(AuthService)
+  private alertaService = inject(AlertaService)
   private router = inject(Router)
 
   guardando = signal(false)
@@ -90,8 +92,8 @@ export class Registro {
     this.auth.register(datos).pipe(
       switchMap(() => this.auth.login({ email: datos.email, password: datos.password }))
     ).subscribe({
-      next: () => {
-        alert('Cuenta creada correctamente')
+      next: async () => {
+        await this.alertaService.exito('Cuenta creada correctamente')
         this.router.navigate(['/productos'])
       },
       error: (error) => {

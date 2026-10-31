@@ -1,5 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ProveedoresService } from '../../services/proveedores/proveedores-service';
+import { ConfirmacionService } from '../../services/Confirmacion/confirmacion-service';
+import { AlertaService } from '../../services/Alerta/alerta-service';
 import { Proveedor } from '../../models/Proveedor';
 import { RouterLink } from '@angular/router';
 import { extraerMensajeError } from '../../utils/error-util';
@@ -12,6 +14,8 @@ import { extraerMensajeError } from '../../utils/error-util';
 })
 export class ProveedoresList implements OnInit {
   private proveedoresService = inject(ProveedoresService);
+  private confirmacionService = inject(ConfirmacionService);
+  private alertaService = inject(AlertaService);
 
   readonly itemsPorPagina = 10;
 
@@ -75,7 +79,7 @@ export class ProveedoresList implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar proveedores:', error);
-        alert('Error: No se pudo cargar los proveedores');
+        this.alertaService.error('No se pudo cargar los proveedores');
         this.cargando.set(false);
       },
     });
@@ -100,14 +104,19 @@ export class ProveedoresList implements OnInit {
     this.cambiarPagina(this.paginaActual() + 1);
   }
 
-  eliminarProveedor(proveedor: Proveedor) {
-    const confirmar = confirm(`¿Estás seguro de que deseas eliminar al proveedor "${proveedor.nombre}"?`);
+  async eliminarProveedor(proveedor: Proveedor) {
+    const confirmar = await this.confirmacionService.confirmar({
+      titulo: 'Eliminar proveedor',
+      mensaje: `¿Estás seguro de que deseas eliminar al proveedor "${proveedor.nombre}"?`,
+      textoConfirmar: 'Eliminar',
+      tipo: 'peligro',
+    });
     if (!confirmar) return;
 
     this.eliminandoId.set(proveedor.id);
     this.proveedoresService.delete(proveedor.id).subscribe({
       next: () => {
-        alert('Proveedor eliminado correctamente');
+        this.alertaService.exito('Proveedor eliminado correctamente');
         this.proveedores.update((lista) => lista.filter((p) => p.id !== proveedor.id));
         this.eliminandoId.set(null);
         if (this.paginaActual() > this.totalPaginas()) {
@@ -116,7 +125,7 @@ export class ProveedoresList implements OnInit {
       },
       error: (error) => {
         console.error('Error al eliminar proveedor:', error);
-        alert(`Error: ${extraerMensajeError(error)}`);
+        this.alertaService.error(extraerMensajeError(error));
         this.eliminandoId.set(null);
       },
     });

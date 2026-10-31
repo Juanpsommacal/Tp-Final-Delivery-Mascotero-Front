@@ -1,0 +1,47 @@
+@if (estaVisible()) {
+  <div class="modal-overlay" (click)="alCerrar()">
+    <div
+      class="modal-tarjeta"
+      [class]="'tipo-' + datosModal().tipo"
+      (click)="$event.stopPropagation()"
+      role="alertdialog"
+      aria-modal="true"
+      [attr.aria-label]="datosModal().titulo"
+    >
+      <div class="modal-cabecera">
+        <div class="icono-contenedor" [class]="'icono-' + datosModal().tipo">
+          <span class="icono">{{ datosModal().icono }}</span>
+        </div>
+        <div class="texto-cabecera">
+          <h3 class="modal-titulo">{{ datosModal().titulo }}</h3>
+        </div>
+        <button
+          type="button"
+          class="boton-cerrar"
+          aria-label="Cerrar aviso"
+          (click)="alCerrar()"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-cuerpo">
+        <p class="modal-mensaje">{{ datosModal().mensaje }}</p>
+      </div>
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="boton"
+          [class.boton-accent]="datosModal().tipo === 'exito'"
+          [class.boton-peligro]="datosModal().tipo === 'error'"
+          (click)="alCerrar()"
+          autofocus
+        >
+          {{ datosModal().textoBoton }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+

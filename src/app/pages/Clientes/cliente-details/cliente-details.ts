@@ -9,6 +9,8 @@ import { maxLength, required } from '@angular/forms/signals';
 import { extraerMensajeError } from '../../../utils/error-util';
 import Direccion, { DireccionRequest } from '../../../models/Direccion';
 import { DireccionesService } from '../../../services/Direcciones/direcciones-service';
+import { ConfirmacionService } from '../../../services/Confirmacion/confirmacion-service';
+import { AlertaService } from '../../../services/Alerta/alerta-service';
 
 const MAX_SUGERENCIAS = 8
 
@@ -22,6 +24,8 @@ export class ClienteDetails implements OnInit{
 
   private clientesService = inject(ClientesService)
   private direccionesService = inject(DireccionesService)
+  private confirmacionService = inject(ConfirmacionService)
+  private alertaService = inject(AlertaService)
   private route = inject(ActivatedRoute)
   private router = inject(Router)
   private fb = inject(FormBuilder)
@@ -86,8 +90,8 @@ export class ClienteDetails implements OnInit{
 
     this.clientesService.getClienteById(id).subscribe({
       next: (data) => this.cliente.set(data),
-      error: (error) => {
-        alert(`Error: ${extraerMensajeError(error)}`)
+      error: async (error) => {
+        await this.alertaService.error(extraerMensajeError(error))
         this.router.navigate(['/clientes'])
       }
     })
@@ -214,15 +218,21 @@ export class ClienteDetails implements OnInit{
     })
   }
 
-  eliminarDireccion(direccion: Direccion) {
+  async eliminarDireccion(direccion: Direccion) {
     const cliente = this.cliente()
     if (!cliente) return
 
-    if (!confirm(`¿Desea eliminar la direccion "${direccion.direccionCompleta}"?`)) return
+    const confirmado = await this.confirmacionService.confirmar({
+      titulo: 'Eliminar dirección',
+      mensaje: `¿Desea eliminar la dirección "${direccion.direccionCompleta}"?`,
+      textoConfirmar: 'Eliminar',
+      tipo: 'peligro'
+    })
+    if (!confirmado) return
 
     this.clientesService.removeDireccion(cliente.id!, direccion.id!).subscribe({
       next: (actualizado) => this.cliente.set(actualizado),
-      error: (error) => alert(`Error: ${extraerMensajeError(error)}`)
+      error: (error) => this.alertaService.error(extraerMensajeError(error))
     })
   }
 

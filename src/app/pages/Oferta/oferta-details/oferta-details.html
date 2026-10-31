@@ -1,0 +1,292 @@
+<section class="contenedor-detalle-oferta">
+
+  @if (cargando()) {
+    <div class="cargando-contenedor">
+      <p>Cargando detalles de la oferta...</p>
+    </div>
+  } @else if (oferta(); as oferta) {
+
+    <header class="detalle-header">
+      <button type="button" class="boton boton-secundario" (click)="volver()">
+        ← Volver a Ofertas
+      </button>
+
+      <div class="header-acciones">
+        <a class="boton boton-secundario" [routerLink]="['/ofertas', oferta.id, 'editar']">
+          Modificar
+        </a>
+        <button
+          type="button"
+          class="boton boton-peligro"
+          [disabled]="eliminando()"
+          (click)="eliminarOferta()"
+        >
+          {{ eliminando() ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </header>
+
+    <!-- Ficha informativa de la Oferta -->
+    <article class="ficha-oferta">
+      <div class="ficha-top">
+        <div class="badges-grupo">
+          <span class="descuento-pill">-{{ porcentajeVisual() }}% OFF</span>
+          @if (estadoOferta(); as estado) {
+            <span class="badge-estado" [ngClass]="estado.clase">
+              {{ estado.etiqueta }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <h1 class="oferta-nombre">{{ oferta.nombre }}</h1>
+
+      <p class="oferta-descripcion">{{ oferta.descripcion }}</p>
+
+      <div class="fechas-resumen">
+        <div class="resumen-item">
+          <span class="resumen-etiqueta">Fecha de Inicio</span>
+          <strong class="resumen-valor">{{ oferta.fechaInicio | date:'dd/MM/yyyy' }}</strong>
+        </div>
+
+        <div class="resumen-item">
+          <span class="resumen-etiqueta">Fecha de Finalización</span>
+          <strong class="resumen-valor">{{ oferta.fechaFin | date:'dd/MM/yyyy' }}</strong>
+        </div>
+
+        <div class="resumen-item">
+          <span class="resumen-etiqueta">Descuento aplicado</span>
+          <strong class="resumen-valor valor-descuento">{{ porcentajeVisual() }}%</strong>
+        </div>
+      </div>
+    </article>
+
+    <!-- Sección de productos asociados -->
+    <section class="productos-seccion">
+      <div class="seccion-titulo">
+        <div class="seccion-titulo-izq">
+          <h2>Productos en esta oferta</h2>
+          <span class="contador-badge">
+            {{ oferta.productos?.length || 0 }} {{ (oferta.productos?.length === 1) ? 'producto' : 'productos' }}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="boton boton-primario"
+          (click)="abrirModalAgregar()"
+        >
+          + Agregar producto
+        </button>
+      </div>
+
+      @if (oferta.productos && oferta.productos.length > 0) {
+        <div class="productos-grid">
+          @for (p of oferta.productos; track p.id) {
+            <div class="producto-card">
+              <div class="producto-top">
+                <span class="producto-badge">🥫 Producto en oferta</span>
+                <span class="producto-id">#{{ p.id }}</span>
+              </div>
+
+              <h3 class="producto-nombre">{{ p.marcaYNombre }}</h3>
+
+              <div class="precios-comparativa">
+                <div class="precio-fila-descuento">
+                  <span class="etiqueta">Descuento aplicado:</span>
+                  <span class="porcentaje-ahorro">-{{ porcentajeVisual() }}%</span>
+                </div>
+
+                <div class="precio-fila-final">
+                  <span class="etiqueta-final">Precio con oferta:</span>
+                  <span class="precio-final">
+                    {{ p.precioConDescuento | currency:'ARS':'symbol-narrow' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="producto-acciones">
+                <a
+                  class="boton boton-secundario"
+                  routerLink="/productos"
+                >
+                  Ver en catálogo
+                </a>
+                <button
+                  type="button"
+                  class="boton boton-peligro"
+                  [disabled]="desasociandoId() === p.id"
+                  (click)="desasociarProducto(p)"
+                  title="Desasociar este producto de la oferta"
+                >
+                  {{ desasociandoId() === p.id ? 'Desasociando...' : 'Desasociar' }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="productos-vacio">
+          <span class="icono-vacio">📦</span>
+          <p>Esta oferta no tiene productos asociados actualmente.</p>
+          <button
+            type="button"
+            class="boton boton-primario"
+            (click)="abrirModalAgregar()"
+          >
+            + Agregar primer producto
+          </button>
+        </div>
+      }
+    </section>
+
+  } @else {
+    <div class="vacio">
+      <p>No se encontró la oferta solicitada.</p>
+      <button type="button" class="boton boton-secundario" (click)="volver()">
+        Volver a Ofertas
+      </button>
+    </div>
+  }
+
+  <!-- Modal para buscar y agregar producto a la oferta -->
+  @if (mostrarModalAgregar()) {
+    <div class="modal-overlay" (click)="cerrarModalAgregar()">
+      <div class="modal-tarjeta-agregar" (click)="$event.stopPropagation()">
+
+        <!-- Cabecera del modal -->
+        <div class="modal-cabecera">
+          <div class="modal-cabecera-info">
+            <span class="modal-badge-oferta">Oferta: {{ oferta()?.nombre }} (-{{ porcentajeVisual() }}%)</span>
+            <h3 class="modal-titulo">Agregar producto a la oferta</h3>
+            <p class="modal-subtitulo">
+              Buscá y seleccioná un producto del catálogo para incluirlo en esta promoción.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="modal-boton-cerrar"
+            (click)="cerrarModalAgregar()"
+            title="Cerrar ventana"
+            aria-label="Cerrar modal"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Barra de búsqueda -->
+        <div class="modal-buscador-contenedor">
+          <div class="buscador-caja">
+            <span class="buscador-icono">🔍</span>
+            <input
+              type="text"
+              class="buscador-input"
+              placeholder="Buscar por nombre o marca..."
+              [value]="busquedaModal()"
+              (input)="cambiarBusquedaModal($any($event.target).value)"
+            />
+            @if (busquedaModal()) {
+              <button
+                type="button"
+                class="buscador-limpiar"
+                (click)="cambiarBusquedaModal('')"
+                title="Limpiar búsqueda"
+              >
+                ✕
+              </button>
+            }
+          </div>
+          <span class="modal-contador-disponibles">
+            {{ productosDisponibles().length }} disponible{{ productosDisponibles().length === 1 ? '' : 's' }}
+          </span>
+        </div>
+
+        <!-- Listado de productos -->
+        <div class="modal-cuerpo-listado">
+          @if (cargandoProductos()) {
+            <div class="modal-estado-mensaje">
+              <span class="loader-icono">⏳</span>
+              <p>Cargando catálogo de productos...</p>
+            </div>
+          } @else if (totalNoAsociados() === 0) {
+            <div class="modal-estado-mensaje">
+              <span class="modal-icono-vacio">🎉</span>
+              <p class="modal-texto-principal">¡Todos los productos del catálogo ya están en esta oferta!</p>
+              <p class="modal-texto-secundario">No quedan productos pendientes por agregar.</p>
+            </div>
+          } @else if (productosDisponibles().length === 0) {
+            <div class="modal-estado-mensaje">
+              <span class="modal-icono-vacio">🔍</span>
+              <p class="modal-texto-principal">No se encontraron productos coincidentes</p>
+              <p class="modal-texto-secundario">Probá con otra búsqueda o limpiá el filtro.</p>
+            </div>
+          } @else {
+            <div class="modal-productos-grid">
+              @for (prod of productosDisponibles(); track prod.id) {
+                <div class="modal-producto-item">
+                  <div class="item-info">
+                    <div class="item-cabecera">
+                      @if (prod.tipoProducto) {
+                        <span class="item-tipo-badge">
+                          {{ prod.tipoProducto | formatoEnum }}
+                        </span>
+                      }
+                      <span class="item-marca">{{ prod.marca }}</span>
+                    </div>
+
+                    <h4 class="item-nombre">{{ prod.nombre }}</h4>
+
+                    <div class="item-precios">
+                      <div class="precio-original-box">
+                        <span class="precio-label">Normal:</span>
+                        <span class="precio-original-valor">{{ prod.precio | currency:'ARS':'symbol-narrow' }}</span>
+                      </div>
+                      <div class="precio-oferta-box">
+                        <span class="precio-label">Con oferta:</span>
+                        <strong class="precio-oferta-valor">
+                          {{ calcularPrecioConDescuento(prod.precio) | currency:'ARS':'symbol-narrow' }}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="item-accion">
+                    <button
+                      type="button"
+                      class="boton boton-primario boton-sm"
+                      [disabled]="agregandoProductoId() !== null"
+                      (click)="agregarProducto(prod)"
+                    >
+                      @if (agregandoProductoId() === prod.id) {
+                        Agregando...
+                      } @else {
+                        + Agregar
+                      }
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Footer del modal -->
+        <div class="modal-pie">
+          <span class="pie-info">
+            Presioná <kbd>ESC</kbd> o hacé clic afuera para cerrar
+          </span>
+          <button
+            type="button"
+            class="boton boton-secundario"
+            (click)="cerrarModalAgregar()"
+            [disabled]="agregandoProductoId() !== null"
+          >
+            Cerrar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</section>

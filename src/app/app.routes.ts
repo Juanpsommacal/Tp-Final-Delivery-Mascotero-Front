@@ -12,6 +12,10 @@ import { ClienteDetails } from './pages/Clientes/cliente-details/cliente-details
 import { ClientesForm } from './pages/Clientes/clientes-form/clientes-form';
 import { ProveedoresList } from './pages/proveedores-list/proveedores-list';
 import { ProveedoresForm } from './pages/proveedores-form/proveedores-form';
+import { OfertaList } from './pages/Oferta/oferta-list/oferta-list';
+import { OfertasForm } from './pages/Oferta/ofertas-form/ofertas-form';
+import { OfertaDetails } from './pages/Oferta/oferta-details/oferta-details';
+
 
 export const routes: Routes = [
     {path: '', component: Home},
@@ -28,5 +32,10 @@ export const routes: Routes = [
     {path: 'proveedores', component: ProveedoresList,canActivate: [authGuard]},
     {path: 'proveedores/nuevo', component: ProveedoresForm,canActivate: [authGuard]},
     {path: 'proveedores/:id/editar', component: ProveedoresForm,canActivate: [authGuard]},
+    {path: 'ofertas', component: OfertaList, canActivate: [authGuard]},
+    {path: 'ofertas/nueva', component: OfertasForm, canActivate: [authGuard]},
+    {path: 'ofertas/:id', component: OfertaDetails, canActivate: [authGuard]},
+    {path: 'ofertas/:id/editar', component: OfertasForm, canActivate: [authGuard]},
+    {path: 'ofertas/editar/:id', component: OfertasForm, canActivate: [authGuard]},
     {path: '**', redirectTo: ''}
 ];
