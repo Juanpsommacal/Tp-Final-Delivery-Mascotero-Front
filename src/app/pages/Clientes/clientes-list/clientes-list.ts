@@ -1,5 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ClientesService } from '../../../services/Clientes/clientes-service';
+import { AlertaService } from '../../../services/Alerta/alerta-service';
 import Cliente from '../../../models/Cliente';
 import { Router, RouterLink } from '@angular/router';
 import { extraerMensajeError } from '../../../utils/error-util';
@@ -13,6 +14,7 @@ import { extraerMensajeError } from '../../../utils/error-util';
 export class ClientesList implements OnInit{
 
   private clienteService = inject(ClientesService)
+  private alertaService = inject(AlertaService)
   private router = inject(Router)
 
   clientes = signal<Cliente[]>([])
@@ -33,8 +35,8 @@ export class ClientesList implements OnInit{
   cargarClientes() {
     this.clienteService.getAllClientes().subscribe({
       next: (data) => this.clientes.set(data),
-      error: (error) => {
-        alert(`Error: ${extraerMensajeError(error)}`)
+      error: async (error) => {
+        await this.alertaService.error(extraerMensajeError(error))
         this.router.navigate(['/'])
       }
     })

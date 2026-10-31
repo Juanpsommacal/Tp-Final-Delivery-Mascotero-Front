@@ -5,6 +5,7 @@ import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import { TipoProducto, TIPOS_PRODUCTO } from '../../../models/Enums';
 import Producto from '../../../models/Producto';
 import { ProductosService } from '../../../services/Productos/productos-service';
+import { AlertaService } from '../../../services/Alerta/alerta-service';
 
 @Component({
   imports: [RouterLink, CurrencyPipe, FormatoEnumPipe],
@@ -31,7 +32,8 @@ export class ProductosList implements OnInit{
   })
 
   constructor(private productoService: ProductosService,
-              private router: Router
+              private router: Router,
+              private alertaService: AlertaService
   ) {}
 
   ngOnInit(): void {
@@ -42,8 +44,8 @@ export class ProductosList implements OnInit{
 
     this.productoService.getAllProductos().subscribe({
       next: (data) => this.productos.set(data),
-      error: () => {
-        alert('Error: No se pudieron cargar los productos')
+      error: async () => {
+        await this.alertaService.error('No se pudieron cargar los productos')
         this.router.navigate(['/'])
       }
     })

@@ -1,0 +1,166 @@
+<section class="contenedor-list">
+
+  <!-- Encabezado principal -->
+  <header class="encabezado">
+    <div class="encabezado-titulo">
+      <h2>Listado de Ofertas</h2>
+      <span class="badge-total">{{ ofertas().length }} {{ ofertas().length === 1 ? 'oferta' : 'ofertas' }}</span>
+    </div>
+
+    <a class="boton boton-accent" routerLink="/ofertas/nueva">
+      + Nueva oferta
+    </a>
+  </header>
+
+  <!-- Barra de búsqueda y filtros -->
+  <div class="filtros-barra">
+    <div class="buscador-caja">
+      <span class="buscador-icono">🔍</span>
+      <input
+        type="text"
+        class="buscador-input"
+        placeholder="Buscar oferta por nombre o descripción..."
+        [value]="busqueda()"
+        (input)="cambiarBusqueda($any($event.target).value)"
+      />
+      @if (busqueda()) {
+        <button
+          type="button"
+          class="buscador-limpiar"
+          (click)="cambiarBusqueda('')"
+          title="Limpiar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <div class="chips-estados">
+      <button
+        type="button"
+        class="chip-filtro"
+        [class.activo]="filtroEstado() === 'TODAS'"
+        (click)="cambiarFiltro('TODAS')"
+      >
+        Todas ({{ conteos().todas }})
+      </button>
+
+      <button
+        type="button"
+        class="chip-filtro chip-vigente"
+        [class.activo]="filtroEstado() === 'VIGENTES'"
+        (click)="cambiarFiltro('VIGENTES')"
+      >
+        <span class="punto-estado punto-verde"></span>
+        Vigentes ({{ conteos().vigentes }})
+      </button>
+
+      <button
+        type="button"
+        class="chip-filtro chip-proxima"
+        [class.activo]="filtroEstado() === 'PROXIMAS'"
+        (click)="cambiarFiltro('PROXIMAS')"
+      >
+        <span class="punto-estado punto-amarillo"></span>
+        Próximas ({{ conteos().proximas }})
+      </button>
+
+      <button
+        type="button"
+        class="chip-filtro chip-finalizada"
+        [class.activo]="filtroEstado() === 'FINALIZADAS'"
+        (click)="cambiarFiltro('FINALIZADAS')"
+      >
+        <span class="punto-estado punto-gris"></span>
+        Finalizadas ({{ conteos().finalizadas }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  @if (cargando()) {
+    <div class="cargando-contenedor">
+      <span class="loader-icono">⏳</span>
+      <p>Cargando ofertas...</p>
+    </div>
+  } @else {
+    <div class="lista">
+      @for (oferta of ofertasFiltradas(); track oferta.id ?? oferta.nombre) {
+        <article class="tarjeta-oferta">
+
+          <!-- Barra superior: Estado y Descuento -->
+          <div class="tarjeta-top">
+            @if (obtenerEstadoOferta(oferta); as estado) {
+              <span class="badge-estado" [ngClass]="estado.clase">
+                <span class="punto-indicador"></span>
+                {{ estado.etiqueta }}
+              </span>
+            }
+
+            <span class="descuento-pill">
+              -{{ porcentajeVisual(oferta.porcentaje) }}% OFF
+            </span>
+          </div>
+
+          <!-- Cuerpo de la tarjeta -->
+          <div class="tarjeta-cuerpo">
+            <h3 class="oferta-titulo" [title]="oferta.nombre">
+              {{ oferta.nombre }}
+            </h3>
+
+            <p class="oferta-descripcion" [title]="oferta.descripcion">
+              {{ oferta.descripcion || 'Sin descripción adicional.' }}
+            </p>
+          </div>
+
+          <!-- Fechas de vigencia -->
+          <div class="oferta-fechas">
+            <div class="fecha-col">
+              <span class="fecha-etiqueta">Inicio</span>
+              <span class="fecha-valor">{{ oferta.fechaInicio | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <span class="fecha-separador">→</span>
+            <div class="fecha-col">
+              <span class="fecha-etiqueta">Fin</span>
+              <span class="fecha-valor">{{ oferta.fechaFin | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+
+          <!-- Pie / Acción -->
+          <div class="tarjeta-pie">
+            <a
+              class="boton-ver-detalles"
+              [routerLink]="['/ofertas', oferta.id]"
+            >
+              <span>Ver detalles</span>
+              <span class="flecha-icono">→</span>
+            </a>
+          </div>
+
+        </article>
+      } @empty {
+        <div class="vacio">
+          <span class="icono-vacio">🏷️</span>
+          @if (busqueda() || filtroEstado() !== 'TODAS') {
+            <p class="vacio-titulo">No se encontraron ofertas coincidentes</p>
+            <p class="vacio-sub">Probá cambiando el filtro o los términos de búsqueda.</p>
+            <button
+              type="button"
+              class="boton boton-secundario"
+              (click)="cambiarBusqueda(''); cambiarFiltro('TODAS')"
+            >
+              Restablecer filtros
+            </button>
+          } @else {
+            <p class="vacio-titulo">No hay ofertas registradas en este momento</p>
+            <p class="vacio-sub">Creá tu primera oferta para impulsar las ventas de productos.</p>
+            <a class="boton boton-accent" routerLink="/ofertas/nueva">
+              + Crear primera oferta
+            </a>
+          }
+        </div>
+      }
+    </div>
+  }
+
+</section>

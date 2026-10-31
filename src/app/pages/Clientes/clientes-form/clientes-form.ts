@@ -1,6 +1,7 @@
 import { Component, Inject, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ClientesService } from '../../../services/Clientes/clientes-service';
+import { AlertaService } from '../../../services/Alerta/alerta-service';
 import { noVacio } from '../../../validators/producto-validators';
 import { SOLO_LETRAS } from '../../../validators/usuario-validators';
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
@@ -18,6 +19,7 @@ export class ClientesForm implements OnInit{
 
   private fb = inject(FormBuilder)
   private clienteService = inject(ClientesService)
+  private alertaService = inject(AlertaService)
   private router = inject(Router)
   private route = inject(ActivatedRoute)
 
@@ -64,8 +66,8 @@ export class ClientesForm implements OnInit{
 
     this.clienteService.getClienteById(id).subscribe({
       next: (cliente) => this.formulario.patchValue(cliente),
-      error: (error) => {
-        alert(`Error: ${extraerMensajeError(error)}`)
+      error: async (error) => {
+        await this.alertaService.error(extraerMensajeError(error))
         this.router.navigate(['/clientes'])
       }
     })
@@ -103,8 +105,8 @@ export class ClientesForm implements OnInit{
       : this.clienteService.createCliente(cliente)
 
     peticion.subscribe({
-      next: (guardado) => {
-        alert(id ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente')
+      next: async (guardado) => {
+        await this.alertaService.exito(id ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente')
         this.router.navigate(['/clientes', guardado.id])
       },
       error: (error) => {

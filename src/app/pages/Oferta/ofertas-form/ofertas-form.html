@@ -1,0 +1,154 @@
+<section class="contenedor-form">
+  <h2>{{ id() ? 'Modificar oferta' : 'Nueva oferta' }}</h2>
+
+  @if (cargando()) {
+    <p class="cargando">Cargando datos de la oferta...</p>
+  } @else {
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+      <fieldset>
+        <legend>Datos principales</legend>
+
+        <label class="campo">
+          Nombre de la oferta *
+          <input type="text" formControlName="nombre" placeholder="Ej: Especial Alimentos 20% OFF" />
+          <span class="error">{{ mensajeError('nombre') }}</span>
+        </label>
+
+        <label class="campo">
+          Descripción *
+          <textarea rows="3" formControlName="descripcion" placeholder="Detalle de la promoción, condiciones, etc."></textarea>
+          <span class="error">{{ mensajeError('descripcion') }}</span>
+        </label>
+
+        <div class="fila">
+          <label class="campo">
+            Porcentaje de descuento (%) *
+            <input type="text" inputmode="numeric" min="0.01" max="100" maxlength="3" step="any" formControlName="porcentaje" placeholder="Ej: 20 ó 0.20" />
+            <span class="error">{{ mensajeError('porcentaje') }}</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Vigencia de la oferta</legend>
+
+        <div class="fila">
+          <label class="campo">
+            Fecha de inicio *
+            <input
+              type="date"
+              formControlName="fechaInicio"
+              [min]="id() ? null : fechaMinimaHoy"
+            />
+            <span class="error">{{ mensajeError('fechaInicio') }}</span>
+          </label>
+
+          <label class="campo">
+            Fecha de fin *
+            <input
+              type="date"
+              formControlName="fechaFin"
+              [min]="formulario.controls.fechaInicio.value || (id() ? null : fechaMinimaHoy)"
+            />
+            <span class="error">{{ mensajeError('fechaFin') }}</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Productos en promoción</legend>
+
+        <div class="buscador-seccion">
+          <label class="campo">
+            Buscar productos en el catálogo
+            <div class="input-con-icono">
+              <span class="icono-lupa">🔍</span>
+              <input
+                type="search"
+                placeholder="Escribí nombre o marca (ej: Royal Canin, Dog Chow, Alimento...)"
+                [value]="busquedaProducto()"
+                (input)="busquedaProducto.set($any($event.target).value)"
+              />
+            </div>
+          </label>
+
+          @if (cargandoProductos()) {
+            <p class="cargando-productos">Cargando productos...</p>
+          } @else {
+            <div class="sugerencias-lista">
+              @for (p of productosFiltrados(); track p.id) {
+                <div class="sugerencia-item" [class.ya-agregado]="estaSeleccionado(p.id)">
+                  <div class="sugerencia-info">
+                    <strong class="sugerencia-nombre">{{ p.marca }} {{ p.nombre }}</strong>
+                    <span class="sugerencia-precio">{{ p.precio | currency:'ARS':'symbol-narrow' }}</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="boton-agregar"
+                    [disabled]="estaSeleccionado(p.id)"
+                    (click)="seleccionarProducto(p)"
+                  >
+                    {{ estaSeleccionado(p.id) ? '✓ Agregado' : '+ Agregar' }}
+                  </button>
+                </div>
+              } @empty {
+                <p class="sin-resultados">No se encontraron productos que coincidan con la búsqueda.</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="seleccionados-seccion">
+          <div class="seleccionados-header">
+            <span class="seleccionados-titulo">
+              Productos seleccionados ({{ productosSeleccionados().length }}):
+            </span>
+            @if (productosSeleccionados().length > 0) {
+              <button type="button" class="boton-limpiar" (click)="limpiarSeleccionados()">
+                Quitar todos
+              </button>
+            }
+          </div>
+
+          @if (productosSeleccionados().length > 0) {
+            <div class="seleccionados-grid">
+              @for (p of productosSeleccionados(); track p.id) {
+                <div class="tag-producto">
+                  <div class="tag-info">
+                    <span class="tag-nombre">{{ p.marca ? (p.marca + ' ' + p.nombre) : p.nombre }}</span>
+                    @if (p.precio) {
+                      <span class="tag-precio">{{ p.precio | currency:'ARS':'symbol-narrow' }}</span>
+                    }
+                  </div>
+                  <button
+                    type="button"
+                    class="tag-eliminar"
+                    title="Quitar de la oferta"
+                    (click)="removerProducto(p.id)"
+                  >
+                    ✕
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="seleccionados-vacio">
+              <span>Aún no seleccionaste ningún producto. Buscá arriba y hacé clic en <strong>+ Agregar</strong>.</span>
+            </div>
+          }
+
+          <span class="error">{{ mensajeError('productosIds') }}</span>
+        </div>
+      </fieldset>
+
+      <div class="acciones">
+        <button type="button" class="boton boton-secundario" (click)="volver()">
+          Cancelar
+        </button>
+        <button type="submit" class="boton boton-accent" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando oferta...' : (id() ? 'Guardar cambios' : 'Guardar oferta') }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductosService, ProductoRequest } from '../../../services/Productos/productos-service';
+import { AlertaService } from '../../../services/Alerta/alerta-service';
 import {
   ETAPAS_VIDA, EtapaVida, TIPOS_ANIMAL, TIPOS_ANTIPULGAS, TIPOS_PRODUCTO, TipoAnimal,
   TipoAntipulgas, TipoProducto, tipoDesdeRuta, UNIDADES_MEDIDA, UnidadMedida
@@ -22,6 +23,7 @@ export class ProductosForm implements OnInit {
 
   private fb = inject(FormBuilder)
   private productosService = inject(ProductosService)
+  private alertaService = inject(AlertaService)
   private router = inject(Router)
   private route = inject(ActivatedRoute)
 
@@ -152,8 +154,8 @@ export class ProductosForm implements OnInit {
         this.formulario.controls.tipoProducto.disable()
         this.cambiarTipo()
       },
-      error: () => {
-        alert('Error: No se pudo cargar el producto')
+      error: async () => {
+        await this.alertaService.error('No se pudo cargar el producto')
         this.router.navigate(['/productos'])
       }
     })
@@ -213,8 +215,8 @@ export class ProductosForm implements OnInit {
       : this.productosService.createProducto(tipo, producto)
 
     peticion.subscribe({
-      next: (guardado) => {
-        alert(id ? 'Producto actualizado correctamente' : 'Producto creado correctamente')
+      next: async (guardado) => {
+        await this.alertaService.exito(id ? 'Producto actualizado correctamente' : 'Producto creado correctamente')
         this.router.navigate(['/productos', tipo.toLowerCase(), guardado.id])
       },
       error: (error) => {

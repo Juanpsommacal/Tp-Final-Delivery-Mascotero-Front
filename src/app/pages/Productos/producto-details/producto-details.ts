@@ -2,6 +2,8 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { ProductoDetalle, ProductosService } from '../../../services/Productos/productos-service';
+import { ConfirmacionService } from '../../../services/Confirmacion/confirmacion-service';
+import { AlertaService } from '../../../services/Alerta/alerta-service';
 import { AuthService } from '../../../services/Authentication/auth-service';
 import { TipoProducto, tipoDesdeRuta } from '../../../models/Enums';
 import Alimento from '../../../models/Alimento';
@@ -18,6 +20,8 @@ import { extraerMensajeError } from '../../../utils/error-util';
 export class ProductoDetails implements OnInit {
 
   private productosService = inject(ProductosService)
+  private confirmacionService = inject(ConfirmacionService)
+  private alertaService = inject(AlertaService)
   private auth = inject(AuthService)
   private route = inject(ActivatedRoute)
   private router = inject(Router)
@@ -44,28 +48,34 @@ export class ProductoDetails implements OnInit {
     this.tipo.set(tipo)
     this.productosService.getProductoById(tipo, id).subscribe({
       next: (data) => this.producto.set(data),
-      error: () => {
-        alert('Error: No se pudo cargar el producto')
+      error: async () => {
+        await this.alertaService.error('No se pudo cargar el producto')
         this.router.navigate(['/productos'])
       }
     })
   }
 
-  eliminarProducto() {
+  async eliminarProducto() {
     const producto = this.producto()
     const tipo = this.tipo()
     if (!producto?.id || !tipo) return
 
-    if (!confirm(`¿Seguro que queres eliminar "${producto.marca} ${producto.nombre}"?`)) return
+    const confirmado = await this.confirmacionService.confirmar({
+      titulo: 'Eliminar producto',
+      mensaje: `¿Seguro que querés eliminar "${producto.marca} ${producto.nombre}"?`,
+      textoConfirmar: 'Eliminar',
+      tipo: 'peligro'
+    })
+    if (!confirmado) return
 
     this.eliminando.set(true)
     this.productosService.deleteProducto(tipo, producto.id).subscribe({
-      next: () => {
-        alert('Producto eliminado correctamente')
+      next: async () => {
+        await this.alertaService.exito('Producto eliminado correctamente')
         this.router.navigate(['/productos'])
       },
       error: (error) => {
-        alert(`Error: ${extraerMensajeError(error)}`)
+        this.alertaService.error(extraerMensajeError(error))
         this.eliminando.set(false)
       }
     })
