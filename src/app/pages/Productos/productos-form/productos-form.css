@@ -25,7 +25,7 @@ form {
 fieldset {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     padding: 20px;
@@ -43,7 +43,6 @@ legend {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    flex: 1 1 240px;
     font-weight: 600;
     font-size: 0.9rem;
 }
@@ -52,6 +51,11 @@ legend {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+}
+
+/* El ancho base va solo dentro de una fila: en el fieldset (columna) se volvia la altura del campo */
+.fila .campo {
+    flex: 1 1 240px;
 }
 
 input,

@@ -3,6 +3,11 @@ export default interface Direccion {
     direccionCompleta: string
     pisoDepto: string
     observaciones: string | null
+    calle: string
+    numero: number
+    piso: number | null
+    departamento: string | null
+    clientes: string[]
 }
 
 export interface DireccionRequest {

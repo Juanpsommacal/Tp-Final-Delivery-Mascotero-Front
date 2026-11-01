@@ -1,0 +1,120 @@
+<section class="contenedor-detalle">
+
+    @if (pedido(); as pedido) {
+
+        <article class="detalle">
+
+            <div class="titulo">
+                <h2>Pedido #{{ pedido.id }}</h2>
+                <div class="estados">
+                    <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">{{ pedido.estadoPedido | formatoEnum }}</span>
+                    @if (pedido.estadoPago !== 'PEDIDO_CANCELADO') {
+                        <span [class]="'estado pago-' + pedido.estadoPago.toLowerCase()">Pago: {{ pedido.estadoPago | formatoEnum }}</span>
+                    }
+                </div>
+            </div>
+
+            <dl class="datos">
+                <dt>Cliente</dt>
+                <dd>{{ pedido.nombreCliente }}</dd>
+
+                <dt>Fecha</dt>
+                <dd>{{ pedido.fecha | date:'dd/MM/yyyy' }}</dd>
+
+                <dt>Entrega</dt>
+                <dd>{{ pedido.direccionCompleta }} <span class="texto-secundario">({{ pedido.pisoDepto }})</span></dd>
+            </dl>
+
+            <div class="acciones">
+                <a class="boton boton-secundario" routerLink="/pedidos">Volver</a>
+
+                @if (puedeEntregar()) {
+                    <button type="button" class="boton" [disabled]="procesando()" (click)="entregar()">Marcar como entregado</button>
+                }
+                @if (puedeRegistrarPago()) {
+                    <button type="button" class="boton boton-accent" [disabled]="procesando()" (click)="registrarPago()">Registrar pago</button>
+                }
+                @if (puedeCancelar()) {
+                    <button type="button" class="boton boton-peligro" [disabled]="procesando()" (click)="cancelar()">Cancelar pedido</button>
+                }
+            </div>
+
+        </article>
+
+        <article class="detalle">
+
+            <h3>Productos</h3>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="numero">Cant.</th>
+                            <th class="numero">Precio</th>
+                            <th class="numero">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (detalle of pedido.detallePedido; track $index) {
+                            <tr>
+                                <td>{{ detalle.nombreProducto }}</td>
+                                <td class="numero">{{ detalle.cantidad }}</td>
+                                <td class="numero">
+                                    @if (detalle.descuentoAplicado) {
+                                        <span class="precio-anterior">{{ detalle.precioUnitario | currency:'ARS':'symbol-narrow' }}</span>
+                                        <span class="oferta">{{ detalle.precioDescuento | currency:'ARS':'symbol-narrow' }} (-{{ detalle.descuentoAplicado }}%)</span>
+                                    } @else {
+                                        {{ detalle.precioUnitario | currency:'ARS':'symbol-narrow' }}
+                                    }
+                                </td>
+                                <td class="numero">{{ detalle.subtotal | currency:'ARS':'symbol-narrow' }}</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">Total</td>
+                            <td class="numero">{{ pedido.montoTotal | currency:'ARS':'symbol-narrow' }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+        </article>
+
+        <article class="detalle">
+
+            <h3>Pagos</h3>
+
+            <ul class="lista-pagos">
+                @for (pago of pedido.pagos; track pago.id) {
+                    <li>
+                        <div>
+                            <strong>{{ pago.metodoPago | formatoEnum }}</strong>
+                            <span class="texto-secundario">{{ pago.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                        </div>
+                        <strong>{{ pago.monto | currency:'ARS':'symbol-narrow' }}</strong>
+                    </li>
+                } @empty {
+                    <li class="vacio">Este pedido todavía no tiene pagos registrados.</li>
+                }
+            </ul>
+
+            @if (pedido.estadoPedido !== 'CANCELADO') {
+                <dl class="datos">
+                    <dt>Pagado</dt>
+                    <dd>{{ totalPagado() | currency:'ARS':'symbol-narrow' }}</dd>
+
+                    <dt>Saldo</dt>
+                    <dd [class.deuda]="saldo() > 0">{{ saldo() | currency:'ARS':'symbol-narrow' }}</dd>
+                </dl>
+            }
+
+        </article>
+
+    } @else {
+        <p>Cargando pedido...</p>
+    }
+
+</section>

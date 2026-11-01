@@ -184,7 +184,8 @@
     background-color: var(--color-primary-light);
 }
 
-.seleccionada {
+.seleccionada,
+.aviso-coincidencia {
     display: flex;
     justify-content: space-between;
     align-items: center;

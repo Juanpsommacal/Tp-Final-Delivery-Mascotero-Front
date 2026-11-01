@@ -49,6 +49,30 @@ export class ClienteDetails implements OnInit{
   })
 
   private textoCalle = toSignal(this.formularioDireccion.controls.calle.valueChanges, { initialValue: '' })
+  private valoresDireccion = toSignal(this.formularioDireccion.valueChanges, { initialValue: this.formularioDireccion.value })
+
+  // Direccion de la BDD con los mismos datos que se estan escribiendo a mano (mismo criterio que el back).
+  // Si se ignora la sugerencia y se carga igual, el back reutiliza esta en vez de crear otra
+  coincidencia = computed(() => {
+    const valores = this.valoresDireccion()
+    const calle = this.normalizar(valores.calle ?? '')
+    if (!calle || valores.numero == null) return null
+
+    const piso = valores.piso ?? null
+    const departamento = this.normalizar(valores.departamento ?? '')
+
+    return this.todasLasDirecciones().find(d =>
+      this.normalizar(d.calle) === calle
+      && d.numero === valores.numero
+      && (d.piso ?? null) === piso
+      && this.normalizar(d.departamento ?? '') === departamento
+    ) ?? null
+  })
+
+  coincidenciaYaAsociada = computed(() => {
+    const coincidencia = this.coincidencia()
+    return !!coincidencia && !!this.cliente()?.direcciones.some(d => d.id === coincidencia.id)
+  })
 
   sugerencias = computed(() => {
     const texto = this.normalizar(this.textoCalle() ?? '')

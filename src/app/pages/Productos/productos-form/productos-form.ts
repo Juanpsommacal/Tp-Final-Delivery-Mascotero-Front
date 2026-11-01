@@ -49,7 +49,7 @@ export class ProductosForm implements OnInit {
 
     // Un grupo por tipo de producto: solo queda habilitado el del tipo elegido
     alimento: this.fb.group({
-      peso: [null as number | null, [Validators.required, Validators.min(0), digitos(3, 0)]],
+      peso: [null as number | null, [Validators.required, Validators.min(0), digitos(3, 1)]],
       unidadMedida: this.fb.control<UnidadMedida | null>(null, Validators.required),
       etapaVida: this.fb.control<EtapaVida | null>(null, Validators.required),
       tipoAnimal: this.fb.control<TipoAnimal | null>(null, Validators.required),
@@ -93,7 +93,7 @@ export class ProductosForm implements OnInit {
     'alimento.peso': {
       required: 'El peso no puede estar vacio',
       min: 'El peso no puede ser menor a 0',
-      digitos: 'Tiene que ser un entero de hasta 3 digitos'
+      digitos: 'Maximo 3 digitos enteros y 1 decimal'
     },
     'alimento.unidadMedida': { required: 'La unidad de medida no puede estar vacia' },
     'alimento.etapaVida': { required: 'La etapa de vida no puede estar vacia' },

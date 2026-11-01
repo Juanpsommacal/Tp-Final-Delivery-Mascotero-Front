@@ -15,6 +15,12 @@ export type EtapaVida = typeof ETAPAS_VIDA[number]
 export const TIPOS_ANTIPULGAS = ['PIPETA', 'COMPRIMIDO'] as const
 export type TipoAntipulgas = typeof TIPOS_ANTIPULGAS[number]
 
+export const ESTADOS_PEDIDO = ['PENDIENTE', 'ENTREGADO', 'CANCELADO'] as const
+export type EstadoPedido = typeof ESTADOS_PEDIDO[number]
+
+export const ESTADOS_PAGO = ['PENDIENTE', 'DEUDA', 'DEUDA_PARCIAL', 'PAGADO', 'PEDIDO_CANCELADO'] as const
+export type EstadoPago = typeof ESTADOS_PAGO[number]
+
 // En las rutas el tipo va en minuscula (/productos/alimento/3)
 export function tipoDesdeRuta(valor: string | null): TipoProducto | null {
     const tipo = valor?.toUpperCase()

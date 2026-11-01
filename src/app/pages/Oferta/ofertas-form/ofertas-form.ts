@@ -15,6 +15,7 @@ import {
   getFechaLocalISO,
 } from '../../../utils/fecha-util';
 import { formatearPorcentajeVisual } from '../../../utils/oferta-util';
+import { coincideProducto } from '../../../utils/producto-util';
 
 @Component({
   imports: [ReactiveFormsModule, CurrencyPipe],
@@ -54,11 +55,7 @@ export class OfertasForm implements OnInit {
     if (!texto) {
       return todos.slice(0, 8); // Muestra hasta 8 sugerencias iniciales
     }
-    return todos.filter(
-      (p) =>
-        p.nombre.toLowerCase().includes(texto) ||
-        p.marca.toLowerCase().includes(texto)
-    );
+    return todos.filter((p) => coincideProducto(p, texto));
   });
 
   formulario = this.fb.group(

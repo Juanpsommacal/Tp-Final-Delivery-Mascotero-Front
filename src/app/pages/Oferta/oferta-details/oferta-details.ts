@@ -10,6 +10,7 @@ import Producto from '../../../models/Producto';
 import { extraerMensajeError } from '../../../utils/error-util';
 import { getFechaLocalISO } from '../../../utils/fecha-util';
 import { formatearPorcentajeVisual } from '../../../utils/oferta-util';
+import { coincideProducto } from '../../../utils/producto-util';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 
 @Component({
@@ -71,10 +72,7 @@ export class OfertaDetails implements OnInit {
     return this.productosCatalogo().filter((p) => {
       if (!p.id || idsEnOferta.has(p.id)) return false;
       if (!texto) return true;
-      return (
-        p.nombre.toLowerCase().includes(texto) ||
-        p.marca.toLowerCase().includes(texto)
-      );
+      return coincideProducto(p, texto);
     });
   });
 

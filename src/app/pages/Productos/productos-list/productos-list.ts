@@ -6,6 +6,7 @@ import { TipoProducto, TIPOS_PRODUCTO } from '../../../models/Enums';
 import Producto from '../../../models/Producto';
 import { ProductosService } from '../../../services/Productos/productos-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
+import { coincideProducto } from '../../../utils/producto-util';
 
 @Component({
   imports: [RouterLink, CurrencyPipe, FormatoEnumPipe],
@@ -22,12 +23,12 @@ export class ProductosList implements OnInit{
   filtroTipo = signal<TipoProducto | ''>('')
 
   productosFiltrados = computed(() => {
-    const texto = this.busqueda().trim().toLowerCase()
+    const texto = this.busqueda()
     const tipo = this.filtroTipo()
 
     return this.productos().filter(producto =>
       (!tipo || producto.tipoProducto === tipo) &&
-      producto.nombre.toLowerCase().includes(texto)
+      coincideProducto(producto, texto)
     )
   })
 

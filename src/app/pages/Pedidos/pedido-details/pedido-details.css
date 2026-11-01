@@ -1,0 +1,155 @@
+.contenedor-detalle {
+    max-width: 760px;
+    margin: 32px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+.detalle h2,
+.detalle h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.detalle h3 {
+    font-size: 1.3rem;
+}
+
+.titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.estados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.datos {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 12px 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.datos dt {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.texto-secundario {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+/* Tabla de productos */
+.tabla-contenedor {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+th,
+td {
+    padding: 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+}
+
+th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+}
+
+.numero {
+    text-align: right;
+    white-space: nowrap;
+}
+
+td.numero span {
+    display: block;
+}
+
+tfoot td {
+    border-bottom: none;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.precio-anterior {
+    font-size: 0.82rem;
+    text-decoration: line-through;
+    color: var(--color-text-muted);
+}
+
+.oferta {
+    color: var(--color-accent-dark);
+    font-weight: 600;
+}
+
+/* Pagos */
+.lista-pagos {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.lista-pagos li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lista-pagos li div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lista-pagos li.vacio {
+    color: var(--color-text-muted);
+    border-bottom: none;
+}
+
+.deuda {
+    color: var(--color-danger);
+    font-weight: 700;
+}

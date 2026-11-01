@@ -1,0 +1,82 @@
+<article class="contenedor-list">
+
+    <div class="encabezado">
+        <h2>Listado de Pedidos</h2>
+        <a class="boton" routerLink="/pedidos/nuevo">Nuevo pedido</a>
+    </div>
+
+    <div class="filtros">
+        <label class="buscar">
+            Buscar por cliente o dirección
+            <input type="search" placeholder="Ej: Pérez o Luro 1234"
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+        </label>
+
+        <label>
+            Estado del pedido
+            <select [value]="filtroEstado()" (change)="cambiarFiltroEstado($any($event.target).value)">
+                <option value="">Todos</option>
+                @for (estado of estadosPedido; track estado) {
+                    <option [value]="estado">{{ estado | formatoEnum }}</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Estado del pago
+            <select [value]="filtroPago()" (change)="cambiarFiltroPago($any($event.target).value)">
+                <option value="">Todos</option>
+                @for (estado of estadosPago; track estado) {
+                    <option [value]="estado">{{ estado | formatoEnum }}</option>
+                }
+            </select>
+        </label>
+
+        <label class="switch">
+            <input type="checkbox" role="switch"
+                   [checked]="mostrarCancelados()"
+                   (change)="mostrarCancelados.set($any($event.target).checked)" />
+            <span class="switch-pista" aria-hidden="true"></span>
+            Mostrar cancelados
+        </label>
+    </div>
+
+    <div class="lista">
+
+        @for (pedido of pedidosFiltrados(); track pedido.id) {
+
+            <div class="tarjeta">
+
+                <div class="cabecera">
+                    <span class="numero">Pedido #{{ pedido.id }}</span>
+                    <span class="fecha">{{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
+                </div>
+
+                <h3>{{ pedido.nombreCliente }}</h3>
+                <p class="direccion">{{ pedido.direccionCompleta }}</p>
+
+                <div class="estados">
+                    <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">
+                        {{ pedido.estadoPedido | formatoEnum }}
+                    </span>
+                    <!-- En un pedido cancelado el "estado de pago" no aporta nada -->
+                    @if (pedido.estadoPago !== 'PEDIDO_CANCELADO') {
+                        <span [class]="'estado pago-' + pedido.estadoPago.toLowerCase()">
+                            Pago: {{ pedido.estadoPago | formatoEnum }}
+                        </span>
+                    }
+                </div>
+
+                <p class="precio">{{ pedido.montoTotal | currency:'ARS':'symbol-narrow' }}</p>
+
+                <a class="boton" [routerLink]="['/pedidos', pedido.id]">Ver detalles</a>
+
+            </div>
+
+        } @empty {
+            <p class="vacio">No hay pedidos que coincidan con la busqueda.</p>
+        }
+
+    </div>
+
+</article>

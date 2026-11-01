@@ -4,30 +4,19 @@
 
     <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
 
-        <label class="campo">
-            Tipo de producto *
-            <select formControlName="tipoProducto" (change)="cambiarTipo()">
-                <option [ngValue]="null" disabled>Elegi un tipo</option>
-                @for (tipo of tipos; track tipo) {
-                    <option [ngValue]="tipo">{{ tipo | formatoEnum }}</option>
-                }
-            </select>
-            <span class="error">{{ mensajeError('tipoProducto') }}</span>
-        </label>
-
         <fieldset>
             <legend>Datos del producto</legend>
-
-            <label class="campo">
-                Nombre *
-                <input type="text" formControlName="nombre" />
-                <span class="error">{{ mensajeError('nombre') }}</span>
-            </label>
 
             <label class="campo">
                 Marca *
                 <input type="text" formControlName="marca" />
                 <span class="error">{{ mensajeError('marca') }}</span>
+            </label>
+
+            <label class="campo">
+                Nombre *
+                <input type="text" formControlName="nombre" />
+                <span class="error">{{ mensajeError('nombre') }}</span>
             </label>
 
             <label class="campo">
@@ -51,6 +40,17 @@
             </div>
         </fieldset>
 
+        <label class="campo">
+            Tipo de producto *
+            <select formControlName="tipoProducto" (change)="cambiarTipo()">
+                <option [ngValue]="null" disabled>Elegi un tipo</option>
+                @for (tipo of tipos; track tipo) {
+                    <option [ngValue]="tipo">{{ tipo | formatoEnum }}</option>
+                }
+            </select>
+            <span class="error">{{ mensajeError('tipoProducto') }}</span>
+        </label>
+
         @switch (tipoSeleccionado()) {
 
             @case ('ALIMENTO') {
@@ -60,7 +60,7 @@
                     <div class="fila">
                         <label class="campo">
                             Peso *
-                            <input type="number" min="0" step="1" formControlName="peso" />
+                            <input type="number" min="0" step="0.1" formControlName="peso" />
                             <span class="error">{{ mensajeError('alimento.peso') }}</span>
                         </label>
 
