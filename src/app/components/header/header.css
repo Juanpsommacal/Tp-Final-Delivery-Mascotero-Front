@@ -70,8 +70,10 @@
     gap: 24px;
 }
 
+/* flex-wrap: en pantallas chicas los links bajan de linea en vez de ensanchar la pagina */
 .menu {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
     list-style: none;

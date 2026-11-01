@@ -1,0 +1,58 @@
+<article class="contenedor-list">
+
+    <div class="encabezado">
+        <h2>Listado de Pagos</h2>
+        <p class="texto-secundario">Los pagos se registran desde el detalle de cada pedido.</p>
+    </div>
+
+    <div class="filtros">
+        <label class="buscar">
+            Buscar por cliente o pedido
+            <input type="search" placeholder="Ej: Pérez o 12"
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+        </label>
+
+        <label>
+            Método de pago
+            <select [value]="filtroMetodo()" (change)="cambiarFiltroMetodo($any($event.target).value)">
+                <option value="">Todos</option>
+                @for (metodo of metodosPago; track metodo) {
+                    <option [value]="metodo">{{ metodo | formatoEnum }}</option>
+                }
+            </select>
+        </label>
+    </div>
+
+    @if (pagosFiltrados().length > 0) {
+        <p class="resumen">
+            {{ pagosFiltrados().length }} {{ pagosFiltrados().length === 1 ? 'pago' : 'pagos' }} ·
+            Total <strong>{{ totalFiltrado() | currency:'ARS':'symbol-narrow' }}</strong>
+        </p>
+    }
+
+    <div class="lista">
+
+        @for (pago of pagosFiltrados(); track pago.id) {
+
+            <div class="tarjeta">
+
+                <div class="cabecera">
+                    <span class="metodo">{{ pago.metodoPago | formatoEnum }}</span>
+                    <span class="texto-secundario">{{ pago.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+
+                <p class="precio">{{ pago.monto | currency:'ARS':'symbol-narrow' }}</p>
+
+                <h3>{{ pago.nombreCliente }}</h3>
+
+                <a class="boton boton-secundario" [routerLink]="['/pedidos', pago.pedidoId]">Ver pedido #{{ pago.pedidoId }}</a>
+
+            </div>
+
+        } @empty {
+            <p class="vacio">No hay pagos que coincidan con la busqueda.</p>
+        }
+
+    </div>
+
+</article>

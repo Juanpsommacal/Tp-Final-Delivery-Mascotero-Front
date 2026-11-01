@@ -196,3 +196,59 @@
     border-radius: var(--radius-md);
     background-color: var(--color-bg);
 }
+
+/* Cuenta del cliente: deuda y pagos */
+.detalle h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.deuda-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.deuda-total strong {
+    font-size: 1.4rem;
+}
+
+.deuda-total.sin-deuda {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.lista-cuenta {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.lista-cuenta li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lista-cuenta li:last-child {
+    border-bottom: none;
+}
+
+.lista-cuenta a {
+    color: var(--color-primary);
+}
+
+.monto-deuda {
+    color: var(--color-danger);
+}

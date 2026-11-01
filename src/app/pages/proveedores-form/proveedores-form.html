@@ -26,10 +26,13 @@
           <span class="error">{{ mensajeError('telefono') }}</span>
         </label>
 
-        <label class="checkbox-campo">
-          <input type="checkbox" formControlName="activo" />
-          <span>Proveedor activo</span>
-        </label>
+        <!-- Solo al editar: un proveedor nuevo siempre arranca activo -->
+        @if (id()) {
+          <label class="checkbox-campo">
+            <input type="checkbox" formControlName="activo" />
+            <span>Proveedor activo</span>
+          </label>
+        }
       </fieldset>
 
       @if (mensaje()) {

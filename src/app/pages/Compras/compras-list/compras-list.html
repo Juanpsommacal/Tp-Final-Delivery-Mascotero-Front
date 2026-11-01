@@ -1,0 +1,62 @@
+<article class="contenedor-list">
+
+    <div class="encabezado">
+        <h2>Listado de Compras</h2>
+        <a class="boton" routerLink="/compras/nueva">Nueva compra</a>
+    </div>
+
+    <div class="filtros">
+        <label class="buscar">
+            Buscar por proveedor o producto
+            <input type="search" placeholder="Ej: Distribuidora Sur o Proplan"
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+        </label>
+
+        <label>
+            Estado
+            <select [value]="filtroEstado()" (change)="cambiarFiltroEstado($any($event.target).value)">
+                <option value="">Todos</option>
+                @for (estado of estadosCompra; track estado) {
+                    <option [value]="estado">{{ estado | formatoEnum }}</option>
+                }
+            </select>
+        </label>
+
+        <label class="switch">
+            <input type="checkbox" role="switch"
+                   [checked]="mostrarCanceladas()"
+                   (change)="mostrarCanceladas.set($any($event.target).checked)" />
+            <span class="switch-pista" aria-hidden="true"></span>
+            Mostrar canceladas
+        </label>
+    </div>
+
+    <div class="lista">
+
+        @for (compra of comprasFiltradas(); track compra.id) {
+
+            <div class="tarjeta">
+
+                <div class="cabecera">
+                    <span class="numero">Compra #{{ compra.id }}</span>
+                    <span class="fecha">{{ compra.fecha | date:'dd/MM/yyyy' }}</span>
+                </div>
+
+                <h3>{{ compra.nombreProveedor }}</h3>
+                <p class="productos">{{ nombresProductos(compra) }}</p>
+
+                <span [class]="'estado compra-' + compra.estadoCompra.toLowerCase()">{{ compra.estadoCompra | formatoEnum }}</span>
+
+                <p class="precio">{{ compra.montoTotal | currency:'ARS':'symbol-narrow' }}</p>
+
+                <a class="boton" [routerLink]="['/compras', compra.id]">Ver detalles</a>
+
+            </div>
+
+        } @empty {
+            <p class="vacio">No hay compras que coincidan con la busqueda.</p>
+        }
+
+    </div>
+
+</article>

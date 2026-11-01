@@ -24,14 +24,14 @@ export class ProveedoresList implements OnInit {
   paginaActual = signal(1);
   cargando = signal(true);
   eliminandoId = signal<string | null>(null);
+  // El back devuelve todos, tambien los dados de baja: se ocultan salvo que se prenda el switch
+  mostrarInactivos = signal(false);
 
   // Filtro por nombre reactivo
   proveedoresFiltrados = computed(() => {
     const texto = this.busqueda().trim().toLowerCase();
-    if (!texto) {
-      return this.proveedores();
-    }
     return this.proveedores().filter((p) =>
+      (this.mostrarInactivos() || p.activo) &&
       p.nombre.toLowerCase().includes(texto)
     );
   });
@@ -90,6 +90,11 @@ export class ProveedoresList implements OnInit {
     this.paginaActual.set(1); // Reiniciar a la primera página al buscar
   }
 
+  cambiarMostrarInactivos(valor: boolean) {
+    this.mostrarInactivos.set(valor);
+    this.paginaActual.set(1);
+  }
+
   cambiarPagina(pagina: number) {
     if (pagina >= 1 && pagina <= this.totalPaginas()) {
       this.paginaActual.set(pagina);
@@ -117,7 +122,10 @@ export class ProveedoresList implements OnInit {
     this.proveedoresService.delete(proveedor.id).subscribe({
       next: () => {
         this.alertaService.exito('Proveedor eliminado correctamente');
-        this.proveedores.update((lista) => lista.filter((p) => p.id !== proveedor.id));
+        // En el back es una baja logica: queda inactivo, no se borra
+        this.proveedores.update((lista) =>
+          lista.map((p) => (p.id === proveedor.id ? { ...p, activo: false } : p))
+        );
         this.eliminandoId.set(null);
         if (this.paginaActual() > this.totalPaginas()) {
           this.paginaActual.set(this.totalPaginas());

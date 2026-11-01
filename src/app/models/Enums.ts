@@ -21,6 +21,12 @@ export type EstadoPedido = typeof ESTADOS_PEDIDO[number]
 export const ESTADOS_PAGO = ['PENDIENTE', 'DEUDA', 'DEUDA_PARCIAL', 'PAGADO', 'PEDIDO_CANCELADO'] as const
 export type EstadoPago = typeof ESTADOS_PAGO[number]
 
+export const METODOS_PAGO = ['EFECTIVO', 'LINK_DE_PAGO', 'TRANSFERENCIA'] as const
+export type MetodoPago = typeof METODOS_PAGO[number]
+
+export const ESTADOS_COMPRA = ['PENDIENTE', 'RECIBIDA', 'CANCELADA'] as const
+export type EstadoCompra = typeof ESTADOS_COMPRA[number]
+
 // En las rutas el tipo va en minuscula (/productos/alimento/3)
 export function tipoDesdeRuta(valor: string | null): TipoProducto | null {
     const tipo = valor?.toUpperCase()

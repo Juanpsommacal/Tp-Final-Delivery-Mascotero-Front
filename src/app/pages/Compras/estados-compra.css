@@ -1,0 +1,25 @@
+/* Chip del estado de la compra. Se comparte entre el listado y el detalle */
+.estado {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.compra-pendiente {
+    color: var(--color-accent-dark);
+    background-color: var(--color-accent-light);
+}
+
+.compra-recibida {
+    color: var(--color-success);
+    background-color: var(--color-success-light);
+}
+
+.compra-cancelada {
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-alt);
+}

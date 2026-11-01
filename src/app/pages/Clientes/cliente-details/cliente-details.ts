@@ -11,11 +11,23 @@ import Direccion, { DireccionRequest } from '../../../models/Direccion';
 import { DireccionesService } from '../../../services/Direcciones/direcciones-service';
 import { ConfirmacionService } from '../../../services/Confirmacion/confirmacion-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
+import { PedidosService } from '../../../services/Pedidos/pedidos-service';
+import { PagosService } from '../../../services/Pagos/pagos-service';
+import Pedido from '../../../models/Pedido';
+import Pago from '../../../models/Pago';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 
 const MAX_SUGERENCIAS = 8
 
+// Saldo de un pedido redondeado a centavos
+function saldoDe(pedido: Pedido): number {
+  const pagado = pedido.pagos.reduce((suma, pago) => suma + pago.monto, 0)
+  return Math.round((pedido.montoTotal - pagado) * 100) / 100
+}
+
 @Component({
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, DatePipe, FormatoEnumPipe],
   selector: 'app-cliente-details',
   styleUrl: './cliente-details.css',
   templateUrl: './cliente-details.html',
@@ -30,9 +42,24 @@ export class ClienteDetails implements OnInit{
   private router = inject(Router)
   private fb = inject(FormBuilder)
 
+  private pedidosService = inject(PedidosService)
+  private pagosService = inject(PagosService)
+
   cliente = signal<Cliente | null>(null)
   agregando = signal(false)
   mensajeDireccion = signal('')
+
+  // Cuenta del cliente: pedidos que debe (entregados y no pagados del todo) y pagos que hizo
+  pedidosConDeuda = signal<Pedido[]>([])
+  pagos = signal<Pago[]>([])
+
+  deudaTotal = computed(() =>
+    Math.round(this.pedidosConDeuda().reduce((suma, pedido) => suma + this.saldo(pedido), 0) * 100) / 100
+  )
+
+  saldo(pedido: Pedido): number {
+    return saldoDe(pedido)
+  }
 
   // Autocompletado de calle: direcciones ya cargadas en la BDD (de cualquier cliente)
   todasLasDirecciones = signal<Direccion[]>([])
@@ -121,6 +148,26 @@ export class ClienteDetails implements OnInit{
     })
 
     this.cargarDirecciones()
+    this.cargarCuenta(id)
+  }
+
+  // Si falla, el resto de la ficha se sigue viendo: la cuenta es informativa
+  private cargarCuenta(clienteId: string) {
+    this.pedidosService.getAllPedidos().subscribe({
+      next: (pedidos) => this.pedidosConDeuda.set(
+        pedidos.filter(p =>
+          String(p.clienteId) === String(clienteId) &&
+          (p.estadoPago === 'DEUDA' || p.estadoPago === 'DEUDA_PARCIAL')
+        )
+      ),
+      error: () => this.pedidosConDeuda.set([])
+    })
+
+    this.pagosService.getPagosByCliente(clienteId).subscribe({
+      // Los mas nuevos primero
+      next: (pagos) => this.pagos.set([...pagos].sort((a, b) => b.id - a.id)),
+      error: () => this.pagos.set([])
+    })
   }
 
   private cargarDirecciones() {

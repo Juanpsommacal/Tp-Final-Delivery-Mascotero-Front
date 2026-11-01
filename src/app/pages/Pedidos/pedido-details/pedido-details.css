@@ -153,3 +153,149 @@ tfoot td {
     color: var(--color-danger);
     font-weight: 700;
 }
+
+/* Modal de registrar pago, mismo estilo que el de agregar producto en oferta-details */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(14, 66, 80, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.modal-tarjeta {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modal-tarjeta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+.modal-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px 24px 14px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-cabecera h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.modal-cerrar {
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+}
+
+.modal-cerrar:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.modal-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 24px 24px;
+}
+
+.resumen {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 16px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg);
+}
+
+.resumen dd {
+    text-align: right;
+    font-weight: 600;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.campo input,
+.campo select {
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.95rem;
+    background-color: white;
+}
+
+.campo input:focus,
+.campo select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.campo input.ng-invalid.ng-touched,
+.campo select.ng-invalid.ng-touched {
+    border-color: var(--color-danger);
+}
+
+.error {
+    color: var(--color-danger);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.campo .error {
+    min-height: 1.2em;
+}
+
+.mensaje {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-danger-light);
+    text-align: center;
+}
+
+.aviso-estado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.modal-cuerpo .acciones {
+    justify-content: flex-end;
+    margin-top: 8px;
+}

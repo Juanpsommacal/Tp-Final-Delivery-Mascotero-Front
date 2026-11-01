@@ -1,7 +1,9 @@
 import { EstadoPago, EstadoPedido } from './Enums'
+import Pago from './Pago'
 
 export default interface Pedido {
     id: number
+    clienteId: number
     nombreCliente: string
     fecha: string
     estadoPedido: EstadoPedido
@@ -20,15 +22,6 @@ export interface DetallePedido {
     descuentoAplicado: number | null
     precioDescuento: number
     subtotal: number
-}
-
-export interface Pago {
-    id: number
-    fecha: string
-    monto: number
-    metodoPago: string
-    pedidoId: number
-    clienteId: number
 }
 
 // Mismo formato que PedidoCreateRequestDTO: la direccion va con sus datos, no por ID

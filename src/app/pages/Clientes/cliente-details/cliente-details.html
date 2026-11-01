@@ -161,6 +161,52 @@
 
         </article>
 
+        <article class="detalle">
+
+            <h3>Cuenta</h3>
+
+            <div class="deuda-total" [class.sin-deuda]="deudaTotal() === 0">
+                <span>{{ deudaTotal() > 0 ? 'Debe en total' : 'No tiene deudas' }}</span>
+                @if (deudaTotal() > 0) {
+                    <strong>{{ deudaTotal() | currency:'ARS':'symbol-narrow' }}</strong>
+                }
+            </div>
+
+            @if (pedidosConDeuda().length > 0) {
+                <h4>Pedidos con deuda</h4>
+                <ul class="lista-cuenta">
+                    @for (pedido of pedidosConDeuda(); track pedido.id) {
+                        <li>
+                            <div class="direccion">
+                                <a [routerLink]="['/pedidos', pedido.id]"><strong>Pedido #{{ pedido.id }}</strong></a>
+                                <span>{{ pedido.fecha | date:'dd/MM/yyyy' }} · {{ pedido.estadoPago | formatoEnum }}</span>
+                            </div>
+                            <strong class="monto-deuda">{{ saldo(pedido) | currency:'ARS':'symbol-narrow' }}</strong>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <h4>Pagos</h4>
+            <ul class="lista-cuenta">
+                @for (pago of pagos(); track pago.id) {
+                    <li>
+                        <div class="direccion">
+                            <strong>{{ pago.metodoPago | formatoEnum }}</strong>
+                            <span>
+                                {{ pago.fecha | date:'dd/MM/yyyy HH:mm' }} ·
+                                <a [routerLink]="['/pedidos', pago.pedidoId]">Pedido #{{ pago.pedidoId }}</a>
+                            </span>
+                        </div>
+                        <strong>{{ pago.monto | currency:'ARS':'symbol-narrow' }}</strong>
+                    </li>
+                } @empty {
+                    <li class="vacio">Este cliente todavía no hizo pagos.</li>
+                }
+            </ul>
+
+        </article>
+
     } @else {
         <p>Cargando cliente...</p>
     }

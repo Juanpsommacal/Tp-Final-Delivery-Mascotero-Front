@@ -18,6 +18,10 @@ import { OfertaDetails } from './pages/Oferta/oferta-details/oferta-details';
 import { PedidosList } from './pages/Pedidos/pedidos-list/pedidos-list';
 import { PedidosForm } from './pages/Pedidos/pedidos-form/pedidos-form';
 import { PedidoDetails } from './pages/Pedidos/pedido-details/pedido-details';
+import { PagosList } from './pages/Pagos/pagos-list/pagos-list';
+import { ComprasList } from './pages/Compras/compras-list/compras-list';
+import { ComprasForm } from './pages/Compras/compras-form/compras-form';
+import { CompraDetails } from './pages/Compras/compra-details/compra-details';
 
 
 export const routes: Routes = [
@@ -43,5 +47,9 @@ export const routes: Routes = [
     {path: 'pedidos', component: PedidosList, canActivate: [authGuard]},
     {path: 'pedidos/nuevo', component: PedidosForm, canActivate: [authGuard]},
     {path: 'pedidos/:id', component: PedidoDetails, canActivate: [authGuard]},
+    {path: 'pagos', component: PagosList, canActivate: [authGuard]},
+    {path: 'compras', component: ComprasList, canActivate: [authGuard]},
+    {path: 'compras/nueva', component: ComprasForm, canActivate: [authGuard]},
+    {path: 'compras/:id', component: CompraDetails, canActivate: [authGuard]},
     {path: '**', redirectTo: ''}
 ];
