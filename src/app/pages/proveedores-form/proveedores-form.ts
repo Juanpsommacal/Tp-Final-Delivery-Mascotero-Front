@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProveedoresService } from '../../services/proveedores/proveedores-service';
-import { AlertaService } from '../../services/Alerta/alerta-service';
+import { AlertaService } from '../../services/alerta/alerta-service';
 import { ProveedorRequest } from '../../models/Proveedor';
 import { noVacio } from '../../validators/producto-validators';
 import { extraerMensajeError } from '../../utils/error-util';

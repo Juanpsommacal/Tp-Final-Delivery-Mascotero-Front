@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import {
   ConfirmacionService,
   TipoConfirmacion,
-} from '../../services/Confirmacion/confirmacion-service';
+} from '../../services/confirmacion/confirmacion-service';
 
 @Component({
   imports: [CommonModule],

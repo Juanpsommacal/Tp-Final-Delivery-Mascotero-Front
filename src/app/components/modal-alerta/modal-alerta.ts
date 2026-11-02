@@ -8,7 +8,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AlertaService, TipoAlerta } from '../../services/Alerta/alerta-service';
+import { AlertaService, TipoAlerta } from '../../services/alerta/alerta-service';
 
 @Component({
   imports: [CommonModule],

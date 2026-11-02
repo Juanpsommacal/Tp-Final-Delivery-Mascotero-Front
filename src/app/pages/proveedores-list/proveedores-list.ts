@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ProveedoresService } from '../../services/proveedores/proveedores-service';
-import { ConfirmacionService } from '../../services/Confirmacion/confirmacion-service';
-import { AlertaService } from '../../services/Alerta/alerta-service';
+import { ConfirmacionService } from '../../services/confirmacion/confirmacion-service';
+import { AlertaService } from '../../services/alerta/alerta-service';
 import { Proveedor } from '../../models/Proveedor';
 import { RouterLink } from '@angular/router';
 import { extraerMensajeError } from '../../utils/error-util';

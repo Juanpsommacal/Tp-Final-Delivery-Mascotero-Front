@@ -12,16 +12,16 @@ import { ClienteDetails } from './pages/clientes/cliente-details/cliente-details
 import { ClientesForm } from './pages/clientes/clientes-form/clientes-form';
 import { ProveedoresList } from './pages/proveedores-list/proveedores-list';
 import { ProveedoresForm } from './pages/proveedores-form/proveedores-form';
-import { OfertaList } from './pages/Oferta/oferta-list/oferta-list';
-import { OfertasForm } from './pages/Oferta/ofertas-form/ofertas-form';
-import { OfertaDetails } from './pages/Oferta/oferta-details/oferta-details';
-import { PedidosList } from './pages/Pedidos/pedidos-list/pedidos-list';
-import { PedidosForm } from './pages/Pedidos/pedidos-form/pedidos-form';
-import { PedidoDetails } from './pages/Pedidos/pedido-details/pedido-details';
-import { PagosList } from './pages/Pagos/pagos-list/pagos-list';
-import { ComprasList } from './pages/Compras/compras-list/compras-list';
-import { ComprasForm } from './pages/Compras/compras-form/compras-form';
-import { CompraDetails } from './pages/Compras/compra-details/compra-details';
+import { OfertaList } from './pages/oferta/oferta-list/oferta-list';
+import { OfertasForm } from './pages/oferta/ofertas-form/ofertas-form';
+import { OfertaDetails } from './pages/oferta/oferta-details/oferta-details';
+import { PedidosList } from './pages/pedidos/pedidos-list/pedidos-list';
+import { PedidosForm } from './pages/pedidos/pedidos-form/pedidos-form';
+import { PedidoDetails } from './pages/pedidos/pedido-details/pedido-details';
+import { PagosList } from './pages/pagos/pagos-list/pagos-list';
+import { ComprasList } from './pages/compras/compras-list/compras-list';
+import { ComprasForm } from './pages/compras/compras-form/compras-form';
+import { CompraDetails } from './pages/compras/compra-details/compra-details';
 
 
 export const routes: Routes = [
