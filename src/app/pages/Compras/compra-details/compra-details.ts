@@ -4,10 +4,10 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import Compra from '../../../models/Compra';
 import { ComprasService } from '../../../services/Compras/compras-service';
-import { ProductosService } from '../../../services/Productos/productos-service';
 import { ConfirmacionService } from '../../../services/Confirmacion/confirmacion-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
 import { extraerMensajeError } from '../../../utils/error-util';
+import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
   imports: [RouterLink, CurrencyPipe, DatePipe, FormatoEnumPipe],

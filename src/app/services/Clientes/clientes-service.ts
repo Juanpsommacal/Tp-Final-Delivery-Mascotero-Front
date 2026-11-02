@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import Cliente, { ClienteRequest } from '../../models/Cliente';
 import { DireccionRequest } from '../../models/Direccion';
+import { HtmlTagDefinition } from '@angular/compiler';
 
 @Service()
 export class ClientesService {
@@ -22,11 +23,12 @@ export class ClientesService {
     }
 
     updateCliente(id: string, cliente: ClienteRequest) {
-        console.log(`ID: ${id}`)
         return this.http.patch<Cliente>(`${this.url}/${id}`, cliente)
     }
 
-
+    deleteCliente(id: string) {
+        return this.http.delete<void>(`${this.url}/${id}`)
+    }
     
 
     addDireccion(clienteId: string, direccion: DireccionRequest) {

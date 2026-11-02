@@ -2,10 +2,8 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ClientesService } from '../../../services/Clientes/clientes-service';
 import Cliente from '../../../models/Cliente';
 import { digitos, noVacio } from '../../../validators/producto-validators';
-import { maxLength, required } from '@angular/forms/signals';
 import { extraerMensajeError } from '../../../utils/error-util';
 import Direccion, { DireccionRequest } from '../../../models/Direccion';
 import { DireccionesService } from '../../../services/Direcciones/direcciones-service';
@@ -15,8 +13,10 @@ import { PedidosService } from '../../../services/Pedidos/pedidos-service';
 import { PagosService } from '../../../services/Pagos/pagos-service';
 import Pedido from '../../../models/Pedido';
 import Pago from '../../../models/Pago';
+import { ClientesService } from '../../../services/clientes/clientes-service';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
+import { AuthService } from '../../../services/Authentication/auth-service';
 
 const MAX_SUGERENCIAS = 8
 
@@ -38,6 +38,7 @@ export class ClienteDetails implements OnInit{
   private direccionesService = inject(DireccionesService)
   private confirmacionService = inject(ConfirmacionService)
   private alertaService = inject(AlertaService)
+  private auth = inject(AuthService)
   private route = inject(ActivatedRoute)
   private router = inject(Router)
   private fb = inject(FormBuilder)
@@ -48,6 +49,8 @@ export class ClienteDetails implements OnInit{
   cliente = signal<Cliente | null>(null)
   agregando = signal(false)
   mensajeDireccion = signal('')
+  esAdmin = this.auth.tieneRol('ADMIN')
+  eliminado = signal(false)
 
   // Cuenta del cliente: pedidos que debe (entregados y no pagados del todo) y pagos que hizo
   pedidosConDeuda = signal<Pedido[]>([])
@@ -270,6 +273,29 @@ export class ClienteDetails implements OnInit{
       }
     })
   }
+
+
+    eliminarCliente() {
+    const cliente = this.cliente()
+    if (!cliente) return
+
+    if (!confirm(`¿Seguro que querés eliminar a "${cliente.nombre} ${cliente.apellido}"?`)) return
+
+    this.eliminado.set(true)
+    this.clientesService.deleteCliente(cliente.id!).subscribe({
+      next: () => {
+        alert('Cliente eliminado correctamente')
+        this.router.navigate(['/clientes'])
+      },
+      error: (error) => {
+        alert(`Error: ${extraerMensajeError(error)}`)
+        this.eliminado.set(false)
+      }
+    })
+  }
+
+
+  // ----------------------------- DIRECCIONES DEL CLIENTE --------------------------------- \\
 
   private asociarExistente(cliente: Cliente, direccion: Direccion) {
     this.agregando.set(true)

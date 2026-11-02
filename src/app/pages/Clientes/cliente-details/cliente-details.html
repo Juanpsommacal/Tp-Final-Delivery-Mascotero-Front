@@ -14,6 +14,13 @@
             <div class="acciones">
                 <a class="boton boton-secundario" routerLink="/clientes">Volver</a>
                 <a class="boton" [routerLink]="['/clientes/editar', cliente.id]">Editar</a>
+           
+                @if (esAdmin) {
+                    <button type="button" class="boton boton-peligro" [disabled]="eliminado()" (click)="eliminarCliente()">
+                        {{ eliminado() ? 'Eliminando...' : 'Eliminar' }}
+                    </button>
+                }
+
             </div>
 
         </article>

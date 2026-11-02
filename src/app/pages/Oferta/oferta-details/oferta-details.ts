@@ -2,7 +2,6 @@ import { Component, computed, HostListener, inject, OnInit, signal } from '@angu
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { OfertasService } from '../../../services/Ofertas/ofertas-service';
-import { ProductosService } from '../../../services/Productos/productos-service';
 import { ConfirmacionService } from '../../../services/Confirmacion/confirmacion-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
 import { OfertaDetalle, ProductoEnOferta } from '../../../models/Oferta';
@@ -12,6 +11,7 @@ import { getFechaLocalISO } from '../../../utils/fecha-util';
 import { formatearPorcentajeVisual } from '../../../utils/oferta-util';
 import { coincideProducto } from '../../../utils/producto-util';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
+import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
   imports: [RouterLink, DatePipe, CurrencyPipe, NgClass, FormatoEnumPipe],

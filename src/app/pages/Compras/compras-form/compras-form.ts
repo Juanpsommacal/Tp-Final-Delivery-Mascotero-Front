@@ -5,11 +5,11 @@ import Producto from '../../../models/Producto';
 import Compra, { CompraRequest } from '../../../models/Compra';
 import { Proveedor } from '../../../models/Proveedor';
 import { ProveedoresService } from '../../../services/proveedores/proveedores-service';
-import { ProductosService } from '../../../services/Productos/productos-service';
 import { ComprasService } from '../../../services/Compras/compras-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
 import { coincideProducto } from '../../../utils/producto-util';
 import { extraerMensajeError } from '../../../utils/error-util';
+import { ProductosService } from '../../../services/productos/productos-service';
 
 const MAX_SUGERENCIAS = 8
 // Igual que @Digits de DetalleCompraCreateRequestDTO

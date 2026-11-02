@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ClientesService } from '../../../services/Clientes/clientes-service';
+import { ClientesService } from '../../../services/clientes/clientes-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
 import Cliente from '../../../models/Cliente';
 import { Router, RouterLink } from '@angular/router';

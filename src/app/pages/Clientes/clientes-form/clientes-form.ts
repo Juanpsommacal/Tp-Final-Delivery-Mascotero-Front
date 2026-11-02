@@ -1,10 +1,9 @@
-import { Component, Inject, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ClientesService } from '../../../services/Clientes/clientes-service';
+import { ClientesService } from '../../../services/clientes/clientes-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
 import { noVacio } from '../../../validators/producto-validators';
 import { SOLO_LETRAS } from '../../../validators/usuario-validators';
-import { form, maxLength, pattern, required } from '@angular/forms/signals';
 import { extraerMensajeError } from '../../../utils/error-util';
 import { ClienteRequest } from '../../../models/Cliente';
 import { ActivatedRoute, Router } from '@angular/router';

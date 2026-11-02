@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
-import { ProductoDetalle, ProductosService } from '../../../services/Productos/productos-service';
+import { ProductoDetalle, ProductosService } from '../../../services/productos/productos-service';
 import { ConfirmacionService } from '../../../services/Confirmacion/confirmacion-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
 import { AuthService } from '../../../services/Authentication/auth-service';

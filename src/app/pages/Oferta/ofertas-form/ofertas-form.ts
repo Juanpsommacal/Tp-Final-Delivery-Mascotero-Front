@@ -4,7 +4,6 @@ import { CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfertasService } from '../../../services/Ofertas/ofertas-service';
 import { AlertaService } from '../../../services/Alerta/alerta-service';
-import { ProductosService } from '../../../services/Productos/productos-service';
 import Producto from '../../../models/Producto';
 import { OfertaRequest } from '../../../models/Oferta';
 import { noVacio } from '../../../validators/producto-validators';
@@ -16,6 +15,7 @@ import {
 } from '../../../utils/fecha-util';
 import { formatearPorcentajeVisual } from '../../../utils/oferta-util';
 import { coincideProducto } from '../../../utils/producto-util';
+import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
   imports: [ReactiveFormsModule, CurrencyPipe],
