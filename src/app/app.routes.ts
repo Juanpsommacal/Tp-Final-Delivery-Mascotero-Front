@@ -25,7 +25,7 @@ import { CompraDetails } from './pages/compras/compra-details/compra-details';
 
 
 export const routes: Routes = [
-    {path: '', component: Home},
+    {path: '', component: Home, canActivate: [authGuard]},
     {path: 'login', component: Login},
     {path: 'registro', component: Registro},
     {path: 'productos', component: ProductosList, canActivate: [authGuard] },

@@ -3,12 +3,54 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 85px 16px 40px 16px;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-card {
+/* Envoltura del formulario y del gatito asomado */
+.login-card-wrapper {
+  position: relative;
   width: 100%;
   max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+/* ========================================================
+   Gatito asomado con manitos sobre el formulario
+   ======================================================== */
+.gatito-asomado {
+  position: absolute;
+  top: -88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  pointer-events: none;
+  animation: respirarGatito 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes respirarGatito {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    transform: translateX(-50%) translateY(2.5px);
+  }
+}
+
+.gatito-asomado-svg {
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+}
+
+/* ========================================================
+   Tarjeta del formulario
+   ======================================================== */
+.login-card {
+  width: 100%;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -17,6 +59,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  z-index: 10;
 }
 
 .login-header {
@@ -100,22 +144,146 @@ form {
   text-align: center;
 }
 
-.login-footer {
-  text-align: center;
-  font-size: 0.92rem;
-  color: var(--color-text-muted);
-  border-top: 1px solid var(--color-border);
-  padding-top: 16px;
+/* ========================================================
+   ANIMACIÓN ÉXITO: El gatito empuja el formulario hacia abajo
+   ======================================================== */
+.login-card-wrapper.empujando {
+  animation: empujarAbajo 0.85s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+  pointer-events: none;
 }
 
-.login-footer a {
-  font-weight: 700;
-  color: var(--color-accent);
-  text-decoration: none;
+@keyframes empujarAbajo {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  18% {
+    transform: translateY(-14px); /* El gatito toma impulso hacia arriba */
+  }
+  38% {
+    transform: translateY(24px);  /* Empuja con fuerza hacia abajo */
+  }
+  100% {
+    transform: translateY(120vh) scale(0.92); /* El formulario cae fuera de la pantalla */
+    opacity: 0;
+  }
 }
 
-.login-footer a:hover {
-  text-decoration: underline;
-  color: var(--color-accent-dark);
+.login-card-wrapper.empujando .patita {
+  transform: translateY(6px) scaleY(1.15);
+  transition: transform 0.15s ease-out;
 }
 
+/* ========================================================
+   ANIMACIÓN ERROR: Sacudida y zarpazo del gatito
+   ======================================================== */
+.login-card-wrapper.sacudiendo {
+  animation: sacudidaPantalla 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes sacudidaPantalla {
+  10%, 90% { transform: translate3d(-5px, 0, 0) rotate(-1.5deg); }
+  20%, 80% { transform: translate3d(7px, 0, 0) rotate(2deg); }
+  30%, 50%, 70% { transform: translate3d(-9px, 0, 0) rotate(-2.5deg); }
+  40%, 60% { transform: translate3d(9px, 0, 0) rotate(2.5deg); }
+}
+
+.login-card-wrapper.sacudiendo .patita-der {
+  animation: zarpazoPata 0.5s ease-out;
+}
+
+@keyframes zarpazoPata {
+  0% { transform: translateY(0); }
+  35% { transform: translateY(-30px) translateX(-20px) scale(1.4) rotate(-22deg); }
+  100% { transform: translateY(0); }
+}
+
+/* ========================================================
+   OVERLAY DE ARAÑAZOS: Rasga en la mitad de la pantalla
+   ======================================================== */
+.overlay-aranazos {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grupo-rasgunos {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  width: min(88vw, 640px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.garra-corte {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, transparent 0%, #ff2d20 15%, #ffffff 50%, #ff2d20 85%, transparent 100%);
+  box-shadow: 0 0 18px rgba(255, 45, 32, 0.95), 0 0 38px rgba(255, 0, 0, 0.7);
+  transform-origin: left center;
+  opacity: 0;
+  animation: zarpazoSlash 1.25s ease-out forwards;
+}
+
+.corte-1 {
+  width: 90%;
+  animation-delay: 0.02s;
+}
+
+.corte-2 {
+  width: 100%;
+  animation-delay: 0.06s;
+}
+
+.corte-3 {
+  width: 96%;
+  animation-delay: 0.10s;
+}
+
+.corte-4 {
+  width: 86%;
+  animation-delay: 0.14s;
+}
+
+.flash-aranazo {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 30, 30, 0.25) 0%, transparent 65%);
+  animation: flashRojo 0.5s ease-out forwards;
+}
+
+@keyframes zarpazoSlash {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  20% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+@keyframes flashRojo {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  100% { opacity: 0; }
+}

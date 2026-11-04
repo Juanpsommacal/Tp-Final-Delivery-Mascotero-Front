@@ -29,7 +29,7 @@ export class AuthService {
     
     
     private token = signal<string | null>(localStorage.getItem('token'))
-    readonly logueado = computed(() => this.token() !== null)
+    readonly logueado = computed(() => this.token() !== null && this.tokenVigente())
 
     login(datos: LoginRequest) {
         return this.http.post<LoginResponse>(`${this.url}/login`, datos).pipe(
