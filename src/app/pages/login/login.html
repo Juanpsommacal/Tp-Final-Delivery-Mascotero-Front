@@ -1,35 +1,141 @@
 <section class="login-contenedor">
-  <div class="login-card">
-    <div class="login-header">
-      <img src="/DeliveryMascoteroLogo.jpg" alt="Logo" class="login-logo" />
-      <h2>Iniciar sesión</h2>
-      <p>Ingresá tus credenciales para acceder a tu cuenta</p>
+  <!-- Efecto de arañazo en la mitad de la pantalla si las credenciales son incorrectas -->
+  @if (estadoGatito() === 'aranando') {
+    <div class="overlay-aranazos" aria-hidden="true">
+      <div class="grupo-rasgunos">
+        <div class="garra-corte corte-1"></div>
+        <div class="garra-corte corte-2"></div>
+        <div class="garra-corte corte-3"></div>
+        <div class="garra-corte corte-4"></div>
+      </div>
+      <div class="flash-aranazo"></div>
+    </div>
+  }
+
+  <!-- Envoltura de la tarjeta con el gatito asomado arriba -->
+  <div class="login-card-wrapper" [class.empujando]="estadoGatito() === 'empujando'" [class.sacudiendo]="estadoGatito() === 'aranando'">
+    <!-- Gatito con las manitos apoyadas sobre el borde superior del formulario -->
+    <div class="gatito-asomado" [attr.data-estado]="estadoGatito()" aria-hidden="true">
+      <svg class="gatito-asomado-svg" viewBox="0 0 180 120" width="180" height="120">
+        <!-- Orejitas -->
+        <polygon points="48,48 36,12 68,32" fill="#ea6435" />
+        <polygon points="49,42 40,18 64,32" fill="#ffb4a2" />
+        <polygon points="132,48 144,12 112,32" fill="#ea6435" />
+        <polygon points="131,42 140,18 116,32" fill="#ffb4a2" />
+
+        <!-- Cabeza del gatito -->
+        <ellipse cx="90" cy="56" rx="46" ry="38" fill="#ea6435" />
+        <!-- Cachetes / hocico blanco -->
+        <ellipse cx="90" cy="68" rx="28" ry="19" fill="#fdf2e9" />
+        <!-- Rayitas lomo / frente -->
+        <path d="M 85 24 Q 90 28 85 33" stroke="#bd441a" stroke-width="3" fill="none" stroke-linecap="round" />
+        <path d="M 90 20 Q 90 26 90 32" stroke="#bd441a" stroke-width="3" fill="none" stroke-linecap="round" />
+        <path d="M 95 24 Q 90 28 95 33" stroke="#bd441a" stroke-width="3" fill="none" stroke-linecap="round" />
+
+        <!-- EXPRESIÓN NORMAL: Ojos tiernos y curiosos -->
+        @if (estadoGatito() === 'normal') {
+          <g class="expresion expresion-normal">
+            <ellipse cx="72" cy="52" rx="6.5" ry="8.5" fill="#1b2a4a" />
+            <circle cx="70" cy="49" r="2.8" fill="#ffffff" />
+            <circle cx="74" cy="55" r="1.3" fill="#ffffff" />
+            <ellipse cx="108" cy="52" rx="6.5" ry="8.5" fill="#1b2a4a" />
+            <circle cx="106" cy="49" r="2.8" fill="#ffffff" />
+            <circle cx="110" cy="55" r="1.3" fill="#ffffff" />
+            <path d="M 85 68 Q 90 71 90 66 Q 90 71 95 68" stroke="#1b2a4a" stroke-width="2" fill="none" stroke-linecap="round" />
+          </g>
+        }
+
+        <!-- EXPRESIÓN EMPUJANDO: Ojos de esfuerzo feliz ^ ^ y sonrisa -->
+        @if (estadoGatito() === 'empujando') {
+          <g class="expresion expresion-empujando">
+            <path d="M 64 54 Q 72 45 80 54" stroke="#1b2a4a" stroke-width="3.5" fill="none" stroke-linecap="round" />
+            <path d="M 100 54 Q 108 45 116 54" stroke="#1b2a4a" stroke-width="3.5" fill="none" stroke-linecap="round" />
+            <path d="M 84 66 Q 90 75 96 66" stroke="#1b2a4a" stroke-width="2.5" fill="#f87171" stroke-linecap="round" />
+          </g>
+        }
+
+        <!-- EXPRESIÓN ARAÑANDO: Ojos afilados rojos y colmillo -->
+        @if (estadoGatito() === 'aranando') {
+          <g class="expresion expresion-aranando">
+            <path d="M 63 47 L 79 53" stroke="#1b2a4a" stroke-width="3.5" stroke-linecap="round" />
+            <circle cx="72" cy="54" r="5" fill="#e53e3e" />
+            <circle cx="72" cy="54" r="2" fill="#1b2a4a" />
+            <path d="M 117 47 L 101 53" stroke="#1b2a4a" stroke-width="3.5" stroke-linecap="round" />
+            <circle cx="108" cy="54" r="5" fill="#e53e3e" />
+            <circle cx="108" cy="54" r="2" fill="#1b2a4a" />
+            <path d="M 83 70 Q 90 64 97 70" stroke="#1b2a4a" stroke-width="2.5" fill="none" stroke-linecap="round" />
+            <polygon points="86,67 89,74 91,67" fill="#ffffff" />
+          </g>
+        }
+
+        <!-- Nariz rosada -->
+        <polygon points="87,62 93,62 90,66" fill="#e76f51" />
+        <!-- Mejillas rosadas -->
+        <circle cx="58" cy="66" r="5.5" fill="#ffb4a2" opacity="0.65" />
+        <circle cx="122" cy="66" r="5.5" fill="#ffb4a2" opacity="0.65" />
+
+        <!-- Bigotes -->
+        <line x1="60" y1="64" x2="35" y2="61" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+        <line x1="60" y1="69" x2="33" y2="73" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+        <line x1="120" y1="64" x2="145" y2="61" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+        <line x1="120" y1="69" x2="147" y2="73" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+
+        <!-- MANOS / PATITAS APOYADAS SOBRE EL FORMULARIO (y = 86 a 115) -->
+        <!-- Patita izquierda -->
+        <g class="patita patita-izq">
+          <rect x="42" y="86" width="30" height="24" rx="15" fill="#ea6435" />
+          <ellipse cx="57" cy="101" rx="14" ry="11" fill="#fdf2e9" />
+          <circle cx="49" cy="101" r="3.5" fill="#ea6435" opacity="0.3" />
+          <circle cx="57" cy="102" r="3.5" fill="#ea6435" opacity="0.3" />
+          <circle cx="65" cy="101" r="3.5" fill="#ea6435" opacity="0.3" />
+          @if (estadoGatito() === 'aranando') {
+            <path d="M 48 108 L 46 116 M 57 109 L 57 118 M 65 108 L 67 116" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+          }
+        </g>
+
+        <!-- Patita derecha -->
+        <g class="patita patita-der">
+          <rect x="108" y="86" width="30" height="24" rx="15" fill="#ea6435" />
+          <ellipse cx="123" cy="101" rx="14" ry="11" fill="#fdf2e9" />
+          <circle cx="115" cy="101" r="3.5" fill="#ea6435" opacity="0.3" />
+          <circle cx="123" cy="102" r="3.5" fill="#ea6435" opacity="0.3" />
+          <circle cx="131" cy="101" r="3.5" fill="#ea6435" opacity="0.3" />
+          @if (estadoGatito() === 'aranando') {
+            <path d="M 114 108 L 112 116 M 123 109 L 123 118 M 131 108 L 133 116" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+          }
+        </g>
+      </svg>
     </div>
 
-    <form (ngSubmit)="iniciarSesion()">
-      <div class="campo">
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email" placeholder="usuario@email.com"
-               [ngModel]="email()" (ngModelChange)="email.set($event)" required />
+    <!-- Tarjeta del formulario -->
+    <div class="login-card">
+      <div class="login-header">
+        <img src="/DeliveryMascoteroLogo.jpg" alt="Logo" class="login-logo" />
+        <h2>Iniciar sesión</h2>
+        <p>Ingresá tus credenciales para acceder a tu cuenta</p>
       </div>
 
-      <div class="campo">
-        <label for="password">Contraseña</label>
-        <input id="password" type="password" name="password" placeholder="••••••••"
-               [ngModel]="password()" (ngModelChange)="password.set($event)" required />
-      </div>
+      <form (ngSubmit)="iniciarSesion()">
+        <div class="campo">
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" placeholder="usuario@email.com"
+                 [ngModel]="email()" (ngModelChange)="email.set($event)" required />
+        </div>
 
-      <button type="submit" class="boton boton-accent boton-submit" [disabled]="cargando()">
-        {{ cargando() ? 'Ingresando...' : 'Ingresar' }}
-      </button>
-    </form>
+        <div class="campo">
+          <label for="password">Contraseña</label>
+          <input id="password" type="password" name="password" placeholder="••••••••"
+                 [ngModel]="password()" (ngModelChange)="password.set($event)" required />
+        </div>
 
-    @if (mensaje()) {
-      <p class="error-banner">{{ mensaje() }}</p>
-    }
+        <button type="submit" class="boton boton-accent boton-submit" [disabled]="cargando()">
+          {{ cargando() ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+      </form>
 
-    <p class="login-footer">
-      ¿No tenés cuenta? <a routerLink="/registro">Crear cuenta</a>
-    </p>
+      @if (mensaje()) {
+        <p class="error-banner">{{ mensaje() }}</p>
+      }
+    </div>
   </div>
 </section>
