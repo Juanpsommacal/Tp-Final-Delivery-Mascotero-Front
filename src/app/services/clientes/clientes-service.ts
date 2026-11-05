@@ -2,13 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import Cliente, { ClienteRequest } from '../../models/Cliente';
 import { DireccionRequest } from '../../models/Direccion';
-import { HtmlTagDefinition } from '@angular/compiler';
+import { environment } from '../../../environments/environment';
 
 @Service()
 export class ClientesService {
 
     private http = inject(HttpClient)
-    private url = 'http://localhost:8080/api/clientes'
+    private url = `${environment.apiUrl}/clientes`
 
     getAllClientes() {
         return this.http.get<Cliente[]>(this.url)

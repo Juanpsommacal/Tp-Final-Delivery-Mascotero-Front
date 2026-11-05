@@ -243,6 +243,9 @@ export class ClienteDetails implements OnInit{
       return
     }
 
+    // Ya esta asociada: el aviso se ve en pantalla y no se manda nada al back
+    if (this.coincidenciaYaAsociada()) return
+
     if (this.formularioDireccion.invalid) {
       this.formularioDireccion.markAllAsTouched()
       return
@@ -275,11 +278,19 @@ export class ClienteDetails implements OnInit{
   }
 
 
-    eliminarCliente() {
+    async eliminarCliente() {
     const cliente = this.cliente()
     if (!cliente) return
 
-    if (!confirm(`¿Seguro que querés eliminar a "${cliente.nombre} ${cliente.apellido}"?`)) return
+    const confirmado = await this.confirmacionService.confirmar({
+      titulo: 'Eliminar cliente',
+      mensaje: `¿Seguro que desea eliminar a "${cliente.nombre} ${cliente.apellido}"?`,
+      textoConfirmar: 'Eliminar cliente',
+      textoCancelar: 'Volver',
+      tipo: 'peligro'
+    })
+
+    if (!confirmado) return
 
     this.eliminado.set(true)
     this.clientesService.deleteCliente(cliente.id!).subscribe({
@@ -332,5 +343,10 @@ export class ClienteDetails implements OnInit{
       error: (error) => this.alertaService.error(extraerMensajeError(error))
     })
   }
+
+  // El boton se bloquea mientras se envia, o si la direccion escrita ya esta asociada al cliente
+  agregarDeshabilitado = computed(() =>
+    this.agregando() || (!this.direccionSeleccionada() && this.coincidenciaYaAsociada())
+  )
 
 }

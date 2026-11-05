@@ -154,13 +154,14 @@
 
                 }
 
-                @if (mensajeDireccion()) {
+                @if (mensajeDireccion() && !coincidenciaYaAsociada) {
                     <p class="error mensaje">{{ mensajeDireccion() }}</p>
                 }
 
                 <div class="acciones">
-                    <button type="submit" class="boton" [disabled]="agregando()">
-                        {{ agregando() ? 'Agregando...' : (direccionSeleccionada() ? 'Asociar dirección' : 'Agregar dirección') }}
+                    <button type="submit" class="boton" [disabled]="agregarDeshabilitado()"> 
+                        {{ agregando() ? 'Agregando...' : (direccionSeleccionada() 
+                        ? 'Asociar dirección' : 'Agregar dirección') }}
                     </button>
                 </div>
 
