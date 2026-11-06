@@ -1,10 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../services/authentication/auth-service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
+// paseando: va y viene por arriba de la tarjeta
+// saliendo: login correcto, arranca y se va de la pantalla
+// frenando: login incorrecto, frena de golpe y se le bajan los anteojos
+type EstadoGatito = 'paseando' | 'saliendo' | 'frenando'
+
 @Component({
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   selector: 'app-login',
   styleUrl: './login.css',
   templateUrl: './login.html',
@@ -19,7 +24,9 @@ export class Login implements OnInit {
   password = signal('')
   mensaje = signal('')
   cargando = signal(false)
-  estadoGatito = signal<'normal' | 'empujando' | 'aranando'>('normal');
+  estadoGatito = signal<EstadoGatito>('paseando');
+
+  private temporizadorFreno: ReturnType<typeof setTimeout> | null = null
 
   ngOnInit(): void {
     if (this.auth.tokenVigente()) {
@@ -28,40 +35,46 @@ export class Login implements OnInit {
   }
 
   iniciarSesion() {
-    if (this.cargando() || this.estadoGatito() === 'empujando') return;
+    if (this.cargando() || this.estadoGatito() === 'saliendo') return;
 
     this.mensaje.set('');
+
+    // Sin esto, un envío vacío terminaba en "el email o la contraseña no coinciden"
+    const faltan = [!this.email().trim() && 'el email', !this.password() && 'la contraseña'].filter(Boolean);
+    if (faltan.length) {
+      this.mensaje.set(`Completá ${faltan.join(' y ')} para ingresar.`);
+      return;
+    }
+
     this.cargando.set(true);
 
     this.auth.login({ email: this.email(), password: this.password() }).subscribe({
-      next: (respuesta) => {
+      next: () => {
         this.cargando.set(false);
-        // El gatito empuja el formulario hacia abajo con fuerza
-        this.estadoGatito.set('empujando');
+        this.estadoGatito.set('saliendo');
 
         const destino = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
         setTimeout(() => {
           this.router.navigateByUrl(destino);
-        }, 800);
+        }, 750);
       },
       error: (error) => {
-        console.error('Error de login:', error);
         this.cargando.set(false);
 
-        // El gatito araña la pantalla
-        this.estadoGatito.set('aranando');
-        setTimeout(() => {
-          if (this.estadoGatito() === 'aranando') {
-            this.estadoGatito.set('normal');
-          }
-        }, 1300);
+        // Si ya estaba frenado, se reinicia la animación
+        if (this.temporizadorFreno) clearTimeout(this.temporizadorFreno)
+        this.estadoGatito.set('paseando')
+        requestAnimationFrame(() => this.estadoGatito.set('frenando'))
+        this.temporizadorFreno = setTimeout(() => {
+          if (this.estadoGatito() === 'frenando') this.estadoGatito.set('paseando');
+        }, 2600);
 
         if (error.status === 401) {
-          this.mensaje.set('Email o contraseña incorrectos.');
+          this.mensaje.set('El email o la contraseña no coinciden. Revisalos y volvé a intentar.');
         } else if (error.status === 0) {
-          this.mensaje.set('Sin respuesta del servidor (backend apagado o bloqueado por CORS).');
+          this.mensaje.set('No se pudo conectar con el servidor. Revisá que esté prendido y volvé a intentar.');
         } else {
-          this.mensaje.set(`Error ${error.status}: ${error.error?.message ?? 'error inesperado'}`);
+          this.mensaje.set(error.error?.message ?? 'No se pudo iniciar sesión. Volvé a intentar en un momento.');
         }
       }
     });

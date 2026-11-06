@@ -1,166 +1,113 @@
 <section class="contenedor-list">
 
-  <!-- Encabezado principal -->
-  <header class="encabezado">
-    <div class="encabezado-titulo">
-      <h2>Listado de Ofertas</h2>
-      <span class="badge-total">{{ ofertas().length }} {{ ofertas().length === 1 ? 'oferta' : 'ofertas' }}</span>
-    </div>
+  <div class="encabezado">
+    <h1>Ofertas</h1>
+    <a class="boton" routerLink="/ofertas/nueva">Nueva oferta</a>
+  </div>
 
-    <a class="boton boton-accent" routerLink="/ofertas/nueva">
-      + Nueva oferta
-    </a>
-  </header>
-
-  <!-- Barra de búsqueda y filtros -->
-  <div class="filtros-barra">
-    <div class="buscador-caja">
-      <span class="buscador-icono">🔍</span>
+  <div class="filtros">
+    <label class="buscar">
+      Buscar por nombre o descripción
       <input
-        type="text"
-        class="buscador-input"
-        placeholder="Buscar oferta por nombre o descripción..."
+        type="search"
+        placeholder="Ej: Black Friday"
         [value]="busqueda()"
         (input)="cambiarBusqueda($any($event.target).value)"
       />
-      @if (busqueda()) {
-        <button
-          type="button"
-          class="buscador-limpiar"
-          (click)="cambiarBusqueda('')"
-          title="Limpiar búsqueda"
-        >
-          ✕
-        </button>
-      }
-    </div>
+    </label>
 
-    <div class="chips-estados">
-      <button
-        type="button"
-        class="chip-filtro"
-        [class.activo]="filtroEstado() === 'TODAS'"
-        (click)="cambiarFiltro('TODAS')"
-      >
-        Todas ({{ conteos().todas }})
-      </button>
-
-      <button
-        type="button"
-        class="chip-filtro chip-vigente"
-        [class.activo]="filtroEstado() === 'VIGENTES'"
-        (click)="cambiarFiltro('VIGENTES')"
-      >
-        <span class="punto-estado punto-verde"></span>
-        Vigentes ({{ conteos().vigentes }})
-      </button>
-
-      <button
-        type="button"
-        class="chip-filtro chip-proxima"
-        [class.activo]="filtroEstado() === 'PROXIMAS'"
-        (click)="cambiarFiltro('PROXIMAS')"
-      >
-        <span class="punto-estado punto-amarillo"></span>
-        Próximas ({{ conteos().proximas }})
-      </button>
-
-      <button
-        type="button"
-        class="chip-filtro chip-finalizada"
-        [class.activo]="filtroEstado() === 'FINALIZADAS'"
-        (click)="cambiarFiltro('FINALIZADAS')"
-      >
-        <span class="punto-estado punto-gris"></span>
-        Finalizadas ({{ conteos().finalizadas }})
-      </button>
-    </div>
+    <label>
+      Estado
+      <select (change)="cambiarFiltro($any($event.target).value)">
+        <option value="TODAS" [selected]="filtroEstado() === 'TODAS'">Todas ({{ conteos().todas }})</option>
+        <option value="VIGENTES" [selected]="filtroEstado() === 'VIGENTES'">Vigentes ({{ conteos().vigentes }})</option>
+        <option value="PROXIMAS" [selected]="filtroEstado() === 'PROXIMAS'">Próximas ({{ conteos().proximas }})</option>
+        <option value="FINALIZADAS" [selected]="filtroEstado() === 'FINALIZADAS'">Finalizadas ({{ conteos().finalizadas }})</option>
+      </select>
+    </label>
   </div>
 
-  <!-- Contenido -->
   @if (cargando()) {
-    <div class="cargando-contenedor">
-      <span class="loader-icono">⏳</span>
-      <p>Cargando ofertas...</p>
-    </div>
+    <app-skeleton-lista modo="tabla" [cantidad]="6" texto="Cargando ofertas…" />
+  } @else if (ofertasFiltradas().length === 0) {
+    @if (ofertas().length > 0) {
+      <div class="estado-vacio">
+        <strong>Ninguna oferta con esos filtros</strong>
+        <span>Probá con otra búsqueda o limpiá los filtros.</span>
+        <button type="button" class="boton boton-secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+    } @else {
+      <div class="estado-vacio">
+        <strong>Todavía no hay ofertas</strong>
+        <span>Una oferta aplica un descuento a los productos que elijas durante un rango de fechas.</span>
+        <a class="boton" routerLink="/ofertas/nueva">Crear la primera oferta</a>
+      </div>
+    }
   } @else {
-    <div class="lista">
-      @for (oferta of ofertasFiltradas(); track oferta.id ?? oferta.nombre) {
-        <article class="tarjeta-oferta">
+    <p class="resumen" aria-live="polite">
+      {{ tabla.rango().total }} {{ tabla.rango().total === 1 ? 'oferta' : 'ofertas' }}
+    </p>
 
-          <!-- Barra superior: Estado y Descuento -->
-          <div class="tarjeta-top">
-            @if (obtenerEstadoOferta(oferta); as estado) {
-              <span class="badge-estado" [ngClass]="estado.clase">
-                <span class="punto-indicador"></span>
-                {{ estado.etiqueta }}
-              </span>
-            }
+    <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
 
-            <span class="descuento-pill">
-              -{{ porcentajeVisual(oferta.porcentaje) }}% OFF
-            </span>
-          </div>
-
-          <!-- Cuerpo de la tarjeta -->
-          <div class="tarjeta-cuerpo">
-            <h3 class="oferta-titulo" [title]="oferta.nombre">
-              {{ oferta.nombre }}
-            </h3>
-
-            <p class="oferta-descripcion" [title]="oferta.descripcion">
-              {{ oferta.descripcion || 'Sin descripción adicional.' }}
-            </p>
-          </div>
-
-          <!-- Fechas de vigencia -->
-          <div class="oferta-fechas">
-            <div class="fecha-col">
-              <span class="fecha-etiqueta">Inicio</span>
-              <span class="fecha-valor">{{ oferta.fechaInicio | date:'dd/MM/yyyy' }}</span>
-            </div>
-            <span class="fecha-separador">→</span>
-            <div class="fecha-col">
-              <span class="fecha-etiqueta">Fin</span>
-              <span class="fecha-valor">{{ oferta.fechaFin | date:'dd/MM/yyyy' }}</span>
-            </div>
-          </div>
-
-          <!-- Pie / Acción -->
-          <div class="tarjeta-pie">
-            <a
-              class="boton-ver-detalles"
-              [routerLink]="['/ofertas', oferta.id]"
-            >
-              <span>Ver detalles</span>
-              <span class="flecha-icono">→</span>
-            </a>
-          </div>
-
-        </article>
-      } @empty {
-        <div class="vacio">
-          <span class="icono-vacio">🏷️</span>
-          @if (busqueda() || filtroEstado() !== 'TODAS') {
-            <p class="vacio-titulo">No se encontraron ofertas coincidentes</p>
-            <p class="vacio-sub">Probá cambiando el filtro o los términos de búsqueda.</p>
-            <button
-              type="button"
-              class="boton boton-secundario"
-              (click)="cambiarBusqueda(''); cambiarFiltro('TODAS')"
-            >
-              Restablecer filtros
-            </button>
-          } @else {
-            <p class="vacio-titulo">No hay ofertas registradas en este momento</p>
-            <p class="vacio-sub">Creá tu primera oferta para impulsar las ventas de productos.</p>
-            <a class="boton boton-accent" routerLink="/ofertas/nueva">
-              + Crear primera oferta
-            </a>
+    <div class="tabla-contenedor">
+      <table class="tabla-datos">
+        <caption class="solo-lector">Ofertas. Los encabezados con botón cambian el orden.</caption>
+        <thead>
+          <tr>
+            <th scope="col" [attr.aria-sort]="tabla.ariaOrden('nombre')">
+              <button type="button" class="orden" (click)="tabla.ordenarPor('nombre')">
+                Oferta <span class="flecha" aria-hidden="true">{{ tabla.flecha('nombre') }}</span>
+              </button>
+            </th>
+            <th scope="col">Estado</th>
+            <th scope="col" class="col-fecha" [attr.aria-sort]="tabla.ariaOrden('inicio')">
+              <button type="button" class="orden" (click)="tabla.ordenarPor('inicio')">
+                Desde <span class="flecha" aria-hidden="true">{{ tabla.flecha('inicio') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="col-fecha" [attr.aria-sort]="tabla.ariaOrden('fin')">
+              <button type="button" class="orden" (click)="tabla.ordenarPor('fin')">
+                Hasta <span class="flecha" aria-hidden="true">{{ tabla.flecha('fin') }}</span>
+              </button>
+            </th>
+            <th scope="col" class="col-monto">Productos</th>
+            <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('descuento')">
+              <button type="button" class="orden" (click)="tabla.ordenarPor('descuento')">
+                Descuento <span class="flecha" aria-hidden="true">{{ tabla.flecha('descuento') }}</span>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (oferta of tabla.filasPagina(); track oferta.id ?? oferta.nombre) {
+            @let estado = obtenerEstadoOferta(oferta);
+            <tr class="clicable" [class.inactiva]="estado.codigo === 'FINALIZADA'" (click)="abrir(oferta)">
+              <td class="m-principal">
+                <a class="celda-titulo" [routerLink]="['/ofertas', oferta.id]" (click)="$event.stopPropagation()">{{ oferta.nombre }}</a>
+                @if (oferta.descripcion) {
+                  <span class="celda-detalle descripcion">{{ oferta.descripcion }}</span>
+                }
+              </td>
+              <td>
+                <span class="chip"
+                      [class.chip-exito]="estado.codigo === 'VIGENTE'"
+                      [class.chip-alerta]="estado.codigo === 'PROXIMA'"
+                      [class.chip-apagado]="estado.codigo === 'FINALIZADA'">{{ estado.etiqueta }}</span>
+              </td>
+              <td class="col-fecha">{{ oferta.fechaInicio | date:'dd/MM/yy' }}</td>
+              <td class="col-fecha">{{ oferta.fechaFin | date:'dd/MM/yy' }}</td>
+              <td class="col-monto celda-secundaria m-ocultar">{{ cantidadProductos(oferta) }}</td>
+              <td class="col-monto m-lateral">
+                <span class="descuento">-{{ porcentajeVisual(oferta.porcentaje) }}%</span>
+              </td>
+            </tr>
           }
-        </div>
-      }
+        </tbody>
+      </table>
     </div>
+
+    <app-paginacion [tabla]="tabla" nombre="ofertas" />
   }
 
 </section>

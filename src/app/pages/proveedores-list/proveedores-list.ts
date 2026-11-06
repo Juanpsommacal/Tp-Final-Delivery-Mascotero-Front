@@ -1,13 +1,19 @@
+import { OrdenMobile, OpcionOrden } from '../../components/orden-mobile/orden-mobile';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ProveedoresService } from '../../services/proveedores/proveedores-service';
 import { ConfirmacionService } from '../../services/confirmacion/confirmacion-service';
 import { AlertaService } from '../../services/alerta/alerta-service';
 import { Proveedor } from '../../models/Proveedor';
-import { RouterLink } from '@angular/router';
 import { extraerMensajeError } from '../../utils/error-util';
+import { coincideBusqueda } from '../../utils/busqueda-util';
+import { SkeletonLista } from '../../components/skeleton-lista/skeleton-lista';
+import { Paginacion } from '../../components/paginacion/paginacion';
+import { filtrosEnUrl, TablaOrdenable } from '../../utils/tabla';
 
+// Proveedores no tiene pantalla de detalle: editar y eliminar quedan en la fila
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, SkeletonLista, Paginacion, OrdenMobile],
   selector: 'app-proveedores-list',
   styleUrl: './proveedores-list.css',
   templateUrl: './proveedores-list.html',
@@ -17,61 +23,45 @@ export class ProveedoresList implements OnInit {
   private confirmacionService = inject(ConfirmacionService);
   private alertaService = inject(AlertaService);
 
-  readonly itemsPorPagina = 10;
-
   proveedores = signal<Proveedor[]>([]);
   busqueda = signal('');
-  paginaActual = signal(1);
   cargando = signal(true);
   eliminandoId = signal<string | null>(null);
-  // El back devuelve todos, tambien los dados de baja: se ocultan salvo que se prenda el switch
+  // El back devuelve todos, también los dados de baja: se ocultan salvo que se prenda el switch
   mostrarInactivos = signal(false);
 
-  // Filtro por nombre reactivo
   proveedoresFiltrados = computed(() => {
-    const texto = this.busqueda().trim().toLowerCase();
+    const texto = this.busqueda();
     return this.proveedores().filter((p) =>
       (this.mostrarInactivos() || p.activo) &&
-      p.nombre.toLowerCase().includes(texto)
+      coincideBusqueda(`${p.nombre} ${p.telefono ?? ''}`, texto)
     );
   });
 
-  // Total de páginas calculadas
-  totalPaginas = computed(() => {
-    return Math.ceil(this.proveedoresFiltrados().length / this.itemsPorPagina) || 1;
+  // Opciones del select "Ordenar por" que se ve en el celular
+  readonly opcionesOrden: OpcionOrden[] = [
+    { valor: 'nombre-asc', etiqueta: 'Nombre (A–Z)' },
+    { valor: 'nombre-desc', etiqueta: 'Nombre (Z–A)' },
+    { valor: 'id-desc', etiqueta: 'Más nuevos primero' },
+  ]
+
+  tabla = new TablaOrdenable({
+    filas: this.proveedoresFiltrados,
+    columnas: {
+      id: (p: Proveedor) => Number(p.id),
+      nombre: (p: Proveedor) => p.nombre.toLowerCase(),
+    },
+    ordenInicial: 'nombre',
+    ascendenteInicial: true,
+    columnasTexto: ['nombre'],
+    reiniciarPaginaCon: () => [this.busqueda(), this.mostrarInactivos()],
   });
 
-  // Proveedores a mostrar en la página actual (máximo 10)
-  proveedoresPaginados = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.itemsPorPagina;
-    return this.proveedoresFiltrados().slice(inicio, inicio + this.itemsPorPagina);
-  });
-
-  // Lista de números de página
-  paginas = computed(() => {
-    const total = this.totalPaginas();
-    return Array.from({ length: total }, (_, i) => i + 1);
-  });
-
-  // Índices para el texto informativo de paginación
-  inicioRango = computed(() => {
-    if (this.proveedoresFiltrados().length === 0) return 0;
-    return (this.paginaActual() - 1) * this.itemsPorPagina + 1;
-  });
-
-  finRango = computed(() => {
-    return Math.min(
-      this.paginaActual() * this.itemsPorPagina,
-      this.proveedoresFiltrados().length
-    );
-  });
-
-  ngOnInit(): void {
-    this.getAllProveedores();
+  constructor() {
+    filtrosEnUrl({ q: this.busqueda, inactivos: this.mostrarInactivos }, this.tabla);
   }
 
-  private getAllProveedores() {
-    this.cargando.set(true);
+  ngOnInit(): void {
     this.proveedoresService.getAll().subscribe({
       next: (data) => {
         this.proveedores.set(data);
@@ -79,40 +69,21 @@ export class ProveedoresList implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar proveedores:', error);
-        this.alertaService.error('No se pudo cargar los proveedores');
+        this.alertaService.error('No se pudieron cargar los proveedores');
         this.cargando.set(false);
       },
     });
   }
 
-  cambiarBusqueda(texto: string) {
-    this.busqueda.set(texto);
-    this.paginaActual.set(1); // Reiniciar a la primera página al buscar
-  }
-
-  cambiarMostrarInactivos(valor: boolean) {
-    this.mostrarInactivos.set(valor);
-    this.paginaActual.set(1);
-  }
-
-  cambiarPagina(pagina: number) {
-    if (pagina >= 1 && pagina <= this.totalPaginas()) {
-      this.paginaActual.set(pagina);
-    }
-  }
-
-  paginaAnterior() {
-    this.cambiarPagina(this.paginaActual() - 1);
-  }
-
-  paginaSiguiente() {
-    this.cambiarPagina(this.paginaActual() + 1);
+  limpiarFiltros() {
+    this.busqueda.set('');
+    this.mostrarInactivos.set(false);
   }
 
   async eliminarProveedor(proveedor: Proveedor) {
     const confirmar = await this.confirmacionService.confirmar({
       titulo: 'Eliminar proveedor',
-      mensaje: `¿Estás seguro de que deseas eliminar al proveedor "${proveedor.nombre}"?`,
+      mensaje: `¿Seguro que querés eliminar al proveedor "${proveedor.nombre}"? Queda dado de baja y ya no se le pueden cargar compras.`,
       textoConfirmar: 'Eliminar',
       tipo: 'peligro',
     });
@@ -121,15 +92,12 @@ export class ProveedoresList implements OnInit {
     this.eliminandoId.set(proveedor.id);
     this.proveedoresService.delete(proveedor.id).subscribe({
       next: () => {
-        this.alertaService.exito('Proveedor eliminado correctamente');
-        // En el back es una baja logica: queda inactivo, no se borra
+        this.alertaService.exito(`${proveedor.nombre} quedó dado de baja.`, 'Proveedor eliminado');
+        // En el back es una baja lógica: queda inactivo, no se borra
         this.proveedores.update((lista) =>
           lista.map((p) => (p.id === proveedor.id ? { ...p, activo: false } : p))
         );
         this.eliminandoId.set(null);
-        if (this.paginaActual() > this.totalPaginas()) {
-          this.paginaActual.set(this.totalPaginas());
-        }
       },
       error: (error) => {
         console.error('Error al eliminar proveedor:', error);

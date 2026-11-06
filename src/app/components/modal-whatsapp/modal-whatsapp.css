@@ -1,0 +1,230 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(14, 66, 80, 0.55);
+  animation: aparecer 0.18s ease-out;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tarjeta {
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 24px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.22);
+  animation: entrar 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes entrar {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cabecera h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.para {
+  margin-top: 2px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.numero {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.cerrar {
+  display: inline-flex;
+  padding: 6px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.cerrar:hover {
+  background-color: var(--color-bg-alt);
+  color: var(--color-text);
+}
+
+/* Selector de plantilla: dos opciones como control segmentado */
+.plantillas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-alt);
+}
+
+.plantilla {
+  position: relative;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.plantilla input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: inherit;
+}
+
+.plantilla.elegida {
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.plantilla:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.plantilla.deshabilitada {
+  color: #9aa6ab;
+  cursor: not-allowed;
+}
+
+.aviso-recordatorio {
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-accent-light);
+  color: var(--color-accent-dark);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.campo-mensaje {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.etiqueta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.restaurar {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: #faf7f2;
+  font: inherit;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.estado-telefono {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.sin-telefono {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid #f3cdb8;
+  border-radius: var(--radius-sm);
+  background-color: #fff8f3;
+  color: var(--color-accent-dark);
+  font-size: 0.88rem;
+}
+
+.sin-telefono p {
+  color: var(--color-text);
+}
+
+.sin-telefono a {
+  display: inline-block;
+  margin-left: 4px;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Verde de WhatsApp oscurecido para que el texto blanco pase AA */
+.boton-whatsapp {
+  background-color: #12784a;
+  border-color: #12784a;
+  box-shadow: 0 2px 4px rgba(18, 120, 74, 0.22);
+}
+
+.boton-whatsapp:hover:not(:disabled) {
+  background-color: #0d5f3a;
+  border-color: #0d5f3a;
+  color: white;
+}
+
+@media (max-width: 520px) {
+  .tarjeta {
+    padding: 18px 16px;
+  }
+
+  .acciones .boton {
+    flex: 1;
+  }
+}

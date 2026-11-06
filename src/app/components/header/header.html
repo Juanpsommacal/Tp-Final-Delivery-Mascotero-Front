@@ -1,7 +1,7 @@
-<header class="header">
+<header class="header" [class.menu-abierto]="menuAbierto()">
     <div class="marca">
         <a [routerLink]="auth.logueado() ? '/' : '/login'" class="logo-link">
-            <img src="/DeliveryMascoteroLogo.jpg" alt="Delivery Mascotero Logo" class="logo-img" />
+            <img src="/DeliveryMascoteroLogo.jpg" alt="" class="logo-img" />
             <div class="logo-textos">
                 <span class="logo-titulo">Delivery Mascotero</span>
                 <span class="logo-subtitulo">Pet Shop & Envíos</span>
@@ -10,43 +10,52 @@
     </div>
 
     @if (auth.logueado()) {
-        <nav class="nav-container">
+        <button type="button" class="boton-menu"
+                [attr.aria-expanded]="menuAbierto()" aria-controls="menu-principal"
+                (click)="menuAbierto.set(!menuAbierto())">
+            <span class="hamburguesa" aria-hidden="true"><span></span></span>
+            {{ menuAbierto() ? 'Ocultar' : 'Menú' }}
+        </button>
+
+        <nav class="nav-container" id="menu-principal" aria-label="Principal">
             <ul class="menu">
                 <li>
-                    <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
+                    <a routerLink="/" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
                 </li>
                 <li>
-                    <a routerLink="/productos" routerLinkActive="activo">Productos</a>
+                    <a routerLink="/pedidos" routerLinkActive="activo" ariaCurrentWhenActive="page">Pedidos</a>
                 </li>
                 <li>
-                    <a routerLink="/ofertas" routerLinkActive="activo">Ofertas</a>
+                    <a routerLink="/pagos" routerLinkActive="activo" ariaCurrentWhenActive="page">Pagos</a>
                 </li>
                 <li>
-                    <a routerLink="/clientes" routerLinkActive="activo">Clientes</a>
+                    <a routerLink="/clientes" routerLinkActive="activo" ariaCurrentWhenActive="page">Clientes</a>
+                </li>
+                <li class="separador" aria-hidden="true"></li>
+                <li>
+                    <a routerLink="/productos" routerLinkActive="activo" ariaCurrentWhenActive="page">Productos</a>
                 </li>
                 <li>
-                    <a routerLink="/proveedores" routerLinkActive="activo">Proveedores</a>
+                    <a routerLink="/ofertas" routerLinkActive="activo" ariaCurrentWhenActive="page">Ofertas</a>
                 </li>
                 <li>
-                    <a routerLink="/pedidos" routerLinkActive="activo">Pedidos</a>
+                    <a routerLink="/compras" routerLinkActive="activo" ariaCurrentWhenActive="page">Compras</a>
                 </li>
                 <li>
-                    <a routerLink="/pagos" routerLinkActive="activo">Pagos</a>
-                </li>
-                <li>
-                    <a routerLink="/compras" routerLinkActive="activo">Compras</a>
+                    <a routerLink="/proveedores" routerLinkActive="activo" ariaCurrentWhenActive="page">Proveedores</a>
                 </li>
 
                 @if (auth.tieneRol('ADMIN')) {
+                    <li class="separador" aria-hidden="true"></li>
                     <li>
-                        <a routerLink="/reportes" routerLinkActive="activo">Métricas</a>
+                        <a routerLink="/reportes" routerLinkActive="activo" ariaCurrentWhenActive="page">Métricas</a>
                     </li>
                 }
 
             </ul>
 
             <div class="auth-acciones">
-                <button class="boton-logout" (click)="auth.logout()">Cerrar Sesión</button>
+                <button class="boton-logout" (click)="auth.logout()">Cerrar sesión</button>
             </div>
         </nav>
     }

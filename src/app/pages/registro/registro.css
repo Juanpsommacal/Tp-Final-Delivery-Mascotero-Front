@@ -4,7 +4,7 @@
     padding: 0 16px;
 }
 
-.registro h2 {
+.registro h1 {
     margin-bottom: 20px;
     font-size: 1.8rem;
     font-weight: 800;
@@ -89,7 +89,7 @@ button[type="submit"]:hover:not(:disabled) {
 }
 
 .alternativa a {
-    color: var(--color-accent);
+    color: var(--color-primary);
     font-weight: 700;
     text-decoration: none;
 }
@@ -97,4 +97,16 @@ button[type="submit"]:hover:not(:disabled) {
 .alternativa a:hover {
     text-decoration: underline;
     color: var(--color-accent-dark);
+}
+
+.subtitulo {
+  margin: -12px 0 20px;
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+.ayuda {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
 }

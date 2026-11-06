@@ -1,6 +1,7 @@
+import { PesosPipe } from '../../../pipes/pesos-pipe';
+import { Icono } from '../../../components/icono/icono';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OfertasService } from '../../../services/ofertas/ofertas-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
@@ -18,7 +19,7 @@ import { coincideProducto } from '../../../utils/producto-util';
 import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
-  imports: [ReactiveFormsModule, CurrencyPipe],
+  imports: [ReactiveFormsModule, Icono, PesosPipe],
   selector: 'app-ofertas-form',
   styleUrl: './ofertas-form.css',
   templateUrl: './ofertas-form.html',

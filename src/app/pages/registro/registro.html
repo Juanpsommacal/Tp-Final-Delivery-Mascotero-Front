@@ -1,5 +1,6 @@
 <section class="registro">
-  <h2>Crear cuenta</h2>
+  <h1>Crear cuenta</h1>
+  <p class="subtitulo">Con tu cuenta podés cargar pedidos, clientes y compras.</p>
 
   <form [formGroup]="formulario" (ngSubmit)="crearCuenta()" novalidate>
 
@@ -23,7 +24,8 @@
 
     <label class="campo">
       Contraseña *
-      <input type="password" formControlName="password" autocomplete="new-password" />
+      <input type="password" formControlName="password" autocomplete="new-password" aria-describedby="ayuda-password" />
+      <span class="ayuda" id="ayuda-password">Entre 3 y 8 caracteres.</span>
       <span class="error">{{ mensajeError('password') }}</span>
     </label>
 
@@ -38,9 +40,9 @@
     }
 
     <button type="submit" class="boton" [disabled]="guardando()">
-      {{ guardando() ? 'Creando cuenta...' : 'Crear cuenta' }}
+      {{ guardando() ? 'Creando cuenta…' : 'Crear cuenta' }}
     </button>
   </form>
 
-  <p class="alternativa">¿Ya tenes cuenta? <a routerLink="/login">Inicia sesion</a></p>
+  <p class="alternativa">¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión</a></p>
 </section>

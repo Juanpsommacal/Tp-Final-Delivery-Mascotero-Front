@@ -1,10 +1,15 @@
+import { OrdenMobile, OpcionOrden } from '../../../components/orden-mobile/orden-mobile';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { OfertasService } from '../../../services/ofertas/ofertas-service';
 import { Oferta } from '../../../models/Oferta';
-import { RouterLink } from '@angular/router';
-import { DatePipe, NgClass } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
 import { formatearPorcentajeVisual } from '../../../utils/oferta-util';
 import { getFechaLocalISO } from '../../../utils/fecha-util';
+import { SkeletonLista } from '../../../components/skeleton-lista/skeleton-lista';
+import { Paginacion } from '../../../components/paginacion/paginacion';
+import { filtrosEnUrl, TablaOrdenable } from '../../../utils/tabla';
+import { AlertaService } from '../../../services/alerta/alerta-service';
 
 export type FiltroEstadoOferta = 'TODAS' | 'VIGENTES' | 'PROXIMAS' | 'FINALIZADAS';
 
@@ -15,13 +20,15 @@ export interface EstadoOfertaInfo {
 }
 
 @Component({
-  imports: [RouterLink, DatePipe, NgClass],
+  imports: [RouterLink, DatePipe, SkeletonLista, Paginacion, OrdenMobile],
   selector: 'app-oferta-list',
   styleUrl: './oferta-list.css',
   templateUrl: './oferta-list.html',
 })
 export class OfertaList implements OnInit {
   private ofertasService = inject(OfertasService);
+  private alertaService = inject(AlertaService);
+  private router = inject(Router);
 
   readonly porcentajeVisual = formatearPorcentajeVisual;
 
@@ -75,6 +82,44 @@ export class OfertaList implements OnInit {
     });
   });
 
+  // Opciones del select "Ordenar por" que se ve en el celular
+  readonly opcionesOrden: OpcionOrden[] = [
+    { valor: 'inicio-desc', etiqueta: 'Más nuevas primero' },
+    { valor: 'fin-asc', etiqueta: 'Terminan antes' },
+    { valor: 'descuento-desc', etiqueta: 'Mayor descuento' },
+    { valor: 'nombre-asc', etiqueta: 'Nombre (A–Z)' },
+  ]
+
+  tabla = new TablaOrdenable({
+    filas: this.ofertasFiltradas,
+    columnas: {
+      nombre: (o: Oferta) => o.nombre.toLowerCase(),
+      descuento: (o: Oferta) => o.porcentaje,
+      inicio: (o: Oferta) => this.fechaISO(o.fechaInicio),
+      fin: (o: Oferta) => this.fechaISO(o.fechaFin),
+    },
+    ordenInicial: 'inicio',
+    columnasTexto: ['nombre'],
+    reiniciarPaginaCon: () => [this.busqueda(), this.filtroEstado()],
+  });
+
+  constructor() {
+    filtrosEnUrl({ q: this.busqueda, estado: this.filtroEstado as any }, this.tabla);
+  }
+
+  private fechaISO(fecha: string | Date): string {
+    return typeof fecha === 'string' ? fecha.slice(0, 10) : getFechaLocalISO(new Date(fecha));
+  }
+
+  cantidadProductos(oferta: Oferta): number {
+    if (oferta.productos) return oferta.productos.length;
+    return Array.isArray(oferta.productosIds) ? oferta.productosIds.length : 0;
+  }
+
+  abrir(oferta: Oferta) {
+    this.router.navigate(['/ofertas', oferta.id]);
+  }
+
   conteos = computed(() => {
     const lista = this.ofertas();
     let vigentes = 0;
@@ -110,6 +155,7 @@ export class OfertaList implements OnInit {
       error: (error) => {
         console.error('Error al obtener las ofertas:', error);
         this.cargando.set(false);
+        this.alertaService.error('No se pudieron cargar las ofertas');
       },
     });
   }
@@ -120,5 +166,10 @@ export class OfertaList implements OnInit {
 
   cambiarFiltro(estado: FiltroEstadoOferta): void {
     this.filtroEstado.set(estado);
+  }
+
+  limpiarFiltros(): void {
+    this.busqueda.set('');
+    this.filtroEstado.set('TODAS');
   }
 }

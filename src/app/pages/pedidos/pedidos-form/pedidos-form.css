@@ -4,7 +4,7 @@
     padding: 0 16px;
 }
 
-h2 {
+h1 {
     margin-bottom: 20px;
     font-size: 1.8rem;
     font-weight: 800;
@@ -331,5 +331,77 @@ select:focus {
 
     .item-info {
         grid-column: 1 / -1;
+    }
+}
+
+/* Repetir el último pedido del cliente */
+.repetir {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-primary-light);
+}
+
+.repetir-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.92rem;
+}
+
+.repetir-texto span {
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.boton-repetir {
+    min-height: 44px;
+}
+
+.avisos-repetir {
+    padding: 12px 14px;
+    border: 1px solid #f3cdb8;
+    border-radius: var(--radius-sm);
+    background-color: #fff8f3;
+    font-size: 0.9rem;
+    color: var(--color-accent-dark);
+}
+
+.avisos-repetir ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: var(--color-text);
+}
+
+/* Celular: menos cajas dentro de cajas, sin scroll dentro del scroll y botones fáciles de tocar */
+@media (max-width: 600px) {
+    .contenedor-form {
+        margin-top: 16px;
+        padding: 0 12px;
+    }
+
+    form,
+    .formulario {
+        min-width: 0;
+        padding: 16px;
+    }
+
+    fieldset {
+        min-width: 0;
+        padding: 14px 12px;
+    }
+
+    .sugerencias-lista {
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    .boton-agregar {
+        min-height: 44px;
+        padding-inline: 14px;
     }
 }

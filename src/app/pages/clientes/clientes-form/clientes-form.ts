@@ -36,19 +36,19 @@ export class ClientesForm implements OnInit{
   private mensajes: Record<string, Record<string, string>> = {
     'nombre': {
       required: 'El nombre del cliente es obligatorio',
-      noVacio: 'El nombre del cliente no puede estar vacio',
+      noVacio: 'El nombre del cliente no puede estar vacío',
       pattern: 'El nombre solo puede contener letras y espacios',
       maxlength: 'El nombre no puede superar los 30 caracteres'
     },
     'apellido': {
       required: 'El apellido del cliente es obligatorio',
-      noVacio: 'El apellido del cliente no puede estar vacio',
+      noVacio: 'El apellido del cliente no puede estar vacío',
       pattern: 'El apellido solo puede contener letras y espacios',
       maxlength: 'El apellido no puede superar los 30 caracteres'
     },
     'telefono': {
-      required: 'El campo de telefono es obligatorio',
-      pattern: 'Debe contener entre 7 y 15 numeros, con "+" opcional al inicio'
+      required: 'El campo de teléfono es obligatorio',
+      pattern: 'Debe contener entre 7 y 15 números, con "+" opcional al inicio'
     }
   }
 
@@ -77,7 +77,7 @@ export class ClientesForm implements OnInit{
     if (!control?.touched || !control.errors) return null
 
     const error = Object.keys(control.errors)[0]
-    return this.mensajes[campo]?.[error] ?? 'Valor invalido'
+    return this.mensajes[campo]?.[error] ?? 'Valor inválido'
   }
 
   onSubmit() {

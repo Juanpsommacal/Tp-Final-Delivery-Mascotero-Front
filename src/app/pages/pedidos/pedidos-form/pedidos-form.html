@@ -1,6 +1,6 @@
 <section class="contenedor-form">
 
-    <h2>Nuevo pedido</h2>
+    <h1>Nuevo pedido</h1>
 
     <!-- Sin Reactive Forms: el pedido se arma con signals (cliente, direccion e items) -->
     <form (submit)="$event.preventDefault(); guardar()" novalidate>
@@ -25,7 +25,7 @@
                         <select [value]="direccionSeleccionada()?.id ?? ''" (change)="seleccionarDireccion($any($event.target).value)">
                             <option value="" disabled>Elegí una dirección</option>
                             @for (direccion of cliente.direcciones; track direccion.id) {
-                                <option [value]="direccion.id">{{ direccion.direccionCompleta }} - {{ direccion.pisoDepto }}</option>
+                                <option [value]="direccion.id">{{ direccion.direccionCompleta }}{{ direccion.pisoDepto && direccion.pisoDepto !== 'Sin especificar' ? ' - ' + direccion.pisoDepto : '' }}</option>
                             }
                         </select>
                         <span class="error">{{ intentoGuardar() && !direccionSeleccionada() ? 'Elegí la dirección de entrega' : '' }}</span>
@@ -35,6 +35,30 @@
                         Este cliente no tiene direcciones cargadas.
                         <a [routerLink]="['/clientes', cliente.id]">Cargarle una dirección</a>
                     </p>
+                }
+
+                <!-- Atajo para el pedido de todos los meses -->
+                @if (ultimoPedido(); as ultimo) {
+                    <div class="repetir">
+                        <div class="repetir-texto">
+                            <strong>Último pedido: #{{ ultimo.id }} del {{ ultimo.fecha | date:'dd/MM/yyyy' }}</strong>
+                            <span>{{ unidadesUltimoPedido() }} {{ unidadesUltimoPedido() === 1 ? 'unidad' : 'unidades' }} · {{ ultimo.montoTotal | pesos }}</span>
+                        </div>
+                        <button type="button" class="boton boton-secundario boton-repetir" (click)="repetirUltimoPedido()">
+                            <app-icono nombre="repetir" [tamano]="18" /> Repetir pedido
+                        </button>
+                    </div>
+                }
+
+                @if (avisosRepetir().length > 0) {
+                    <div class="avisos-repetir" role="status">
+                        <strong>Revisá antes de crear:</strong>
+                        <ul>
+                            @for (aviso of avisosRepetir(); track aviso) {
+                                <li>{{ aviso }}</li>
+                            }
+                        </ul>
+                    </div>
                 }
 
             } @else {
@@ -89,14 +113,14 @@
             </label>
 
             @if (cargandoProductos()) {
-                <p class="texto-secundario">Cargando productos...</p>
+                <p class="texto-secundario">Cargando productos…</p>
             } @else {
                 <div class="sugerencias-lista">
                     @for (p of productosFiltrados(); track p.id) {
                         <div class="sugerencia-item" [class.ya-agregado]="estaAgregado(p) || p.stock <= 0">
                             <div class="sugerencia-info">
                                 <strong>{{ p.marca }} {{ p.nombre }}</strong>
-                                <span class="sugerencia-precio">{{ precioFinal(p) | currency:'ARS':'symbol-narrow' }}</span>
+                                <span class="sugerencia-precio">{{ precioFinal(p) | pesos }}</span>
                                 <span class="texto-secundario">Stock: {{ p.stock }}</span>
                             </div>
                             <button type="button" class="boton-agregar"
@@ -117,7 +141,7 @@
                         <div class="item-info">
                             <strong>{{ item.producto.marca }} {{ item.producto.nombre }}</strong>
                             <span class="texto-secundario">
-                                {{ precioFinal(item.producto) | currency:'ARS':'symbol-narrow' }} c/u
+                                {{ precioFinal(item.producto) | pesos }} c/u
                                 @if (item.producto.precioOferta != null) {
                                     <span class="oferta">(en oferta)</span>
                                 }
@@ -132,14 +156,14 @@
                                [value]="item.cantidad"
                                (input)="cambiarCantidad(item.producto, $any($event.target).value)" />
 
-                        <strong class="subtotal">{{ precioFinal(item.producto) * item.cantidad | currency:'ARS':'symbol-narrow' }}</strong>
+                        <strong class="subtotal">{{ precioFinal(item.producto) * item.cantidad | pesos }}</strong>
 
                         <button type="button" class="quitar" title="Quitar del pedido"
                                 [attr.aria-label]="'Quitar ' + item.producto.nombre"
-                                (click)="quitarProducto(item.producto)">✕</button>
+                                (click)="quitarProducto(item.producto)"><app-icono nombre="cerrar" [tamano]="16" /></button>
                     </div>
                 } @empty {
-                    <p class="vacio">Todavía no agregaste productos. Buscalos arriba y hacé clic en <strong>+ Agregar</strong>.</p>
+                    <p class="vacio">Todavía no agregaste productos. Buscalos arriba y tocá <strong>+ Agregar</strong>.</p>
                 }
             </div>
 
@@ -147,18 +171,18 @@
 
             <div class="total">
                 <span>Total</span>
-                <strong>{{ total() | currency:'ARS':'symbol-narrow' }}</strong>
+                <strong>{{ total() | pesos }}</strong>
             </div>
         </fieldset>
 
         @if (mensaje()) {
-            <p class="error mensaje">{{ mensaje() }}</p>
+            <p class="error mensaje" id="error-formulario" role="alert" tabindex="-1">{{ mensaje() }}</p>
         }
 
         <div class="acciones">
             <button type="button" class="boton boton-secundario" (click)="volver()">Cancelar</button>
             <button type="submit" class="boton boton-accent" [disabled]="guardando()">
-                {{ guardando() ? 'Guardando...' : 'Crear pedido' }}
+                {{ guardando() ? 'Guardando…' : 'Crear pedido' }}
             </button>
         </div>
 

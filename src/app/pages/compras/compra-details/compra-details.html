@@ -5,7 +5,7 @@
         <article class="detalle">
 
             <div class="titulo">
-                <h2>Compra #{{ compra.id }}</h2>
+                <h1>Compra #{{ compra.id }}</h1>
                 <span [class]="'estado compra-' + compra.estadoCompra.toLowerCase()">{{ compra.estadoCompra | formatoEnum }}</span>
             </div>
 
@@ -58,10 +58,10 @@
                                     @if (detalle.precioUnitario === 0) {
                                         <span class="bonificado">Bonificado</span>
                                     } @else {
-                                        {{ detalle.precioUnitario | currency:'ARS':'symbol-narrow' }}
+                                        {{ detalle.precioUnitario | pesos }}
                                     }
                                 </td>
-                                <td class="numero">{{ detalle.precioTotal | currency:'ARS':'symbol-narrow' }}</td>
+                                <td class="numero">{{ detalle.precioTotal | pesos }}</td>
                                 @if (pendiente()) {
                                     <td class="numero">
                                         @let stock = stockDe(detalle.productoId);
@@ -78,7 +78,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="3">Total</td>
-                            <td class="numero">{{ compra.montoTotal | currency:'ARS':'symbol-narrow' }}</td>
+                            <td class="numero">{{ compra.montoTotal | pesos }}</td>
                             @if (pendiente()) {
                                 <td></td>
                             }
@@ -90,7 +90,7 @@
         </article>
 
     } @else {
-        <p>Cargando compra...</p>
+        <p>Cargando compra…</p>
     }
 
 </section>

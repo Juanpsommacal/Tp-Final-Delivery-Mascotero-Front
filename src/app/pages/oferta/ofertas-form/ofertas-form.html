@@ -1,8 +1,8 @@
 <section class="contenedor-form">
-  <h2>{{ id() ? 'Modificar oferta' : 'Nueva oferta' }}</h2>
+  <h1>{{ id() ? 'Modificar oferta' : 'Nueva oferta' }}</h1>
 
   @if (cargando()) {
-    <p class="cargando">Cargando datos de la oferta...</p>
+    <p class="cargando">Cargando datos de la oferta…</p>
   } @else {
     <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
       <fieldset>
@@ -62,7 +62,6 @@
           <label class="campo">
             Buscar productos en el catálogo
             <div class="input-con-icono">
-              <span class="icono-lupa">🔍</span>
               <input
                 type="search"
                 placeholder="Escribí nombre o marca (ej: Royal Canin, Dog Chow, Alimento...)"
@@ -73,14 +72,14 @@
           </label>
 
           @if (cargandoProductos()) {
-            <p class="cargando-productos">Cargando productos...</p>
+            <p class="cargando-productos">Cargando productos…</p>
           } @else {
             <div class="sugerencias-lista">
               @for (p of productosFiltrados(); track p.id) {
                 <div class="sugerencia-item" [class.ya-agregado]="estaSeleccionado(p.id)">
                   <div class="sugerencia-info">
                     <strong class="sugerencia-nombre">{{ p.marca }} {{ p.nombre }}</strong>
-                    <span class="sugerencia-precio">{{ p.precio | currency:'ARS':'symbol-narrow' }}</span>
+                    <span class="sugerencia-precio">{{ p.precio | pesos }}</span>
                   </div>
                   <button
                     type="button"
@@ -117,7 +116,7 @@
                   <div class="tag-info">
                     <span class="tag-nombre">{{ p.marca ? (p.marca + ' ' + p.nombre) : p.nombre }}</span>
                     @if (p.precio) {
-                      <span class="tag-precio">{{ p.precio | currency:'ARS':'symbol-narrow' }}</span>
+                      <span class="tag-precio">{{ p.precio | pesos }}</span>
                     }
                   </div>
                   <button
@@ -125,15 +124,13 @@
                     class="tag-eliminar"
                     title="Quitar de la oferta"
                     (click)="removerProducto(p.id)"
-                  >
-                    ✕
-                  </button>
+                  ><app-icono nombre="cerrar" [tamano]="14" /></button>
                 </div>
               }
             </div>
           } @else {
             <div class="seleccionados-vacio">
-              <span>Aún no seleccionaste ningún producto. Buscá arriba y hacé clic en <strong>+ Agregar</strong>.</span>
+              <span>Aún no seleccionaste ningún producto. Buscá arriba y tocá <strong>+ Agregar</strong>.</span>
             </div>
           }
 
@@ -146,7 +143,7 @@
           Cancelar
         </button>
         <button type="submit" class="boton boton-accent" [disabled]="guardando()">
-          {{ guardando() ? 'Guardando oferta...' : (id() ? 'Guardar cambios' : 'Guardar oferta') }}
+          {{ guardando() ? 'Guardando oferta…' : (id() ? 'Guardar cambios' : 'Guardar oferta') }}
         </button>
       </div>
     </form>

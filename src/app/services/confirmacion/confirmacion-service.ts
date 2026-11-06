@@ -1,3 +1,4 @@
+import { NombreIcono } from '../../components/icono/icono';
 import { Injectable, signal } from '@angular/core';
 
 export type TipoConfirmacion = 'peligro' | 'advertencia' | 'info';
@@ -8,7 +9,7 @@ export interface ConfirmacionOpciones {
   textoConfirmar?: string;
   textoCancelar?: string;
   tipo?: TipoConfirmacion;
-  icono?: string;
+  icono?: NombreIcono;
 }
 
 export interface ConfirmacionActiva extends ConfirmacionOpciones {

@@ -1,63 +1,148 @@
-<section class="home-container">
-    <div class="hero-card">
-        <div class="hero-badge">🐾 Pet Shop & Envíos a Domicilio</div>
-        <img src="/DeliveryMascoteroLogo.jpg" alt="Delivery Mascotero Logo" class="hero-logo" />
-        <h1 class="hero-titulo">Delivery Mascotero</h1>
-        <p class="hero-subtitulo">
-            Todo para tus mascotas: alimentos balanceados, antipulgas y accesorios con entrega directa en tu puerta.
-        </p>
+<section class="panel-dia">
 
-        <div class="hero-acciones">
-            <a routerLink="/productos" class="boton boton-accent">Ver Catálogo de Productos</a>
-            <a routerLink="/clientes" class="boton boton-secundario">Gestionar Clientes</a>
+    <header class="cabecera-dia">
+        <div>
+            <h1>{{ saludo() }}</h1>
+            <p class="fecha-hoy">{{ hoy | date:"EEEE d 'de' MMMM" }}</p>
         </div>
-    </div>
+        <div class="acciones-rapidas">
+            <a class="boton" routerLink="/pedidos/nuevo">Nuevo pedido</a>
+            <a class="boton boton-secundario" routerLink="/compras/nueva">Nueva compra</a>
+        </div>
+    </header>
 
-    <div class="modulos-grid">
-        <a routerLink="/productos" class="modulo-card">
-            <span class="modulo-icono">🥫</span>
-            <h3>Productos</h3>
-            <p>Consultá el catálogo, ofertas, stock y gestioná alimentos y antipulgas.</p>
-            <span class="modulo-link">Explorar productos &rarr;</span>
-        </a>
+    @if (error()) {
+        <div class="estado-vacio">
+            <strong>No se pudo cargar el resumen del día</strong>
+            <span>Revisá que el servidor esté prendido y volvé a intentar.</span>
+            <button type="button" class="boton boton-secundario" (click)="cargar()">Reintentar</button>
+        </div>
+    } @else {
+        <div class="tablero" [attr.aria-busy]="cargando()">
 
-        <a routerLink="/clientes" class="modulo-card">
-            <span class="modulo-icono">👥</span>
-            <h3>Clientes</h3>
-            <p>Administrá los datos de contacto y las direcciones de entrega de tus clientes.</p>
-            <span class="modulo-link">Ver clientes &rarr;</span>
-        </a>
+            <!-- Lo principal: qué hay que entregar -->
+            <section class="cola cola-entregas" aria-labelledby="titulo-entregas">
+                <header class="cola-cabecera">
+                    <h2 id="titulo-entregas">
+                        Por entregar
+                        @if (!cargando()) { <span class="cuenta">{{ porEntregar().length }}</span> }
+                    </h2>
+                    <a class="ver-todo" routerLink="/pedidos" [queryParams]="{ estado: 'PENDIENTE', orden: 'id-asc' }">Ver todos</a>
+                </header>
 
-        <a routerLink="/proveedores" class="modulo-card">
-            <span class="modulo-icono">🚚</span>
-            <h3>Proveedores</h3>
-            <p>Control de proveedores y distribuidores asociados para abastecimiento.</p>
-            <span class="modulo-link">Ver proveedores &rarr;</span>
-        </a>
+                @if (cargando()) {
+                    <ul class="filas" aria-hidden="true">
+                        @for (i of [1, 2, 3, 4]; track i) {
+                            <li class="fila"><span class="skeleton skeleton-linea larga"></span></li>
+                        }
+                    </ul>
+                } @else if (porEntregar().length === 0) {
+                    <p class="cola-vacia">No hay pedidos pendientes de entrega. Todo al día.</p>
+                } @else {
+                    <ul class="filas">
+                        @for (pedido of porEntregar().slice(0, maxFilas); track pedido.id) {
+                            <li>
+                                <a class="fila fila-entrega" [routerLink]="['/pedidos', pedido.id]">
+                                    <span class="fila-principal">
+                                        <span class="fila-titulo">{{ pedido.nombreCliente }}</span>
+                                        <span class="fila-detalle">{{ pedido.direccionCompleta }}</span>
+                                    </span>
+                                    <span class="fila-lateral">
+                                        <span class="fila-monto">{{ pedido.montoTotal | pesos }}</span>
+                                        <span class="espera" [class.espera-larga]="diasEsperando(pedido) >= 2">{{ textoEspera(pedido) }}</span>
+                                    </span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    @if (porEntregar().length > maxFilas) {
+                        <a class="mas" routerLink="/pedidos" [queryParams]="{ estado: 'PENDIENTE', orden: 'id-asc' }">
+                            y {{ porEntregar().length - maxFilas }} más
+                        </a>
+                    }
+                }
+            </section>
 
-        <a routerLink="/pedidos" class="modulo-card">
-            <span class="modulo-icono">📦</span>
-            <h3>Pedidos</h3>
-            <p>Seguimiento de órdenes, estado de envíos y entregas programadas.</p>
-            <span class="modulo-link">Ir a pedidos &rarr;</span>
-        </a>
+@if (pedidoWhatsapp(); as pedido) {
+<app-modal-whatsapp
+    [pedido]="pedido"
+    [telefono]="telefonoDe(pedido)"
+    plantillaInicial="saldo"
+    (cerrar)="pedidoWhatsapp.set(null)"
+    (recordatorioRegistrado)="alRegistrarRecordatorio($event)" />
+}
 
-        <a routerLink="/pagos" class="modulo-card">
-            <span class="modulo-icono">💵</span>
-            <h3>Pagos</h3>
-            <p>Registro de cobros por pedido y método de pago.</p>
-            <span class="modulo-link">Ver pagos &rarr;</span>
-        </a>
+            <div class="columna-lateral">
 
-        <a routerLink="/compras" class="modulo-card">
-            <span class="modulo-icono">🛒</span>
-            <h3>Compras</h3>
-            <p>Compras de mercadería a proveedores y recepción de stock.</p>
-            <span class="modulo-link">Ver compras &rarr;</span>
-        </a>
-    </div>
+                <section class="cola" aria-labelledby="titulo-cobrar">
+                    <header class="cola-cabecera">
+                        <h2 id="titulo-cobrar">Por cobrar</h2>
+                        <a class="ver-todo" routerLink="/pedidos" [queryParams]="{ pago: 'CON_DEUDA', orden: 'saldo-desc' }">Ver todos</a>
+                    </header>
 
-    <div class="creditos">
-        <span>TP Final · Matias Garcia - Juan Pablo Sommacal - Matias Vega</span>
-    </div>
+                    @if (cargando()) {
+                        <span class="skeleton skeleton-monto"></span>
+                    } @else if (porCobrar().length === 0) {
+                        <p class="cola-vacia">Nadie debe nada. Todos los pedidos están pagos.</p>
+                    } @else {
+                        <p class="total-cobrar">
+                            <span class="numerico">{{ totalPorCobrar() | pesos }}</span>
+                            en {{ porCobrar().length }} {{ porCobrar().length === 1 ? 'pedido' : 'pedidos' }}
+                        </p>
+                        <ul class="filas filas-compactas">
+                            @for (deuda of porCobrar().slice(0, 3); track deuda.pedido.id) {
+                                <li class="fila-con-accion">
+                                    <a class="fila" [routerLink]="['/pedidos', deuda.pedido.id]">
+                                        <span class="fila-principal">
+                                            <span class="fila-titulo">{{ deuda.pedido.nombreCliente }} <span class="fila-detalle">#{{ deuda.pedido.id }}</span></span>
+                                            @if (deuda.pedido.ultimoRecordatorio) {
+                                                <span class="recordado">Recordado {{ haceCuanto(deuda.pedido.ultimoRecordatorio) }}</span>
+                                            }
+                                        </span>
+                                        <span class="fila-monto deuda">{{ deuda.saldo | pesos }}</span>
+                                    </a>
+                                    <button type="button" class="boton-wa-icono" (click)="pedidoWhatsapp.set(deuda.pedido)"
+                                            [attr.aria-label]="'Recordar saldo por WhatsApp a ' + deuda.pedido.nombreCliente"
+                                            title="Recordar saldo por WhatsApp">
+                                        <app-icono nombre="mensaje" [tamano]="18" />
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+
+                <section class="cola" aria-labelledby="titulo-stock">
+                    <header class="cola-cabecera">
+                        <h2 id="titulo-stock">
+                            Stock bajo
+                            @if (!cargando()) { <span class="cuenta">{{ conStockBajo().length }}</span> }
+                        </h2>
+                        <a class="ver-todo" routerLink="/compras/nueva">Reponer</a>
+                    </header>
+
+                    @if (cargando()) {
+                        <span class="skeleton skeleton-linea larga"></span>
+                    } @else if (conStockBajo().length === 0) {
+                        <p class="cola-vacia">Ningún producto tiene {{ stockBajo }} unidades o menos.</p>
+                    } @else {
+                        <ul class="filas filas-compactas">
+                            @for (producto of conStockBajo().slice(0, maxFilas); track producto.id) {
+                                <li>
+                                    <a class="fila" [routerLink]="['/productos', producto.tipoProducto?.toLowerCase(), producto.id]">
+                                        <span class="fila-titulo">{{ producto.marca }} {{ producto.nombre }}</span>
+                                        <span class="unidades" [class.agotado]="producto.stock === 0">
+                                            {{ producto.stock === 0 ? 'Sin stock' : producto.stock + (producto.stock === 1 ? ' unidad' : ' unidades') }}
+                                        </span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+
+            </div>
+        </div>
+    }
+
 </section>

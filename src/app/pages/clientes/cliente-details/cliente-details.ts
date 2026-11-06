@@ -1,3 +1,5 @@
+import { Icono } from '../../../components/icono/icono';
+import { PesosPipe } from '../../../pipes/pesos-pipe';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -14,7 +16,7 @@ import { PagosService } from '../../../services/pagos/pagos-service';
 import Pedido from '../../../models/Pedido';
 import Pago from '../../../models/Pago';
 import { ClientesService } from '../../../services/clientes/clientes-service';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import { AuthService } from '../../../services/authentication/auth-service';
 
@@ -27,7 +29,7 @@ function saldoDe(pedido: Pedido): number {
 }
 
 @Component({
-  imports: [RouterLink, ReactiveFormsModule, CurrencyPipe, DatePipe, FormatoEnumPipe],
+  imports: [RouterLink, ReactiveFormsModule, DatePipe, FormatoEnumPipe, PesosPipe, Icono],
   selector: 'app-cliente-details',
   styleUrl: './cliente-details.css',
   templateUrl: './cliente-details.html',
@@ -54,6 +56,8 @@ export class ClienteDetails implements OnInit{
 
   // Cuenta del cliente: pedidos que debe (entregados y no pagados del todo) y pagos que hizo
   pedidosConDeuda = signal<Pedido[]>([])
+  // Último pedido no cancelado, para "Repetir último pedido"
+  ultimoPedido = signal<Pedido | null>(null)
   pagos = signal<Pago[]>([])
 
   deudaTotal = computed(() =>
@@ -118,17 +122,17 @@ export class ClienteDetails implements OnInit{
   private mensajes: Record<string, Record<string, string>> = {
     'calle': {
       required: 'El campo calle es obligatorio',
-      noVacio: 'La calle no puede estar vacia',
+      noVacio: 'La calle no puede estar vacía',
       maxlength: 'La calle no puede superar los 30 caracteres'
     }, 
     'numero': {
-      required: 'El numero de la calle es obligatorio',
-      min: 'El numero no puede ser nagativo',
-      digitos: 'Tiene que ser un entero de hasta 5 digitos'
+      required: 'El número de la calle es obligatorio',
+      min: 'El número no puede ser negativo',
+      digitos: 'Tiene que ser un entero de hasta 5 dígitos'
     },
     'piso': {
-      min: 'El numero del piso no puede ser negativo',
-      digitos: 'El numero del piso tiene que ser un numero entero de hasta 2 digitos'
+      min: 'El número del piso no puede ser negativo',
+      digitos: 'El número del piso tiene que ser un número entero de hasta 2 dígitos'
     },
     'departamento': { maxlength: 'El departamento no puede superar los 10 caracteres' },
     'observaciones': { maxlength: 'Las observaciones no pueden superar los 50 caracteres' },
@@ -157,12 +161,17 @@ export class ClienteDetails implements OnInit{
   // Si falla, el resto de la ficha se sigue viendo: la cuenta es informativa
   private cargarCuenta(clienteId: string) {
     this.pedidosService.getAllPedidos().subscribe({
-      next: (pedidos) => this.pedidosConDeuda.set(
-        pedidos.filter(p =>
-          String(p.clienteId) === String(clienteId) &&
-          (p.estadoPago === 'DEUDA' || p.estadoPago === 'DEUDA_PARCIAL')
+      next: (pedidos) => {
+        const delCliente = pedidos.filter(p => String(p.clienteId) === String(clienteId))
+        this.pedidosConDeuda.set(
+          delCliente.filter(p => p.estadoPago === 'DEUDA' || p.estadoPago === 'DEUDA_PARCIAL')
         )
-      ),
+        this.ultimoPedido.set(
+          delCliente
+            .filter(p => p.estadoPedido !== 'CANCELADO')
+            .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id - a.id)[0] ?? null
+        )
+      },
       error: () => this.pedidosConDeuda.set([])
     })
 
@@ -230,7 +239,7 @@ export class ClienteDetails implements OnInit{
     if (!control?.touched || !control.errors) return null
 
     const error = Object.keys(control.errors)[0]
-    return this.mensajes[campo]?.[error] ?? 'Valor invalido'
+    return this.mensajes[campo]?.[error] ?? 'Valor inválido'
   }
 
   agregarDireccion() {
@@ -284,7 +293,7 @@ export class ClienteDetails implements OnInit{
 
     const confirmado = await this.confirmacionService.confirmar({
       titulo: 'Eliminar cliente',
-      mensaje: `¿Seguro que desea eliminar a "${cliente.nombre} ${cliente.apellido}"?`,
+      mensaje: `¿Seguro que querés eliminar a "${cliente.nombre} ${cliente.apellido}"?`,
       textoConfirmar: 'Eliminar cliente',
       textoCancelar: 'Volver',
       tipo: 'peligro'
@@ -295,11 +304,11 @@ export class ClienteDetails implements OnInit{
     this.eliminado.set(true)
     this.clientesService.deleteCliente(cliente.id!).subscribe({
       next: () => {
-        alert('Cliente eliminado correctamente')
+        this.alertaService.exito(`${cliente.nombre} ${cliente.apellido} se eliminó.`, 'Cliente eliminado')
         this.router.navigate(['/clientes'])
       },
       error: (error) => {
-        alert(`Error: ${extraerMensajeError(error)}`)
+        this.alertaService.error(extraerMensajeError(error), 'No se pudo eliminar el cliente')
         this.eliminado.set(false)
       }
     })
@@ -332,7 +341,7 @@ export class ClienteDetails implements OnInit{
 
     const confirmado = await this.confirmacionService.confirmar({
       titulo: 'Eliminar dirección',
-      mensaje: `¿Desea eliminar la dirección "${direccion.direccionCompleta}"?`,
+      mensaje: `¿Querés eliminar la dirección "${direccion.direccionCompleta}"?`,
       textoConfirmar: 'Eliminar',
       tipo: 'peligro'
     })

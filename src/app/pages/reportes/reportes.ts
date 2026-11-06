@@ -1,14 +1,12 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { PesosPipe } from '../../pipes/pesos-pipe';
+import { Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import { SelectorPeriodo } from '../../components/selector-periodo/selector-periodo';
 import { ReportesService } from '../../services/reportes/reportes-service';
-import { PedidosService } from '../../services/pedidos/pedidos-service';
 import { EstadoPedido, ESTADOS_PEDIDO } from '../../models/Enums';
-import Pedido from '../../models/Pedido';
-import { saldoDe, tieneDeuda } from '../../utils/pedido-utils';
 import { PedidosPorEstado, ProductoMasVendido, TicketPromedio, VentasPorMes, VentasPorRango } from '../../models/Reportes';
 import { extraerMensajeError } from '../../utils/error-util';
 import { forkJoin } from 'rxjs';
 import { FormatoEnumPipe } from '../../pipes/formato-enum-pipe';
-import { CurrencyPipe } from '@angular/common';
 
 const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
                'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -20,7 +18,7 @@ function formatoFecha(fecha: Date) {
 }
 
 @Component({
-  imports: [CurrencyPipe, FormatoEnumPipe],
+  imports: [FormatoEnumPipe, PesosPipe, SelectorPeriodo],
   selector: 'app-reportes',
   styleUrl: './reportes.css',
   templateUrl: './reportes.html',
@@ -28,20 +26,10 @@ function formatoFecha(fecha: Date) {
 export class Reportes implements OnInit {
 
   private reportesService = inject(ReportesService)
-  private pedidosService = inject(PedidosService)
 
   hoy = new Date()
   meses = MESES.map((nombre, indice) => ({ valor: indice + 1, nombre }))
   estados = ESTADOS_PEDIDO
-
-  // --------------------- Deuda pendiente de cobro ---------------------
-  pedidosConDeuda = signal<Pedido[]>([])
-  cargandoDeuda = signal(false)
-  errorDeuda = signal('')
-
-  deudaTotal = computed(() => 
-    Math.round(this.pedidosConDeuda().reduce((suma, pedido) => suma + saldoDe(pedido), 0) * 100) / 100
-  )
 
   // --------------------- Resumen del mes ---------------------
   anio = signal(this.hoy.getFullYear())
@@ -65,6 +53,13 @@ export class Reportes implements OnInit {
 
   rangoValido = computed(() => !!this.fechaInicio() && !!this.fechaFin() && this.fechaInicio() <= this.fechaFin())
 
+  // Las ventas del rango se recalculan solas al cambiar las fechas (sin botón "Calcular")
+  private recalcularRango = effect(() => {
+    this.fechaInicio()
+    this.fechaFin()
+    untracked(() => this.cargarRango())
+  })
+
 
   // --------------------- Top 5 productos mas vendidos ---------------------
   top5 = signal<ProductoMasVendido[]>([])
@@ -74,30 +69,12 @@ export class Reportes implements OnInit {
   maxVendido = computed(() => Math.max(1, ...this.top5().map(producto => producto.cantidadVendida)))
 
   ngOnInit(): void {
-    this.cargarDeuda()
     this.cargarMes()
-    this.cargarRango()
     this.cargarTop5()
   }
 
   cantidadPorEstado(estado: EstadoPedido) {
     return this.pedidosPorEstado().find(item => item.estado === estado)?.cantidad ?? 0
-  }
-
-  cargarDeuda() {
-    this.cargandoDeuda.set(true)
-    this.errorDeuda.set('')
-
-    this.pedidosService.getAllPedidos().subscribe({
-      next: (pedidos) => {
-        this.pedidosConDeuda.set(pedidos.filter(tieneDeuda))
-        this.cargandoDeuda.set(false)
-      },
-      error: (error) => {
-        this.errorDeuda.set(extraerMensajeError(error))
-        this.cargandoDeuda.set(false)
-      }
-    })
   }
 
   cargarMes() { 

@@ -68,48 +68,48 @@ export class ProductosForm implements OnInit {
   } satisfies Record<TipoProducto, unknown>
 
   private mensajes: Record<string, Record<string, string>> = {
-    'tipoProducto': { required: 'Elegi un tipo de producto' },
+    'tipoProducto': { required: 'Elegí un tipo de producto' },
     'nombre': {
-      required: 'El nombre no puede estar vacio',
-      noVacio: 'El nombre no puede estar vacio',
+      required: 'El nombre no puede estar vacío',
+      noVacio: 'El nombre no puede estar vacío',
       maxlength: 'El nombre no puede exceder los 30 caracteres'
     },
-    'descripcion': { maxlength: 'La descripcion no puede exceder los 100 caracteres' },
+    'descripcion': { maxlength: 'La descripción no puede exceder los 100 caracteres' },
     'precio': {
-      required: 'El precio no puede estar vacio',
+      required: 'El precio no puede estar vacío',
       min: 'El precio no puede ser menor a 0',
-      digitos: 'Maximo 7 digitos enteros y 2 decimales'
+      digitos: 'Máximo 7 dígitos enteros y 2 decimales'
     },
     'stock': {
-      required: 'El stock no puede estar vacio',
+      required: 'El stock no puede estar vacío',
       min: 'El stock no puede ser menor a 0',
-      digitos: 'Tiene que ser un entero de hasta 3 digitos'
+      digitos: 'Tiene que ser un entero de hasta 3 dígitos'
     },
     'marca': {
-      required: 'La marca no puede estar vacia',
-      noVacio: 'La marca no puede estar vacia',
+      required: 'La marca no puede estar vacía',
+      noVacio: 'La marca no puede estar vacía',
       maxlength: 'La marca no puede exceder los 20 caracteres'
     },
     'alimento.peso': {
-      required: 'El peso no puede estar vacio',
+      required: 'El peso no puede estar vacío',
       min: 'El peso no puede ser menor a 0',
-      digitos: 'Maximo 3 digitos enteros y 1 decimal'
+      digitos: 'Máximo 3 dígitos enteros y 1 decimal'
     },
-    'alimento.unidadMedida': { required: 'La unidad de medida no puede estar vacia' },
-    'alimento.etapaVida': { required: 'La etapa de vida no puede estar vacia' },
-    'alimento.tipoAnimal': { required: 'El tipo de animal no puede estar vacio' },
-    'antipulgas.tipoAnimal': { required: 'El tipo de animal no puede estar vacio' },
+    'alimento.unidadMedida': { required: 'La unidad de medida no puede estar vacía' },
+    'alimento.etapaVida': { required: 'La etapa de vida no puede estar vacía' },
+    'alimento.tipoAnimal': { required: 'El tipo de animal no puede estar vacío' },
+    'antipulgas.tipoAnimal': { required: 'El tipo de animal no puede estar vacío' },
     'antipulgas.kgMin': {
-      required: 'El peso minimo no puede estar vacio',
-      min: 'El peso minimo no puede ser menor a 0',
-      digitos: 'Maximo 2 digitos enteros y 2 decimales'
+      required: 'El peso mínimo no puede estar vacío',
+      min: 'El peso mínimo no puede ser menor a 0',
+      digitos: 'Máximo 2 dígitos enteros y 2 decimales'
     },
     'antipulgas.kgMax': {
-      required: 'El peso maximo no puede estar vacio',
-      min: 'El peso maximo no puede ser menor a 0',
-      digitos: 'Maximo 2 digitos enteros y 2 decimales'
+      required: 'El peso máximo no puede estar vacío',
+      min: 'El peso máximo no puede ser menor a 0',
+      digitos: 'Máximo 2 dígitos enteros y 2 decimales'
     },
-    'antipulgas.tipoAntipulgas': { required: 'El tipo de antipulgas no puede estar vacio' },
+    'antipulgas.tipoAntipulgas': { required: 'El tipo de antipulgas no puede estar vacío' },
   }
 
   constructor() {
@@ -179,7 +179,7 @@ export class ProductosForm implements OnInit {
     if (!control?.touched || !control.errors) return null
 
     const error = Object.keys(control.errors)[0]
-    return this.mensajes[ruta]?.[error] ?? 'Valor invalido'
+    return this.mensajes[ruta]?.[error] ?? 'Valor inválido'
   }
 
   errorRangoPeso(): boolean {

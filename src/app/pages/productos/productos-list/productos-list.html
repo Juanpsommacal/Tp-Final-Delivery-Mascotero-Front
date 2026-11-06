@@ -1,53 +1,118 @@
 <article class="contenedor-list">
 
     <div class="encabezado">
-        <h2>Listado de Productos</h2>
+        <h2>Productos</h2>
         <a class="boton" routerLink="/productos/nuevo">Nuevo producto</a>
     </div>
 
-    <div class="filtros">
-        <label>
+    <div class="filtros" [class.abiertos]="filtrosAbiertos()">
+        <label class="buscar">
             Buscar por marca y nombre
             <input type="search" placeholder="Ej: Proplan adulto mediano"
                    [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
         </label>
 
-        <label>
+        <button type="button" class="boton boton-secundario boton-filtros" [attr.aria-expanded]="filtrosAbiertos()"
+                (click)="filtrosAbiertos.set(!filtrosAbiertos())">
+            {{ filtrosAbiertos() ? 'Ocultar filtros' : 'Filtros' }}
+            @if (cantidadFiltros() > 0) { <span class="cuenta-filtros">{{ cantidadFiltros() }}</span> }
+        </button>
+
+        <label class="filtro-extra">
             Tipo de producto
-            <select [value]="filtroTipo()" (change)="cambiarFiltroTipo($any($event.target).value)">
-                <option value="">Todos</option>
+            <select (change)="cambiarFiltroTipo($any($event.target).value)">
+                <option value="" [selected]="!filtroTipo()">Todos</option>
                 @for (tipo of tipos; track tipo) {
-                    <option [value]="tipo">{{ tipo | formatoEnum }}</option>
+                    <option [value]="tipo" [selected]="filtroTipo() === tipo">{{ tipo | formatoEnum }}</option>
                 }
             </select>
         </label>
+
+        <label class="switch filtro-extra">
+            <input type="checkbox" role="switch"
+                   [checked]="soloStockBajo()"
+                   (change)="soloStockBajo.set($any($event.target).checked)" />
+            <span class="switch-pista" aria-hidden="true"></span>
+            Solo stock bajo ({{ stockBajo }} o menos)
+        </label>
     </div>
 
-    <div class="lista">
-
-        @for (producto of productosFiltrados(); track producto.id) {
-
-            <div class="tarjeta">
-
-                <span class="tipo">{{ producto.tipoProducto | formatoEnum }}</span>
-
-                <h3>{{ producto.marca }} {{ producto.nombre }}</h3>
-
-                @if (producto.precioOferta != null) {
-                    <p class="precio oferta">{{ producto.precioOferta | currency:'ARS':'symbol-narrow' }}</p>
-                    <p class="precio-anterior">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
-                } @else {
-                    <p class="precio">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
-                }
-
-                <a class="boton" [routerLink]="['/productos', producto.tipoProducto?.toLowerCase(), producto.id]">Ver detalles</a>
-
+    @if (cargando()) {
+        <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando productos…" />
+    } @else if (productosFiltrados().length === 0) {
+        @if (productos().length > 0) {
+            <div class="estado-vacio">
+                <strong>Ningún producto con esos filtros</strong>
+                <span>Probá con otra búsqueda o limpiá los filtros.</span>
+                <button type="button" class="boton boton-secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
             </div>
-
-        } @empty {
-            <p class="vacio">No hay productos que coincidan con la busqueda.</p>
+        } @else {
+            <div class="estado-vacio">
+                <strong>Todavía no hay productos en el catálogo</strong>
+                <a class="boton" routerLink="/productos/nuevo">Cargar el primer producto</a>
+            </div>
         }
+    } @else {
+        <p class="resumen" aria-live="polite">
+            {{ tabla.rango().total }} {{ tabla.rango().total === 1 ? 'producto' : 'productos' }}
+        </p>
 
-    </div>
+        <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
+
+        <div class="tabla-contenedor">
+            <table class="tabla-datos">
+                <caption class="solo-lector">Productos. Los encabezados con botón cambian el orden.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" [attr.aria-sort]="tabla.ariaOrden('nombre')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('nombre')">
+                                Producto <span class="flecha" aria-hidden="true">{{ tabla.flecha('nombre') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('precio')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('precio')">
+                                Precio <span class="flecha" aria-hidden="true">{{ tabla.flecha('precio') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('stock')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('stock')">
+                                Stock <span class="flecha" aria-hidden="true">{{ tabla.flecha('stock') }}</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (producto of tabla.filasPagina(); track producto.id) {
+                        <tr class="clicable" (click)="abrir(producto)">
+                            <td class="m-principal">
+                                <a class="celda-titulo" [routerLink]="rutaDe(producto)" (click)="$event.stopPropagation()">
+                                    {{ producto.marca }} {{ producto.nombre }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="chip" [class.chip-alerta]="producto.tipoProducto === 'ANTIPULGAS'">{{ producto.tipoProducto | formatoEnum }}</span>
+                            </td>
+                            <td class="col-monto m-lateral">
+                                @if (producto.precioOferta != null) {
+                                    <span class="precio-oferta">{{ producto.precioOferta | pesos }}</span>
+                                    <del class="precio-anterior-celda"><span class="solo-lector">Antes </span>{{ producto.precio | pesos }}</del>
+                                } @else {
+                                    {{ producto.precio | pesos }}
+                                }
+                            </td>
+                            <td class="col-monto m-final">
+                                <span class="stock" [class.stock-bajo]="producto.stock <= stockBajo" [class.sin-stock]="producto.stock === 0">
+                                    @if (producto.stock === 0) { Sin stock } @else { {{ producto.stock }} <span class="solo-mobile">u.</span> }
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <app-paginacion [tabla]="tabla" nombre="productos" />
+    }
 
 </article>

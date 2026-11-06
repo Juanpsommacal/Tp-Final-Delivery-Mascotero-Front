@@ -1,7 +1,7 @@
 <article class="contenedor-list">
 
     <div class="encabezado">
-        <h2>Listado de Pagos</h2>
+        <h2>Pagos</h2>
         <p class="texto-secundario">Los pagos se registran desde el detalle de cada pedido.</p>
     </div>
 
@@ -12,47 +12,123 @@
                    [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
         </label>
 
-        <label>
+        <app-selector-periodo class="filtro-fechas" [(desde)]="desde" [(hasta)]="hasta" />
+    </div>
+
+    <fieldset class="filtro-metodos">
+        <legend>
             Método de pago
-            <select [value]="filtroMetodo()" (change)="cambiarFiltroMetodo($any($event.target).value)">
-                <option value="">Todos</option>
-                @for (metodo of metodosPago; track metodo) {
-                    <option [value]="metodo">{{ metodo | formatoEnum }}</option>
-                }
-            </select>
-        </label>
-    </div>
+            @if (!todosLosMetodos()) {
+                <button type="button" class="atajo" (click)="elegirTodosLosMetodos()">Elegir todos</button>
+            }
+        </legend>
+        <div class="opciones-metodo">
+            @for (metodo of metodosPago; track metodo) {
+                <label class="opcion-metodo" [attr.data-metodo]="metodo" [class.elegida]="metodosElegidos().has(metodo)">
+                    <input type="checkbox" [checked]="metodosElegidos().has(metodo)"
+                           (change)="alternarMetodo(metodo, $any($event.target).checked)" />
+                    <span class="punto" aria-hidden="true"></span>
+                    {{ metodo | formatoEnum }}
+                </label>
+            }
+        </div>
+    </fieldset>
 
-    @if (pagosFiltrados().length > 0) {
-        <p class="resumen">
-            {{ pagosFiltrados().length }} {{ pagosFiltrados().length === 1 ? 'pago' : 'pagos' }} ·
-            Total <strong>{{ totalFiltrado() | currency:'ARS':'symbol-narrow' }}</strong>
-        </p>
-    }
-
-    <div class="lista">
-
-        @for (pago of pagosFiltrados(); track pago.id) {
-
-            <div class="tarjeta">
-
-                <div class="cabecera">
-                    <span class="metodo">{{ pago.metodoPago | formatoEnum }}</span>
-                    <span class="texto-secundario">{{ pago.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
-                </div>
-
-                <p class="precio">{{ pago.monto | currency:'ARS':'symbol-narrow' }}</p>
-
-                <h3>{{ pago.nombreCliente }}</h3>
-
-                <a class="boton boton-secundario" [routerLink]="['/pedidos', pago.pedidoId]">Ver pedido #{{ pago.pedidoId }}</a>
-
+    @if (cargando()) {
+        <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando pagos…" />
+    } @else if (pagosFiltrados().length === 0) {
+        @if (pagos().length === 0) {
+            <div class="estado-vacio">
+                <strong>Todavía no se registraron pagos</strong>
+                <span>Se cargan desde el detalle de cada pedido, con "Registrar pago".</span>
+                <a class="boton" routerLink="/pedidos">Ir a pedidos</a>
             </div>
-
-        } @empty {
-            <p class="vacio">No hay pagos que coincidan con la busqueda.</p>
+        } @else if (metodosElegidos().size === 0) {
+            <div class="estado-vacio">
+                <strong>No hay ningún método de pago elegido</strong>
+                <span>Marcá al menos uno para ver pagos.</span>
+                <button type="button" class="boton boton-secundario" (click)="elegirTodosLosMetodos()">Elegir todos</button>
+            </div>
+        } @else if (periodo() && !busqueda() && todosLosMetodos()) {
+            <div class="estado-vacio">
+                <strong>{{ periodo() }} todavía no entró ningún pago</strong>
+                <span>Cuando registres uno desde un pedido va a aparecer acá.</span>
+                <button type="button" class="boton boton-secundario" (click)="verTodasLasFechas()">Ver todas las fechas</button>
+            </div>
+        } @else {
+            <div class="estado-vacio">
+                <strong>Ningún pago con esos filtros</strong>
+                <span>Probá con otras fechas o limpiá los filtros.</span>
+                <button type="button" class="boton boton-secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+            </div>
         }
+    } @else {
+        <div class="resumen resumen-caja" aria-live="polite">
+            <p>
+                {{ tabla.rango().total }} {{ tabla.rango().total === 1 ? 'pago' : 'pagos' }}
+                {{ periodo()?.toLowerCase() ?? '' }} ·
+                Total cobrado <strong>{{ totalFiltrado() | pesos }}</strong>
+                @if (!todosLosMetodos()) {
+                    <span class="filtro-activo">(solo {{ nombresMetodosElegidos() }})</span>
+                }
+            </p>
+            @if (totalPorMetodo().length > 1) {
+                <ul class="por-metodo">
+                    @for (fila of totalPorMetodo(); track fila.metodo) {
+                        <li>{{ fila.metodo | formatoEnum }} <strong>{{ fila.total | pesos }}</strong></li>
+                    }
+                </ul>
+            }
+        </div>
 
-    </div>
+        <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
+
+        <div class="tabla-contenedor">
+            <table class="tabla-datos">
+                <caption class="solo-lector">Pagos. Los encabezados con botón cambian el orden.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" class="col-fecha" [attr.aria-sort]="tabla.ariaOrden('fecha')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('fecha')">
+                                Fecha <span class="flecha" aria-hidden="true">{{ tabla.flecha('fecha') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" [attr.aria-sort]="tabla.ariaOrden('cliente')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('cliente')">
+                                Cliente <span class="flecha" aria-hidden="true">{{ tabla.flecha('cliente') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" [attr.aria-sort]="tabla.ariaOrden('pedido')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('pedido')">
+                                Pedido <span class="flecha" aria-hidden="true">{{ tabla.flecha('pedido') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col">Método</th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('monto')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('monto')">
+                                Monto <span class="flecha" aria-hidden="true">{{ tabla.flecha('monto') }}</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (pago of tabla.filasPagina(); track pago.id) {
+                        <tr class="clicable" (click)="abrir(pago)">
+                            <!-- Viendo solo hoy alcanza con la hora -->
+                            <td class="col-fecha">{{ pago.fecha | date:(esHoy() ? 'HH:mm' : 'dd/MM/yy HH:mm') }}</td>
+                            <td class="m-principal"><span class="celda-titulo">{{ pago.nombreCliente }}</span></td>
+                            <td>
+                                <a class="enlace-fila" [routerLink]="['/pedidos', pago.pedidoId]" (click)="$event.stopPropagation()">#{{ pago.pedidoId }}</a>
+                            </td>
+                            <td><span [class]="'chip metodo-' + pago.metodoPago.toLowerCase()">{{ pago.metodoPago | formatoEnum }}</span></td>
+                            <td class="col-monto m-lateral">{{ pago.monto | pesos }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <app-paginacion [tabla]="tabla" nombre="pagos" />
+    }
 
 </article>

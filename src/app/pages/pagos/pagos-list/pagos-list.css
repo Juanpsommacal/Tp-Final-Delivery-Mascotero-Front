@@ -1,144 +1,153 @@
-.contenedor-list {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 32px 16px;
+/* La tabla, los filtros y la paginación vienen de styles.css (.contenedor-list / .tabla-datos) */
+
+/* Cada método tiene su color: el mismo en el filtro y en la tabla */
+:host {
+    --metodo-efectivo: #1b7a43;
+    --metodo-efectivo-fondo: #e6f6ed;
+    --metodo-transferencia: #155e70;
+    --metodo-transferencia-fondo: #e5f1f4;
+    --metodo-link: #9a3d16;
+    --metodo-link-fondo: #fef0eb;
 }
 
-.encabezado {
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+
+.filtro-fechas {
+    display: block;
+    flex: 1 1 320px;
+}
+
+legend {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.encabezado h2 {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--color-primary);
-}
-
-.filtros {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 28px;
-}
-
-.filtros label {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1 1 220px;
+    align-items: baseline;
+    gap: 10px;
+    padding: 0;
+    margin-bottom: 6px;
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--color-text);
 }
 
-.filtros input,
-.filtros select {
-    padding: 10px 14px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    font: inherit;
-    font-size: 0.95rem;
-    background-color: white;
-    transition: all 0.2s ease;
+/* ---------- Métodos de pago (selección múltiple) ---------- */
+.filtro-metodos {
+    margin-bottom: 24px;
 }
 
-.filtros input:focus,
-.filtros select:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
-}
-
-.lista {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
-}
-
-.tarjeta {
+.opciones-metodo {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.25s ease;
-}
-
-.tarjeta:hover {
-    transform: translateY(-3px);
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-md);
-}
-
-.tarjeta h3 {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--color-text);
-}
-
-.tarjeta .boton {
-    margin-top: auto;
-    text-align: center;
-}
-
-
-.precio {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--color-primary);
-}
-
-
-
-
-/* El buscador ocupa mas lugar que el select de metodo */
-.filtros .buscar {
-    flex: 2 1 280px;
-}
-
-.cabecera {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
-.metodo {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    background-color: var(--color-primary-light);
-    padding: 4px 10px;
+.opcion-metodo {
+    --color-metodo: var(--color-text-muted);
+    --fondo-metodo: white;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 14px 8px 12px;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.texto-secundario {
-    font-size: 0.85rem;
+    background-color: white;
+    font-size: 0.92rem;
+    font-weight: 600;
     color: var(--color-text-muted);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.resumen {
-    margin: -12px 0 16px;
-    color: var(--color-text-muted);
+.opcion-metodo:has(input[type="checkbox"]) input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
 }
 
-.resumen strong {
+.opcion-metodo[data-metodo="EFECTIVO"] { --color-metodo: var(--metodo-efectivo); --fondo-metodo: var(--metodo-efectivo-fondo); }
+.opcion-metodo[data-metodo="LINK_DE_PAGO"] { --color-metodo: var(--metodo-link); --fondo-metodo: var(--metodo-link-fondo); }
+.opcion-metodo[data-metodo="TRANSFERENCIA"] { --color-metodo: var(--metodo-transferencia); --fondo-metodo: var(--metodo-transferencia-fondo); }
+
+/* El punto: hueco si no está elegido, relleno si sí */
+.punto {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    border: 2px solid var(--color-metodo);
+    border-radius: 50%;
+    background-color: transparent;
+    transition: background-color 0.15s ease;
+}
+
+.opcion-metodo.elegida {
+    border-color: var(--color-metodo);
+    background-color: var(--fondo-metodo);
+    color: var(--color-metodo);
+}
+
+.opcion-metodo.elegida .punto {
+    background-color: var(--color-metodo);
+}
+
+.opcion-metodo:hover {
+    border-color: var(--color-metodo);
+}
+
+.opcion-metodo:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ---------- Resumen de caja ---------- */
+.resumen-caja {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 16px;
+}
+
+.por-metodo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    list-style: none;
+    font-size: 0.88rem;
+}
+
+/* ---------- Chip del método en la tabla ---------- */
+.metodo-efectivo { color: var(--metodo-efectivo); background-color: var(--metodo-efectivo-fondo); }
+.metodo-transferencia { color: var(--metodo-transferencia); background-color: var(--metodo-transferencia-fondo); }
+.metodo-link_de_pago { color: var(--metodo-link); background-color: var(--metodo-link-fondo); }
+
+/* Celular: atajos y métodos con destino táctil de 44px */
+@media (max-width: 720px) {
+    .opcion-metodo {
+        min-height: 44px;
+    }
+}
+
+.filtro-metodos .atajo {
+    padding: 2px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background-color: white;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
     color: var(--color-primary);
+    cursor: pointer;
 }
 
-.vacio {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 48px 16px;
-    color: var(--color-text-muted);
+.filtro-activo {
+    font-weight: 600;
+    color: var(--color-accent-dark);
 }

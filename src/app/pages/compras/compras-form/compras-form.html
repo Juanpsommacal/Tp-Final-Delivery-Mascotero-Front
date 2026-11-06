@@ -1,6 +1,6 @@
 <section class="contenedor-form">
 
-    <h2>Nueva compra</h2>
+    <h1>Nueva compra</h1>
 
     <!-- Sin Reactive Forms: la compra se arma con signals (proveedor e items), igual que el pedido -->
     <form (submit)="$event.preventDefault(); guardar()" novalidate>
@@ -30,7 +30,7 @@
             </label>
 
             @if (cargandoProductos()) {
-                <p class="texto-secundario">Cargando productos...</p>
+                <p class="texto-secundario">Cargando productos…</p>
             } @else {
                 <div class="sugerencias-lista">
                     @for (p of productosFiltrados(); track p.id) {
@@ -68,11 +68,11 @@
                         <div class="item-info">
                             <strong>{{ item.producto.marca }} {{ item.producto.nombre }}</strong>
                             <span class="texto-secundario">
-                                Stock: {{ item.producto.stock }} · Se vende a {{ item.producto.precio | currency:'ARS':'symbol-narrow' }}
+                                Stock: {{ item.producto.stock }} · Se vende a {{ item.producto.precio | pesos }}
                             </span>
                             <span class="error">{{ errorCantidad(item) ?? errorPrecio(item) }}</span>
                             @if (avisoPrecio(item); as aviso) {
-                                <span class="aviso-precio">⚠ {{ aviso }}</span>
+                                <span class="aviso-precio"><app-icono nombre="alerta" [tamano]="14" /> {{ aviso }}</span>
                             }
                         </div>
 
@@ -86,14 +86,14 @@
                                [value]="item.precio ?? ''"
                                (input)="cambiarPrecio(item.producto, $any($event.target).value)" />
 
-                        <strong class="subtotal">{{ (item.precio ?? 0) * item.cantidad | currency:'ARS':'symbol-narrow' }}</strong>
+                        <strong class="subtotal">{{ (item.precio ?? 0) * item.cantidad | pesos }}</strong>
 
                         <button type="button" class="quitar" title="Quitar de la compra"
                                 [attr.aria-label]="'Quitar ' + item.producto.nombre"
-                                (click)="quitarProducto(item.producto)">✕</button>
+                                (click)="quitarProducto(item.producto)"><app-icono nombre="cerrar" [tamano]="16" /></button>
                     </div>
                 } @empty {
-                    <p class="vacio">Todavía no agregaste productos. Buscalos arriba y hacé clic en <strong>+ Agregar</strong>.</p>
+                    <p class="vacio">Todavía no agregaste productos. Buscalos arriba y tocá <strong>+ Agregar</strong>.</p>
                 }
             </div>
 
@@ -101,18 +101,18 @@
 
             <div class="total">
                 <span>Total</span>
-                <strong>{{ total() | currency:'ARS':'symbol-narrow' }}</strong>
+                <strong>{{ total() | pesos }}</strong>
             </div>
         </fieldset>
 
         @if (mensaje()) {
-            <p class="error mensaje">{{ mensaje() }}</p>
+            <p class="error mensaje" id="error-formulario" role="alert" tabindex="-1">{{ mensaje() }}</p>
         }
 
         <div class="acciones">
             <button type="button" class="boton boton-secundario" (click)="volver()">Cancelar</button>
             <button type="submit" class="boton boton-accent" [disabled]="guardando()">
-                {{ guardando() ? 'Guardando...' : 'Crear compra' }}
+                {{ guardando() ? 'Guardando…' : 'Crear compra' }}
             </button>
         </div>
 

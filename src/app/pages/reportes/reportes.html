@@ -1,29 +1,9 @@
 <section class="contenedor-metricas">
 
     <div class="encabezado">
-        <h2>Métricas</h2>
-        <p class="subtitulo">Resumen de ventas, pedidos y deudas del negocio.</p>
+        <h1>Métricas</h1>
+        <p class="subtitulo">Resumen de ventas y pedidos del negocio. Lo que falta cobrar está en el inicio.</p>
     </div>
-
-    <!-- Deuda pendiente de cobro -->
-    <article class="panel panel-deuda">
-        <h3>Deuda pendiente de cobro</h3>
-
-        @if (cargandoDeuda()) {
-            <p class="estado">Cargando...</p>
-        } @else if (errorDeuda()) {
-            <p class="error">{{ errorDeuda() }}</p>
-        } @else {
-            <div class="deuda">
-                <strong class="deuda-monto">{{ deudaTotal() | currency:'ARS':'symbol-narrow' }}</strong>
-                <span class="deuda-detalle">
-                    en {{ pedidosConDeuda().length }}
-                    {{ pedidosConDeuda().length === 1 ? 'pedido entregado' : 'pedidos entregados' }}
-                    con saldo sin cobrar
-                </span>
-            </div>
-        }
-    </article>
 
     <!-- Resumen del mes -->
     <article class="panel">
@@ -33,7 +13,7 @@
         <div class="filtros">
             <label>
                 Mes
-                <select [value]="mes()" (change)="mes.set(+$any($event.target).value)">
+                <select (change)="mes.set(+$any($event.target).value); cargarMes()">
                     @for (m of meses; track m.valor) {
                         <option [value]="m.valor" [selected]="m.valor === mes()">{{ m.nombre }}</option>
                     }
@@ -43,16 +23,12 @@
             <label>
                 Año
                 <input type="number" min="2000" max="2100" [value]="anio()"
-                       (input)="anio.set(+$any($event.target).value)" />
+                       (change)="anio.set(+$any($event.target).value); cargarMes()" />
             </label>
-
-            <button type="button" class="boton" [disabled]="!anioValido() || cargandoMes()" (click)="cargarMes()">
-                Ver mes
-            </button>
         </div>
 
         @if (cargandoMes()) {
-            <p class="estado">Cargando...</p>
+            <p class="estado">Cargando…</p>
         } @else if (errorMes()) {
             <p class="error">{{ errorMes() }}</p>
         } @else {
@@ -60,7 +36,7 @@
             <div class="kpis">
                 <div class="kpi">
                     <span class="kpi-titulo">Ventas del mes</span>
-                    <strong class="kpi-valor">{{ (ventasMes()?.montoTotal ?? 0) | currency:'ARS':'symbol-narrow' }}</strong>
+                    <strong class="kpi-valor">{{ (ventasMes()?.montoTotal ?? 0) | pesos }}</strong>
                 </div>
 
                 <div class="kpi">
@@ -70,7 +46,7 @@
 
                 <div class="kpi">
                     <span class="kpi-titulo">Ticket promedio</span>
-                    <strong class="kpi-valor">{{ (ticket()?.ticketPromedio ?? 0) | currency:'ARS':'symbol-narrow' }}</strong>
+                    <strong class="kpi-valor">{{ (ticket()?.ticketPromedio ?? 0) | pesos }}</strong>
                 </div>
             </div>
 
@@ -101,28 +77,16 @@
         <h3>Ventas por rango de fechas</h3>
         <p class="nota">Cuenta solo pedidos entregados y pagados dentro del rango.</p>
 
-        <div class="filtros">
-            <label>
-                Desde
-                <input type="date" [value]="fechaInicio()" (input)="fechaInicio.set($any($event.target).value)" />
-            </label>
+        <app-selector-periodo titulo="Período" [conTodos]="false" [(desde)]="fechaInicio" [(hasta)]="fechaFin" />
 
-            <label>
-                Hasta
-                <input type="date" [value]="fechaFin()" (input)="fechaFin.set($any($event.target).value)" />
-            </label>
-
-            <button type="button" class="boton" [disabled]="!rangoValido() || cargandoRango()" (click)="cargarRango()">
-                Calcular
-            </button>
-        </div>
-
-        @if (fechaInicio() && fechaFin() && !rangoValido()) {
+        @if (!fechaInicio() || !fechaFin()) {
+            <p class="nota">Elegí las dos fechas para ver las ventas.</p>
+        } @else if (!rangoValido()) {
             <p class="error">La fecha de inicio no puede ser posterior a la de fin.</p>
         }
 
         @if (cargandoRango()) {
-            <p class="estado">Cargando...</p>
+            <p class="estado">Cargando…</p>
         } @else if (errorRango()) {
             <p class="error">{{ errorRango() }}</p>
         } @else {
@@ -130,7 +94,7 @@
             <div class="kpis">
                 <div class="kpi">
                     <span class="kpi-titulo">Total de ventas</span>
-                    <strong class="kpi-valor">{{ (ventasRango()?.totalVentas ?? 0) | currency:'ARS':'symbol-narrow' }}</strong>
+                    <strong class="kpi-valor">{{ (ventasRango()?.totalVentas ?? 0) | pesos }}</strong>
                 </div>
 
                 <div class="kpi">
@@ -152,7 +116,7 @@
         <p class="nota">Unidades vendidas en pedidos entregados y pagados (histórico).</p>
 
         @if (cargandoTop()) {
-            <p class="estado">Cargando...</p>
+            <p class="estado">Cargando…</p>
         } @else if (errorTop()) {
             <p class="error">{{ errorTop() }}</p>
         } @else if (top5().length) {

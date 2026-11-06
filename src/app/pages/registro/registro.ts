@@ -35,24 +35,24 @@ export class Registro {
 
   private mensajes: Record<string, Record<string, string>> = {
     'nombre': {
-      required: 'El nombre no puede estar vacio',
-      noVacio: 'El nombre no puede estar vacio',
+      required: 'El nombre no puede estar vacío',
+      noVacio: 'El nombre no puede estar vacío',
       pattern: 'El nombre solo puede contener letras',
       maxlength: 'El nombre no puede exceder los 30 caracteres'
     },
     'apellido': {
-      required: 'El apellido no puede estar vacio',
-      noVacio: 'El apellido no puede estar vacio',
+      required: 'El apellido no puede estar vacío',
+      noVacio: 'El apellido no puede estar vacío',
       pattern: 'El apellido solo puede contener letras',
       maxlength: 'El apellido no puede exceder los 30 caracteres'
     },
     'email': {
-      required: 'El email no puede estar vacio',
-      email: 'El email no es valido',
+      required: 'El email no puede estar vacío',
+      email: 'El email no es válido',
       maxlength: 'El mail no puede exceder los 40 caracteres'
     },
     'password': {
-      required: 'La contraseña no puede estar vacia',
+      required: 'La contraseña no puede estar vacía',
       minlength: 'La contraseña debe contener entre 3 y 8 caracteres',
       maxlength: 'La contraseña debe contener entre 3 y 8 caracteres'
     },
@@ -64,7 +64,7 @@ export class Registro {
     if (!control?.touched || !control.errors) return null
 
     const error = Object.keys(control.errors)[0]
-    return this.mensajes[campo]?.[error] ?? 'Valor invalido'
+    return this.mensajes[campo]?.[error] ?? 'Valor inválido'
   }
 
   errorClaves(): boolean {

@@ -1,8 +1,9 @@
+import { PesosPipe } from '../../../pipes/pesos-pipe';
 import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import Pedido from '../../../models/Pedido';
 import { EstadoPago, MetodoPago, METODOS_PAGO } from '../../../models/Enums';
@@ -12,6 +13,12 @@ import { ConfirmacionService } from '../../../services/confirmacion/confirmacion
 import { AlertaService } from '../../../services/alerta/alerta-service';
 import { extraerMensajeError } from '../../../utils/error-util';
 import { digitos } from '../../../validators/producto-validators';
+import { ModalFoco } from '../../../utils/modal-foco';
+import { Icono } from '../../../components/icono/icono';
+import { ModalWhatsapp } from '../../../components/modal-whatsapp/modal-whatsapp';
+import { ClientesService } from '../../../services/clientes/clientes-service';
+import { formatearTelefono, haceCuanto, normalizarTelefono, PlantillaWhatsapp } from '../../../utils/whatsapp-util';
+import { CIUDAD_REPARTO } from '../../../config/negocio';
 
 // Estados de pago en los que todavia falta cobrar algo
 const PAGOS_CON_SALDO: EstadoPago[] = ['PENDIENTE', 'DEUDA', 'DEUDA_PARCIAL']
@@ -22,7 +29,7 @@ function redondear(valor: number): number {
 }
 
 @Component({
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormatoEnumPipe, ReactiveFormsModule],
+  imports: [RouterLink, DatePipe, FormatoEnumPipe, ReactiveFormsModule, ModalFoco, Icono, ModalWhatsapp, PesosPipe],
   selector: 'app-pedido-details',
   styleUrls: ['./pedido-details.css', '../estados-pedido.css'],
   templateUrl: './pedido-details.html',
@@ -31,6 +38,7 @@ export class PedidoDetails implements OnInit {
 
   private pedidosService = inject(PedidosService)
   private pagosService = inject(PagosService)
+  private clientesService = inject(ClientesService)
   private confirmacionService = inject(ConfirmacionService)
   private alertaService = inject(AlertaService)
   private route = inject(ActivatedRoute)
@@ -40,6 +48,11 @@ export class PedidoDetails implements OnInit {
   metodosPago = METODOS_PAGO
 
   pedido = signal<Pedido | null>(null)
+  // undefined mientras se busca el cliente; null si no tiene teléfono o no se pudo traer
+  telefonoCliente = signal<string | null | undefined>(undefined)
+  // Plantilla con la que se abrió el modal de WhatsApp (null = cerrado)
+  modalWhatsapp = signal<PlantillaWhatsapp | null>(null)
+  readonly haceCuanto = haceCuanto
   procesando = signal(false)
 
   totalPagado = computed(() =>
@@ -63,6 +76,39 @@ export class PedidoDetails implements OnInit {
     return !!pedido && pedido.estadoPedido !== 'CANCELADO' && PAGOS_CON_SALDO.includes(pedido.estadoPago)
   })
 
+  // Una sola acción destacada según lo que falta: primero entregar, después cobrar
+  accionPrincipal = computed<'entregar' | 'cobrar' | null>(() => {
+    if (this.puedeEntregar()) return 'entregar'
+    if (this.puedeRegistrarPago() && this.saldo() > 0) return 'cobrar'
+    return null
+  })
+
+  // Para "Llamar": el número en formato internacional (null si no se puede armar)
+  telefonoNormalizado = computed(() => normalizarTelefono(this.telefonoCliente()))
+  telefonoVisible = computed(() => {
+    const normalizado = this.telefonoNormalizado()
+    return normalizado ? formatearTelefono(normalizado) : this.telefonoCliente() || null
+  })
+
+  linkMapa = computed(() => {
+    const pedido = this.pedido()
+    if (!pedido) return null
+    const destino = [pedido.direccionCompleta, CIUDAD_REPARTO].filter(Boolean).join(', ')
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destino)}`
+  })
+
+  // El back manda "Sin especificar" cuando no hay piso ni depto: no aporta nada en pantalla
+  pisoDepto = computed(() => {
+    const valor = this.pedido()?.pisoDepto
+    return valor && valor !== 'Sin especificar' ? valor : null
+  })
+
+  // WhatsApp abre con el recordatorio si hay saldo, si no con el detalle del pedido
+  abrirWhatsapp() {
+    const pedido = this.pedido()
+    this.modalWhatsapp.set(pedido && pedido.estadoPedido !== 'CANCELADO' && this.saldo() > 0 ? 'saldo' : 'detalle')
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.params['id']
 
@@ -72,11 +118,26 @@ export class PedidoDetails implements OnInit {
     }
 
     this.pedidosService.getPedidoById(id).subscribe({
-      next: (data) => this.pedido.set(data),
+      next: (data) => {
+        this.pedido.set(data)
+        this.cargarTelefono(data.clienteId)
+      },
       error: async (error) => {
         await this.alertaService.error(extraerMensajeError(error))
         this.router.navigate(['/pedidos'])
       }
+    })
+  }
+
+  alRegistrarRecordatorio(actualizado: Pedido) {
+    this.pedido.set(actualizado)
+  }
+
+  // El pedido no trae el teléfono: se pide el cliente aparte para poder armar el link de WhatsApp
+  private cargarTelefono(clienteId: number) {
+    this.clientesService.getClienteById(String(clienteId)).subscribe({
+      next: (cliente) => this.telefonoCliente.set(cliente.telefono || null),
+      error: () => this.telefonoCliente.set(null),
     })
   }
 
@@ -112,7 +173,7 @@ export class PedidoDetails implements OnInit {
 
     const confirmado = await this.confirmacionService.confirmar({
       titulo: 'Cancelar pedido',
-      mensaje: `¿Desea cancelar el pedido #${pedido.id}? El stock de los productos se va a devolver.`,
+      mensaje: `¿Querés cancelar el pedido #${pedido.id}? El stock de los productos se va a devolver.`,
       textoConfirmar: 'Cancelar pedido',
       textoCancelar: 'Volver',
       tipo: 'peligro'
@@ -160,9 +221,9 @@ export class PedidoDetails implements OnInit {
 
   private mensajesPago: Record<string, Record<string, string>> = {
     'monto': {
-      required: 'El monto no puede estar vacio',
+      required: 'El monto no puede estar vacío',
       min: 'El monto tiene que ser mayor a 0',
-      digitos: 'Maximo 7 digitos enteros y 2 decimales',
+      digitos: 'Máximo 7 dígitos enteros y 2 decimales',
       superaSaldo: 'El monto no puede superar el saldo del pedido',
     },
     'metodoPago': { required: 'Elegí el método de pago' },
@@ -178,7 +239,7 @@ export class PedidoDetails implements OnInit {
     if (!control?.touched || !control.errors) return null
 
     const error = Object.keys(control.errors)[0]
-    return this.mensajesPago[campo]?.[error] ?? 'Valor invalido'
+    return this.mensajesPago[campo]?.[error] ?? 'Valor inválido'
   }
 
   // Arranca con el saldo completo; si el cliente paga menos se cambia el monto

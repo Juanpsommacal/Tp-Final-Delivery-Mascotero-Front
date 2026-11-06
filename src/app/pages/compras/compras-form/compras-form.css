@@ -4,7 +4,7 @@
     padding: 0 16px;
 }
 
-h2 {
+h1 {
     margin-bottom: 20px;
     font-size: 1.8rem;
     font-weight: 800;
@@ -273,5 +273,34 @@ select:focus {
 
     .subtotal {
         grid-column: 1 / -1;
+    }
+}
+
+/* Celular: menos cajas dentro de cajas, sin scroll dentro del scroll y botones fáciles de tocar */
+@media (max-width: 600px) {
+    .contenedor-form {
+        margin-top: 16px;
+        padding: 0 12px;
+    }
+
+    form,
+    .formulario {
+        min-width: 0;
+        padding: 16px;
+    }
+
+    fieldset {
+        min-width: 0;
+        padding: 14px 12px;
+    }
+
+    .sugerencias-lista {
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    .boton-agregar {
+        min-height: 44px;
+        padding-inline: 14px;
     }
 }

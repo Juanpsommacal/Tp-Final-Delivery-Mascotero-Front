@@ -1,19 +1,22 @@
 @if (estaVisible()) {
   <div class="modal-overlay" (click)="alCancelar()">
     <div
+      #tarjeta
       class="modal-tarjeta"
       [class]="'tipo-' + datosModal().tipo"
       (click)="$event.stopPropagation()"
-      role="dialog"
+      (keydown)="alTeclear($event)"
+      role="alertdialog"
       aria-modal="true"
-      [attr.aria-label]="datosModal().titulo"
+      aria-labelledby="confirmacion-titulo"
+      aria-describedby="confirmacion-mensaje"
     >
       <div class="modal-cabecera">
         <div class="icono-contenedor" [class]="'icono-' + datosModal().tipo">
-          <span class="icono">{{ datosModal().icono }}</span>
+          <app-icono [nombre]="datosModal().icono" />
         </div>
         <div class="texto-cabecera">
-          <h3 class="modal-titulo">{{ datosModal().titulo }}</h3>
+          <h3 class="modal-titulo" id="confirmacion-titulo">{{ datosModal().titulo }}</h3>
         </div>
         <button
           type="button"
@@ -21,16 +24,17 @@
           aria-label="Cerrar"
           (click)="alCancelar()"
         >
-          ✕
+          <app-icono nombre="cerrar" [tamano]="18" />
         </button>
       </div>
 
       <div class="modal-cuerpo">
-        <p class="modal-mensaje">{{ datosModal().mensaje }}</p>
+        <p class="modal-mensaje" id="confirmacion-mensaje">{{ datosModal().mensaje }}</p>
       </div>
 
       <div class="modal-acciones">
         <button
+          #botonCancelar
           type="button"
           class="boton boton-secundario"
           (click)="alCancelar()"
@@ -38,6 +42,7 @@
           {{ datosModal().textoCancelar }}
         </button>
         <button
+          #botonConfirmar
           type="button"
           class="boton"
           [class.boton-peligro]="datosModal().tipo === 'peligro'"
@@ -50,4 +55,3 @@
     </div>
   </div>
 }
-

@@ -1,6 +1,6 @@
+import { PesosPipe } from '../../../pipes/pesos-pipe';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
 import { ProductoDetalle, ProductosService } from '../../../services/productos/productos-service';
 import { ConfirmacionService } from '../../../services/confirmacion/confirmacion-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
@@ -12,7 +12,7 @@ import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import { extraerMensajeError } from '../../../utils/error-util';
 
 @Component({
-  imports: [RouterLink, CurrencyPipe, FormatoEnumPipe],
+  imports: [RouterLink, FormatoEnumPipe, PesosPipe],
   selector: 'app-producto-details',
   styleUrl: './producto-details.css',
   templateUrl: './producto-details.html',

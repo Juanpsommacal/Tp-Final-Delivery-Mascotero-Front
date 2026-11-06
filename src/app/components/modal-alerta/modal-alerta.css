@@ -48,31 +48,6 @@
   }
 }
 
-.modal-tarjeta::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-}
-
-.tipo-exito::before {
-  background: #16a34a;
-}
-
-.tipo-error::before {
-  background: var(--color-danger);
-}
-
-.tipo-advertencia::before {
-  background: var(--color-accent);
-}
-
-.tipo-info::before {
-  background: var(--color-primary);
-}
-
 .modal-cabecera {
   display: flex;
   align-items: center;
@@ -167,3 +142,84 @@
   min-width: 120px;
 }
 
+
+/* ========================================================
+   Avisos de éxito (no bloquean)
+   ======================================================== */
+.zona-avisos {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid #b7dcc6;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 28px rgba(16, 76, 90, 0.18);
+  pointer-events: auto;
+  animation: entrarAviso 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes entrarAviso {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.aviso-icono {
+  color: var(--color-success);
+  padding-top: 1px;
+}
+
+.aviso-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  font-size: 0.92rem;
+  color: var(--color-text);
+}
+
+.aviso-texto strong {
+  font-size: 0.95rem;
+}
+
+.aviso-cerrar {
+  display: inline-flex;
+  padding: 4px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.aviso-cerrar:hover {
+  background-color: var(--color-bg-alt);
+  color: var(--color-text);
+}
+
+@media (max-width: 600px) {
+  .zona-avisos {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    max-width: none;
+  }
+}

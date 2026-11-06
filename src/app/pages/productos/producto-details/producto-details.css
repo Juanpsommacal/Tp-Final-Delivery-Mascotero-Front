@@ -15,7 +15,7 @@
     box-shadow: var(--shadow-md);
 }
 
-.detalle h2 {
+.detalle h1 {
     font-size: 1.8rem;
     font-weight: 800;
     color: var(--color-primary);

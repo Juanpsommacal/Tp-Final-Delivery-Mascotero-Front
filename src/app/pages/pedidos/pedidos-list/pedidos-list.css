@@ -13,7 +13,7 @@
     margin-bottom: 20px;
 }
 
-.encabezado h2 {
+.encabezado h1 {
     font-size: 1.8rem;
     font-weight: 800;
     color: var(--color-primary);
@@ -53,51 +53,6 @@
     border-color: var(--color-primary);
     box-shadow: 0 0 0 3px var(--color-primary-light);
 }
-
-.lista {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
-}
-
-.tarjeta {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.25s ease;
-}
-
-.tarjeta:hover {
-    transform: translateY(-3px);
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-md);
-}
-
-.tarjeta h3 {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--color-text);
-}
-
-.tarjeta .boton {
-    margin-top: auto;
-    text-align: center;
-}
-
-
-.precio {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--color-primary);
-}
-
-
-
 
 /* Switch "Mostrar cancelados": checkbox nativo con forma de interruptor */
 .filtros .switch {
@@ -158,33 +113,275 @@
     flex: 2 1 280px;
 }
 
-.cabecera {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 8px;
-    font-size: 0.85rem;
+.resumen {
+    margin-bottom: 12px;
+    font-size: 0.92rem;
+    color: var(--color-text-muted);
 }
 
-.numero {
-    font-weight: 800;
+.resumen strong {
+    color: var(--color-danger);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================================
+   Tabla de pedidos
+   ======================================================== */
+.tabla-contenedor {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+.tabla-pedidos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+}
+
+.tabla-pedidos thead th {
+    position: sticky;
+    top: 0;
+    padding: 0;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-alt);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+/* Las columnas sin orden igualan el padding del botón */
+.tabla-pedidos thead th:not(:has(.orden)) {
+    padding: 11px 14px;
+}
+
+.orden {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    cursor: pointer;
+}
+
+.col-monto .orden {
+    justify-content: flex-end;
+}
+
+.orden:hover {
     color: var(--color-primary);
 }
 
-.fecha,
-.direccion {
+.flecha {
+    display: inline-block;
+    min-width: 0.8em;
+    font-size: 0.65rem;
+    color: var(--color-primary);
+}
+
+.tabla-pedidos tbody tr {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.tabla-pedidos tbody tr:hover {
+    background-color: #f5fafb;
+}
+
+.tabla-pedidos tbody tr:not(:last-child) td {
+    border-bottom: 1px solid #efe7da;
+}
+
+.tabla-pedidos td {
+    padding: 12px 14px;
+    vertical-align: middle;
+}
+
+.col-numero {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.enlace-fila {
+    font-weight: 800;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.enlace-fila:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.col-fecha {
+    white-space: nowrap;
     color: var(--color-text-muted);
 }
 
-.estados {
-    display: flex;
-    flex-wrap: wrap;
+.col-cliente {
+    min-width: 200px;
+}
+
+.cliente {
+    display: block;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.direccion {
+    display: block;
+    font-size: 0.84rem;
+    color: var(--color-text-muted);
+}
+
+.col-monto {
+    text-align: right;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.con-saldo {
+    color: var(--color-danger);
+    font-weight: 700;
+}
+
+.sin-dato {
+    color: #a3aeb2;
+}
+
+.tabla-pedidos tr.cancelado td {
+    color: var(--color-text-muted);
+}
+
+.tabla-pedidos tr.cancelado .cliente {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(91, 106, 113, 0.5);
+}
+
+.saldo-celda {
+    display: inline-flex;
+    align-items: center;
     gap: 6px;
 }
 
-.vacio {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 48px 16px;
+.saldo-celda > span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.recordado {
+    font-size: 0.74rem;
+    font-weight: 600;
     color: var(--color-text-muted);
+}
+
+.boton-wa-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: #12784a;
+    cursor: pointer;
+}
+
+.boton-wa-icono:hover {
+    background-color: #e8f5ee;
+    border-color: #b7dcc6;
+}
+
+/* ========================================================
+   Paginación
+   ======================================================== */
+.paginacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.botones-paginacion {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pagina-actual {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================================
+   Mobile: cada fila pasa a ser un bloque compacto de 2 líneas
+   ======================================================== */
+@media (max-width: 720px) {
+    .tabla-contenedor {
+        overflow: visible;
+    }
+
+    /* El orden se elige con "Ordenar por": los encabezados no se muestran ni reciben foco */
+    .tabla-pedidos thead {
+        display: none;
+    }
+
+    .enlace-fila {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        margin-block: -12px;
+    }
+
+    /* Fila 1: cliente y total. Fila 2: número, estados y saldo */
+    .tabla-pedidos tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #efe7da;
+    }
+
+    .tabla-pedidos tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .tabla-pedidos td {
+        padding: 0;
+        border: none !important;
+    }
+
+    /* Cliente + total suman el 100% de la fila, así el número baja a la segunda línea */
+    .tabla-pedidos td.col-cliente { order: 1; flex: 0 0 calc(100% - 120px); min-width: 0; }
+    .tabla-pedidos td[data-titulo="Total"] { order: 2; flex: 0 0 110px; }
+    .tabla-pedidos td.col-numero { order: 3; width: auto; flex: 0 0 auto; }
+    .tabla-pedidos td[data-titulo="Entrega"] { order: 4; }
+    .tabla-pedidos td[data-titulo="Pago"] { order: 5; }
+    .tabla-pedidos td[data-titulo="Saldo"] { order: 6; margin-left: auto; }
+    .tabla-pedidos td.col-fecha { display: none; }
+
+    .tabla-pedidos td .sin-dato {
+        display: none;
+    }
+
+    .paginacion {
+        justify-content: center;
+    }
 }

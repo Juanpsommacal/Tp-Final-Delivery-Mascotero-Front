@@ -26,6 +26,11 @@ export class PedidosService {
         return this.http.delete<void>(`${this.url}/${id}`)
     }
 
+    // Guarda que se le mandó al cliente un recordatorio del saldo por WhatsApp
+    registrarRecordatorio(id: string | number) {
+        return this.http.patch<Pedido>(`${this.url}/${id}/recordatorio`, null)
+    }
+
     entregarPedido(id: string | number) {
         return this.http.patch<Pedido>(`${this.url}/${id}/entregar`, null)
     }

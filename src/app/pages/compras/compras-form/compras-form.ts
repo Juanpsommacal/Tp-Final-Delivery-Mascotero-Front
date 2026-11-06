@@ -1,10 +1,13 @@
+import { PesosPipe, formatearPesos } from '../../../pipes/pesos-pipe';
+import { Icono } from '../../../components/icono/icono';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
 import Producto from '../../../models/Producto';
 import Compra, { CompraRequest } from '../../../models/Compra';
 import { Proveedor } from '../../../models/Proveedor';
 import { ProveedoresService } from '../../../services/proveedores/proveedores-service';
+import { ConfirmacionService } from '../../../services/confirmacion/confirmacion-service';
+
 import { ComprasService } from '../../../services/compras/compras-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
 import { coincideProducto } from '../../../utils/producto-util';
@@ -24,7 +27,7 @@ interface ItemCompra {
 }
 
 @Component({
-  imports: [CurrencyPipe],
+  imports: [Icono, PesosPipe],
   selector: 'app-compras-form',
   styleUrl: './compras-form.css',
   templateUrl: './compras-form.html',
@@ -35,6 +38,7 @@ export class ComprasForm implements OnInit {
   private proveedoresService = inject(ProveedoresService)
   private productosService = inject(ProductosService)
   private alertaService = inject(AlertaService)
+  private confirmacionService = inject(ConfirmacionService)
   private router = inject(Router)
 
   guardando = signal(false)
@@ -73,12 +77,16 @@ export class ComprasForm implements OnInit {
     )
   })
 
-  // Los que ya se le compraron a este proveedor van primero
+  // Los que ya se le compraron a este proveedor van primero, y dentro de cada grupo
+  // el de menos stock arriba: son los que más urge reponer
   productosFiltrados = computed(() => {
     const delProveedor = this.productosDelProveedor()
     return this.productos()
       .filter(p => p.activo !== false && coincideProducto(p, this.busquedaProducto()))
-      .sort((a, b) => Number(delProveedor.has(b.id!)) - Number(delProveedor.has(a.id!)))
+      .sort((a, b) =>
+        Number(delProveedor.has(b.id!)) - Number(delProveedor.has(a.id!)) ||
+        a.stock - b.stock
+      )
       .slice(0, MAX_SUGERENCIAS)
   })
 
@@ -154,7 +162,7 @@ export class ComprasForm implements OnInit {
     if (!Number.isInteger(item.cantidad) || item.cantidad < 1)
       return 'La cantidad tiene que ser un entero mayor a 0'
     if (item.cantidad > MAX_CANTIDAD)
-      return `No se pueden comprar mas de ${MAX_CANTIDAD} unidades`
+      return `No se pueden comprar más de ${MAX_CANTIDAD} unidades`
     return null
   }
 
@@ -165,7 +173,7 @@ export class ComprasForm implements OnInit {
     if (item.precio < 0)
       return 'El precio no puede ser negativo'
     if (item.precio > MAX_PRECIO || Math.round(item.precio * 100) !== item.precio * 100)
-      return 'Maximo 7 digitos enteros y 2 decimales'
+      return 'Máximo 7 dígitos enteros y 2 decimales'
     return null
   }
 
@@ -177,14 +185,32 @@ export class ComprasForm implements OnInit {
 
   ///----- Guardar -----
 
-  guardar() {
+  async guardar() {
     this.intentoGuardar.set(true)
     this.mensaje.set('')
 
     if (!this.proveedorId() || this.items().length === 0 || this.hayErroresEnItems()) {
-      this.mensaje.set('Revisá los datos de la compra antes de guardarla')
+      const faltan = [
+        !this.proveedorId() && 'elegir el proveedor',
+        this.items().length === 0 && 'agregar al menos un producto',
+        this.hayErroresEnItems() && 'corregir las cantidades o precios marcados',
+      ].filter(Boolean)
+      this.mensaje.set(`Para crear la compra falta ${faltan.join(', ')}.`)
+      setTimeout(() => document.getElementById('error-formulario')?.focus())
       return
     }
+
+    const proveedor = this.proveedores().find(p => String(p.id) === String(this.proveedorId()))
+    const unidades = this.items().reduce((suma, item) => suma + item.cantidad, 0)
+    const confirmado = await this.confirmacionService.confirmar({
+      titulo: 'Revisá la compra',
+      mensaje: `${unidades} ${unidades === 1 ? 'unidad' : 'unidades'} a ${proveedor?.nombre ?? 'este proveedor'} ` +
+        `por ${formatearPesos(this.total())}. El stock se suma cuando marques la compra como recibida.`,
+      textoConfirmar: 'Crear compra',
+      textoCancelar: 'Seguir editando',
+      tipo: 'info',
+    })
+    if (!confirmado) return
 
     const compra: CompraRequest = {
       proveedorId: Number(this.proveedorId()),
@@ -199,7 +225,7 @@ export class ComprasForm implements OnInit {
 
     this.comprasService.createCompra(compra).subscribe({
       next: async (creada) => {
-        await this.alertaService.exito(`Compra #${creada.id} creada correctamente`)
+        await this.alertaService.exito(`Compra #${creada.id} a ${proveedor?.nombre ?? 'proveedor'}.`, 'Compra creada')
         this.router.navigate(['/compras', creada.id])
       },
       error: (error) => {

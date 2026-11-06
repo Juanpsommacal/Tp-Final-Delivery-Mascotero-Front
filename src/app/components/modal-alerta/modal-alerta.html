@@ -1,19 +1,22 @@
 @if (estaVisible()) {
   <div class="modal-overlay" (click)="alCerrar()">
     <div
+      #tarjeta
       class="modal-tarjeta"
       [class]="'tipo-' + datosModal().tipo"
       (click)="$event.stopPropagation()"
+      (keydown)="alTeclear($event)"
       role="alertdialog"
       aria-modal="true"
-      [attr.aria-label]="datosModal().titulo"
+      aria-labelledby="alerta-titulo"
+      aria-describedby="alerta-mensaje"
     >
       <div class="modal-cabecera">
         <div class="icono-contenedor" [class]="'icono-' + datosModal().tipo">
-          <span class="icono">{{ datosModal().icono }}</span>
+          <app-icono [nombre]="datosModal().icono" />
         </div>
         <div class="texto-cabecera">
-          <h3 class="modal-titulo">{{ datosModal().titulo }}</h3>
+          <h3 class="modal-titulo" id="alerta-titulo">{{ datosModal().titulo }}</h3>
         </div>
         <button
           type="button"
@@ -21,22 +24,21 @@
           aria-label="Cerrar aviso"
           (click)="alCerrar()"
         >
-          ✕
+          <app-icono nombre="cerrar" [tamano]="18" />
         </button>
       </div>
 
       <div class="modal-cuerpo">
-        <p class="modal-mensaje">{{ datosModal().mensaje }}</p>
+        <p class="modal-mensaje" id="alerta-mensaje">{{ datosModal().mensaje }}</p>
       </div>
 
       <div class="modal-acciones">
         <button
+          #botonAceptar
           type="button"
           class="boton"
-          [class.boton-accent]="datosModal().tipo === 'exito'"
           [class.boton-peligro]="datosModal().tipo === 'error'"
           (click)="alCerrar()"
-          autofocus
         >
           {{ datosModal().textoBoton }}
         </button>
@@ -45,3 +47,18 @@
   </div>
 }
 
+<!-- Avisos de éxito: no bloquean y se van solos -->
+<div class="zona-avisos" role="status" aria-live="polite">
+  @if (alertaService.aviso(); as aviso) {
+    <div class="aviso">
+      <span class="aviso-icono"><app-icono nombre="check" [tamano]="20" /></span>
+      <div class="aviso-texto">
+        <strong>{{ aviso.titulo }}</strong>
+        <span>{{ aviso.mensaje }}</span>
+      </div>
+      <button type="button" class="aviso-cerrar" aria-label="Cerrar aviso" (click)="alertaService.cerrarAviso()">
+        <app-icono nombre="cerrar" [tamano]="16" />
+      </button>
+    </div>
+  }
+</div>

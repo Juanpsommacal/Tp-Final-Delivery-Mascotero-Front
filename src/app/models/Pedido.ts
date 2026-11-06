@@ -13,9 +13,13 @@ export default interface Pedido {
     pisoDepto: string
     detallePedido: DetallePedido[]
     pagos: Pago[]
+    // Último recordatorio de saldo mandado por WhatsApp (null si nunca)
+    ultimoRecordatorio: string | null
 }
 
 export interface DetallePedido {
+    // Lo manda el back desde que se puede repetir un pedido; los pedidos viejos en caché pueden no tenerlo
+    productoId?: number
     nombreProducto: string
     cantidad: number
     precioUnitario: number

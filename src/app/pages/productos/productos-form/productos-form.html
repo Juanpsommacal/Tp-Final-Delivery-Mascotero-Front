@@ -1,6 +1,6 @@
 <section class="contenedor-form">
 
-    <h2>{{ id() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+    <h1>{{ id() ? 'Editar producto' : 'Nuevo producto' }}</h1>
 
     <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
 
@@ -20,7 +20,7 @@
             </label>
 
             <label class="campo">
-                Descripcion
+                Descripción
                 <textarea rows="3" formControlName="descripcion"></textarea>
                 <span class="error">{{ mensajeError('descripcion') }}</span>
             </label>
@@ -43,7 +43,7 @@
         <label class="campo">
             Tipo de producto *
             <select formControlName="tipoProducto" (change)="cambiarTipo()">
-                <option [ngValue]="null" disabled>Elegi un tipo</option>
+                <option [ngValue]="null" disabled>Elegí un tipo</option>
                 @for (tipo of tipos; track tipo) {
                     <option [ngValue]="tipo">{{ tipo | formatoEnum }}</option>
                 }
@@ -67,7 +67,7 @@
                         <label class="campo">
                             Unidad de medida *
                             <select formControlName="unidadMedida">
-                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                <option [ngValue]="null" disabled>Elegí una opción</option>
                                 @for (unidad of unidadesMedida; track unidad) {
                                     <option [ngValue]="unidad">{{ unidad | formatoEnum }}</option>
                                 }
@@ -80,7 +80,7 @@
                         <label class="campo">
                             Etapa de vida *
                             <select formControlName="etapaVida">
-                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                <option [ngValue]="null" disabled>Elegí una opción</option>
                                 @for (etapa of etapasVida; track etapa) {
                                     <option [ngValue]="etapa">{{ etapa | formatoEnum }}</option>
                                 }
@@ -91,7 +91,7 @@
                         <label class="campo">
                             Tipo de animal *
                             <select formControlName="tipoAnimal">
-                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                <option [ngValue]="null" disabled>Elegí una opción</option>
                                 @for (animal of tiposAnimal; track animal) {
                                     <option [ngValue]="animal">{{ animal | formatoEnum }}</option>
                                 }
@@ -110,7 +110,7 @@
                         <label class="campo">
                             Tipo de antipulgas *
                             <select formControlName="tipoAntipulgas">
-                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                <option [ngValue]="null" disabled>Elegí una opción</option>
                                 @for (tipoAntipulgas of tiposAntipulgas; track tipoAntipulgas) {
                                     <option [ngValue]="tipoAntipulgas">{{ tipoAntipulgas | formatoEnum }}</option>
                                 }
@@ -121,7 +121,7 @@
                         <label class="campo">
                             Tipo de animal *
                             <select formControlName="tipoAnimal">
-                                <option [ngValue]="null" disabled>Elegi una opcion</option>
+                                <option [ngValue]="null" disabled>Elegí una opción</option>
                                 @for (animal of tiposAnimal; track animal) {
                                     <option [ngValue]="animal">{{ animal | formatoEnum }}</option>
                                 }
@@ -132,15 +132,15 @@
 
                     <div class="fila">
                         <label class="campo">
-                            Peso minimo (kg) *
+                            Peso mínimo (kg) *
                             <input type="number" min="0" step="0.01" formControlName="kgMin" />
                             <span class="error">{{ mensajeError('antipulgas.kgMin') }}</span>
                         </label>
 
                         <label class="campo">
-                            Peso maximo (kg) *
+                            Peso máximo (kg) *
                             <input type="number" min="0" step="0.01" formControlName="kgMax" />
-                            <span class="error">{{ mensajeError('antipulgas.kgMax') ?? (errorRangoPeso() ? 'No puede ser menor al peso minimo' : '') }}</span>
+                            <span class="error">{{ mensajeError('antipulgas.kgMax') ?? (errorRangoPeso() ? 'No puede ser menor al peso mínimo' : '') }}</span>
                         </label>
                     </div>
                 </fieldset>
@@ -154,7 +154,7 @@
         <div class="acciones">
             <button type="button" class="boton boton-secundario" (click)="volver()">Cancelar</button>
             <button type="submit" class="boton" [disabled]="guardando()">
-                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+                {{ guardando() ? 'Guardando…' : 'Guardar' }}
             </button>
         </div>
 

@@ -1,82 +1,193 @@
 <article class="contenedor-list">
 
     <div class="encabezado">
-        <h2>Listado de Pedidos</h2>
+        <h1>Pedidos</h1>
         <a class="boton" routerLink="/pedidos/nuevo">Nuevo pedido</a>
     </div>
 
-    <div class="filtros">
+    <div class="filtros" [class.abiertos]="filtrosAbiertos()">
         <label class="buscar">
-            Buscar por cliente o dirección
-            <input type="search" placeholder="Ej: Pérez o Luro 1234"
-                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+            Buscar por cliente, dirección o número
+            <input type="search" placeholder="Ej: Pérez, Luro 1234 o 12"
+                   [value]="busqueda()" (input)="cambiarBusqueda($any($event.target).value)" />
         </label>
 
-        <label>
+        <button type="button" class="boton boton-secundario boton-filtros" [attr.aria-expanded]="filtrosAbiertos()"
+                (click)="filtrosAbiertos.set(!filtrosAbiertos())">
+            {{ filtrosAbiertos() ? 'Ocultar filtros' : 'Filtros' }}
+            @if (cantidadFiltros() > 0) { <span class="cuenta-filtros">{{ cantidadFiltros() }}</span> }
+        </button>
+
+        <label class="filtro-extra">
             Estado del pedido
-            <select [value]="filtroEstado()" (change)="cambiarFiltroEstado($any($event.target).value)">
-                <option value="">Todos</option>
+            <!-- [selected] en cada opción: el filtro puede venir por URL antes de que existan las opciones -->
+            <select (change)="cambiarFiltroEstado($any($event.target).value)">
+                <option value="" [selected]="!filtroEstado()">Todos</option>
                 @for (estado of estadosPedido; track estado) {
-                    <option [value]="estado">{{ estado | formatoEnum }}</option>
+                    <option [value]="estado" [selected]="filtroEstado() === estado">{{ estado | formatoEnum }}</option>
                 }
             </select>
         </label>
 
-        <label>
+        <label class="filtro-extra">
             Estado del pago
-            <select [value]="filtroPago()" (change)="cambiarFiltroPago($any($event.target).value)">
-                <option value="">Todos</option>
+            <select (change)="cambiarFiltroPago($any($event.target).value)">
+                <option value="" [selected]="!filtroPago()">Todos</option>
                 @for (estado of estadosPago; track estado) {
-                    <option [value]="estado">{{ estado | formatoEnum }}</option>
+                    <option [value]="estado" [selected]="filtroPago() === estado">{{ estado | formatoEnum }}</option>
+                    <!-- "Deuda" junta deuda total y parcial; va entre Pendiente y Pagado -->
+                    @if (estado === 'PENDIENTE') {
+                        <option value="CON_DEUDA" [selected]="filtroPago() === 'CON_DEUDA'">Deuda</option>
+                    }
                 }
             </select>
         </label>
 
-        <label class="switch">
+        <label class="switch filtro-extra">
             <input type="checkbox" role="switch"
                    [checked]="mostrarCancelados()"
-                   (change)="mostrarCancelados.set($any($event.target).checked)" />
+                   (change)="cambiarCancelados($any($event.target).checked)" />
             <span class="switch-pista" aria-hidden="true"></span>
             Mostrar cancelados
         </label>
     </div>
 
-    <div class="lista">
-
-        @for (pedido of pedidosFiltrados(); track pedido.id) {
-
-            <div class="tarjeta">
-
-                <div class="cabecera">
-                    <span class="numero">Pedido #{{ pedido.id }}</span>
-                    <span class="fecha">{{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
-                </div>
-
-                <h3>{{ pedido.nombreCliente }}</h3>
-                <p class="direccion">{{ pedido.direccionCompleta }}</p>
-
-                <div class="estados">
-                    <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">
-                        {{ pedido.estadoPedido | formatoEnum }}
-                    </span>
-                    <!-- En un pedido cancelado el "estado de pago" no aporta nada -->
-                    @if (pedido.estadoPago !== 'PEDIDO_CANCELADO') {
-                        <span [class]="'estado pago-' + pedido.estadoPago.toLowerCase()">
-                            Pago: {{ pedido.estadoPago | formatoEnum }}
-                        </span>
-                    }
-                </div>
-
-                <p class="precio">{{ pedido.montoTotal | currency:'ARS':'symbol-narrow' }}</p>
-
-                <a class="boton" [routerLink]="['/pedidos', pedido.id]">Ver detalles</a>
-
+    @if (cargando()) {
+        <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando pedidos…" />
+    } @else if (pedidosFiltrados().length === 0) {
+        @if (pedidos().length > 0) {
+            <div class="estado-vacio">
+                <strong>Ningún pedido con esos filtros</strong>
+                <span>Probá con otra búsqueda o limpiá los filtros.</span>
+                <button type="button" class="boton boton-secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
             </div>
-
-        } @empty {
-            <p class="vacio">No hay pedidos que coincidan con la busqueda.</p>
+        } @else {
+            <div class="estado-vacio">
+                <strong>Todavía no hay pedidos</strong>
+                <span>Cuando cargues uno va a aparecer acá, con su estado de entrega y de pago.</span>
+                <a class="boton" routerLink="/pedidos/nuevo">Cargar el primer pedido</a>
+            </div>
         }
+    } @else {
+        <p class="resumen" aria-live="polite">
+            {{ rango().total }} {{ rango().total === 1 ? 'pedido' : 'pedidos' }}
+            @if (saldoFiltrado() > 0) {
+                · Falta cobrar <strong>{{ saldoFiltrado() | pesos }}</strong>
+            }
+        </p>
 
-    </div>
+        <app-orden-mobile [valor]="ordenActual()" [opciones]="opcionesOrden" (cambio)="ordenarComo($event)" />
+
+        <div class="tabla-contenedor">
+            <table class="tabla-pedidos">
+                <caption class="solo-lector">Pedidos. Los encabezados con botón cambian el orden.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" class="col-numero" [attr.aria-sort]="ariaOrden('id')">
+                            <button type="button" class="orden" (click)="ordenarPor('id')">
+                                N.º <span class="flecha" aria-hidden="true">{{ orden() === 'id' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" class="col-fecha" [attr.aria-sort]="ariaOrden('fecha')">
+                            <button type="button" class="orden" (click)="ordenarPor('fecha')">
+                                Fecha <span class="flecha" aria-hidden="true">{{ orden() === 'fecha' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" [attr.aria-sort]="ariaOrden('cliente')">
+                            <button type="button" class="orden" (click)="ordenarPor('cliente')">
+                                Cliente y dirección <span class="flecha" aria-hidden="true">{{ orden() === 'cliente' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                            </button>
+                        </th>
+                        <th scope="col">Entrega</th>
+                        <th scope="col">Pago</th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="ariaOrden('total')">
+                            <button type="button" class="orden" (click)="ordenarPor('total')">
+                                Total <span class="flecha" aria-hidden="true">{{ orden() === 'total' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="ariaOrden('saldo')">
+                            <button type="button" class="orden" (click)="ordenarPor('saldo')">
+                                Saldo <span class="flecha" aria-hidden="true">{{ orden() === 'saldo' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (pedido of pedidosPagina(); track pedido.id) {
+                        <tr [class.cancelado]="pedido.estadoPedido === 'CANCELADO'" (click)="abrir(pedido)">
+                            <td class="col-numero" data-titulo="N.º">
+                                <a class="enlace-fila" [routerLink]="['/pedidos', pedido.id]" (click)="$event.stopPropagation()">#{{ pedido.id }}</a>
+                            </td>
+                            <td class="col-fecha" data-titulo="Fecha">{{ pedido.fecha | date:'dd/MM/yy' }}</td>
+                            <td class="col-cliente">
+                                <span class="cliente">{{ pedido.nombreCliente }}</span>
+                                <span class="direccion">{{ pedido.direccionCompleta }}</span>
+                            </td>
+                            <td data-titulo="Entrega">
+                                <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">
+                                    {{ pedido.estadoPedido | formatoEnum }}
+                                </span>
+                            </td>
+                            <td data-titulo="Pago">
+                                <!-- En un pedido cancelado el "estado de pago" no aporta nada -->
+                                @if (pedido.estadoPago !== 'PEDIDO_CANCELADO') {
+                                    <span [class]="'estado pago-' + pedido.estadoPago.toLowerCase()">
+                                        {{ pedido.estadoPago | formatoEnum }}
+                                    </span>
+                                } @else {
+                                    <span class="sin-dato">—</span>
+                                }
+                            </td>
+                            <td class="col-monto" data-titulo="Total">{{ pedido.montoTotal | pesos }}</td>
+                            <td class="col-monto" data-titulo="Saldo" [class.con-saldo]="saldo(pedido) > 0">
+                                @if (saldo(pedido) > 0) {
+                                    <span class="saldo-celda">
+                                        <span>
+                                            {{ saldo(pedido) | pesos }}
+                                            @if (pedido.ultimoRecordatorio) {
+                                                <span class="recordado">Recordado {{ haceCuanto(pedido.ultimoRecordatorio) }}</span>
+                                            }
+                                        </span>
+                                        <button type="button" class="boton-wa-icono"
+                                                (click)="$event.stopPropagation(); pedidoWhatsapp.set(pedido)"
+                                                [attr.aria-label]="'Recordar saldo por WhatsApp a ' + pedido.nombreCliente"
+                                                title="Recordar saldo por WhatsApp">
+                                            <app-icono nombre="mensaje" [tamano]="17" />
+                                        </button>
+                                    </span>
+                                } @else {
+                                    <span class="sin-dato">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPaginas() > 1) {
+            <nav class="paginacion" aria-label="Páginas de pedidos">
+                <span class="info-paginacion">{{ rango().desde }}–{{ rango().hasta }} de {{ rango().total }}</span>
+                <div class="botones-paginacion">
+                    <button type="button" class="boton boton-secundario" (click)="irAPagina(pagina() - 1)" [disabled]="pagina() === 1">
+                        Anterior
+                    </button>
+                    <span class="pagina-actual">Página {{ pagina() }} de {{ totalPaginas() }}</span>
+                    <button type="button" class="boton boton-secundario" (click)="irAPagina(pagina() + 1)" [disabled]="pagina() >= totalPaginas()">
+                        Siguiente
+                    </button>
+                </div>
+            </nav>
+        }
+    }
 
 </article>
+
+@if (pedidoWhatsapp(); as pedido) {
+<app-modal-whatsapp
+    [pedido]="pedido"
+    [telefono]="telefonoDe(pedido)"
+    plantillaInicial="saldo"
+    (cerrar)="pedidoWhatsapp.set(null)"
+    (recordatorioRegistrado)="alRegistrarRecordatorio($event)" />
+}

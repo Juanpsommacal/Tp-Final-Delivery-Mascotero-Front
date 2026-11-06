@@ -48,27 +48,6 @@
   }
 }
 
-.modal-tarjeta::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-}
-
-.tipo-peligro::before {
-  background: var(--color-danger);
-}
-
-.tipo-advertencia::before {
-  background: var(--color-accent);
-}
-
-.tipo-info::before {
-  background: var(--color-primary);
-}
-
 .modal-cabecera {
   display: flex;
   align-items: center;

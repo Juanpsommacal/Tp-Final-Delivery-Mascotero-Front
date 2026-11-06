@@ -1,6 +1,9 @@
+import { PesosPipe } from '../../../pipes/pesos-pipe';
+import { ModalFoco } from '../../../utils/modal-foco';
+import { Icono } from '../../../components/icono/icono';
 import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { OfertasService } from '../../../services/ofertas/ofertas-service';
 import { ConfirmacionService } from '../../../services/confirmacion/confirmacion-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
@@ -14,7 +17,7 @@ import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
-  imports: [RouterLink, DatePipe, CurrencyPipe, NgClass, FormatoEnumPipe],
+  imports: [RouterLink, DatePipe, NgClass, FormatoEnumPipe, ModalFoco, Icono, PesosPipe],
   selector: 'app-oferta-details',
   styleUrl: './oferta-details.css',
   templateUrl: './oferta-details.html',
@@ -186,7 +189,7 @@ export class OfertaDetails implements OnInit {
 
     const confirmado = await this.confirmacionService.confirmar({
       titulo: 'Desasociar producto',
-      mensaje: `¿Estás seguro de que deseas desasociar el producto "${producto.marcaYNombre}" de esta oferta?`,
+      mensaje: `¿Seguro que querés desasociar el producto "${producto.marcaYNombre}" de esta oferta?`,
       textoConfirmar: 'Desasociar',
       tipo: 'peligro',
     });
@@ -219,7 +222,7 @@ export class OfertaDetails implements OnInit {
 
     const confirmado = await this.confirmacionService.confirmar({
       titulo: 'Eliminar oferta',
-      mensaje: `¿Estás seguro de que deseas eliminar la oferta "${o.nombre}"? Esta acción no se puede deshacer.`,
+      mensaje: `¿Seguro que querés eliminar la oferta "${o.nombre}"? Esta acción no se puede deshacer.`,
       textoConfirmar: 'Eliminar oferta',
       tipo: 'peligro',
     });

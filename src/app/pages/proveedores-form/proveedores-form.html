@@ -1,8 +1,8 @@
 <section class="contenedor-form">
-  <h2>{{ id() ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
+  <h1>{{ id() ? 'Editar proveedor' : 'Nuevo proveedor' }}</h1>
 
   @if (cargando()) {
-    <p class="cargando">Cargando datos del proveedor...</p>
+    <p class="cargando">Cargando datos del proveedor…</p>
   } @else {
     <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
       <fieldset>
@@ -44,7 +44,7 @@
           Cancelar
         </button>
         <button type="submit" class="boton" [disabled]="guardando()">
-          {{ guardando() ? 'Guardando...' : 'Guardar' }}
+          {{ guardando() ? 'Guardando…' : 'Guardar' }}
         </button>
       </div>
     </form>

@@ -2,7 +2,7 @@
 
   @if (cargando()) {
     <div class="cargando-contenedor">
-      <p>Cargando detalles de la oferta...</p>
+      <p>Cargando detalles de la oferta…</p>
     </div>
   } @else if (oferta(); as oferta) {
 
@@ -21,7 +21,7 @@
           [disabled]="eliminando()"
           (click)="eliminarOferta()"
         >
-          {{ eliminando() ? 'Eliminando...' : 'Eliminar' }}
+          {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
         </button>
       </div>
     </header>
@@ -100,7 +100,7 @@
                 <div class="precio-fila-final">
                   <span class="etiqueta-final">Precio con oferta:</span>
                   <span class="precio-final">
-                    {{ p.precioConDescuento | currency:'ARS':'symbol-narrow' }}
+                    {{ p.precioConDescuento | pesos }}
                   </span>
                 </div>
               </div>
@@ -119,7 +119,7 @@
                   (click)="desasociarProducto(p)"
                   title="Desasociar este producto de la oferta"
                 >
-                  {{ desasociandoId() === p.id ? 'Desasociando...' : 'Desasociar' }}
+                  {{ desasociandoId() === p.id ? 'Desasociando…' : 'Desasociar' }}
                 </button>
               </div>
             </div>
@@ -127,7 +127,6 @@
         </div>
       } @else {
         <div class="productos-vacio">
-          <span class="icono-vacio">📦</span>
           <p>Esta oferta no tiene productos asociados actualmente.</p>
           <button
             type="button"
@@ -152,13 +151,14 @@
   <!-- Modal para buscar y agregar producto a la oferta -->
   @if (mostrarModalAgregar()) {
     <div class="modal-overlay" (click)="cerrarModalAgregar()">
-      <div class="modal-tarjeta-agregar" (click)="$event.stopPropagation()">
+      <div class="modal-tarjeta-agregar" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-agregar"
+           appModalFoco (click)="$event.stopPropagation()">
 
         <!-- Cabecera del modal -->
         <div class="modal-cabecera">
           <div class="modal-cabecera-info">
             <span class="modal-badge-oferta">Oferta: {{ oferta()?.nombre }} (-{{ porcentajeVisual() }}%)</span>
-            <h3 class="modal-titulo">Agregar producto a la oferta</h3>
+            <h3 class="modal-titulo" id="titulo-modal-agregar">Agregar producto a la oferta</h3>
             <p class="modal-subtitulo">
               Buscá y seleccioná un producto del catálogo para incluirlo en esta promoción.
             </p>
@@ -167,21 +167,21 @@
             type="button"
             class="modal-boton-cerrar"
             (click)="cerrarModalAgregar()"
-            title="Cerrar ventana"
-            aria-label="Cerrar modal"
+            aria-label="Cerrar"
           >
-            ✕
+            <app-icono nombre="cerrar" [tamano]="18" />
           </button>
         </div>
 
         <!-- Barra de búsqueda -->
         <div class="modal-buscador-contenedor">
           <div class="buscador-caja">
-            <span class="buscador-icono">🔍</span>
             <input
-              type="text"
+              type="search"
               class="buscador-input"
-              placeholder="Buscar por nombre o marca..."
+              data-foco-inicial
+              aria-label="Buscar producto por nombre o marca"
+              placeholder="Buscar por nombre o marca…"
               [value]="busquedaModal()"
               (input)="cambiarBusquedaModal($any($event.target).value)"
             />
@@ -190,10 +190,8 @@
                 type="button"
                 class="buscador-limpiar"
                 (click)="cambiarBusquedaModal('')"
-                title="Limpiar búsqueda"
-              >
-                ✕
-              </button>
+                aria-label="Limpiar búsqueda"
+              ><app-icono nombre="cerrar" [tamano]="14" /></button>
             }
           </div>
           <span class="modal-contador-disponibles">
@@ -205,18 +203,15 @@
         <div class="modal-cuerpo-listado">
           @if (cargandoProductos()) {
             <div class="modal-estado-mensaje">
-              <span class="loader-icono">⏳</span>
-              <p>Cargando catálogo de productos...</p>
+              <p>Cargando catálogo de productos…</p>
             </div>
           } @else if (totalNoAsociados() === 0) {
             <div class="modal-estado-mensaje">
-              <span class="modal-icono-vacio">🎉</span>
               <p class="modal-texto-principal">¡Todos los productos del catálogo ya están en esta oferta!</p>
               <p class="modal-texto-secundario">No quedan productos pendientes por agregar.</p>
             </div>
           } @else if (productosDisponibles().length === 0) {
             <div class="modal-estado-mensaje">
-              <span class="modal-icono-vacio">🔍</span>
               <p class="modal-texto-principal">No se encontraron productos coincidentes</p>
               <p class="modal-texto-secundario">Probá con otra búsqueda o limpiá el filtro.</p>
             </div>
@@ -239,12 +234,12 @@
                     <div class="item-precios">
                       <div class="precio-original-box">
                         <span class="precio-label">Normal:</span>
-                        <span class="precio-original-valor">{{ prod.precio | currency:'ARS':'symbol-narrow' }}</span>
+                        <span class="precio-original-valor">{{ prod.precio | pesos }}</span>
                       </div>
                       <div class="precio-oferta-box">
                         <span class="precio-label">Con oferta:</span>
                         <strong class="precio-oferta-valor">
-                          {{ calcularPrecioConDescuento(prod.precio) | currency:'ARS':'symbol-narrow' }}
+                          {{ calcularPrecioConDescuento(prod.precio) | pesos }}
                         </strong>
                       </div>
                     </div>
@@ -258,7 +253,7 @@
                       (click)="agregarProducto(prod)"
                     >
                       @if (agregandoProductoId() === prod.id) {
-                        Agregando...
+                        Agregando…
                       } @else {
                         + Agregar
                       }
@@ -273,7 +268,7 @@
         <!-- Footer del modal -->
         <div class="modal-pie">
           <span class="pie-info">
-            Presioná <kbd>ESC</kbd> o hacé clic afuera para cerrar
+            Presioná <kbd>Esc</kbd> o tocá afuera para cerrar
           </span>
           <button
             type="button"

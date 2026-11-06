@@ -1,6 +1,7 @@
+import { PesosPipe } from '../../../pipes/pesos-pipe';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import Compra from '../../../models/Compra';
 import { ComprasService } from '../../../services/compras/compras-service';
@@ -10,7 +11,7 @@ import { extraerMensajeError } from '../../../utils/error-util';
 import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
-  imports: [RouterLink, CurrencyPipe, DatePipe, FormatoEnumPipe],
+  imports: [RouterLink, DatePipe, FormatoEnumPipe, PesosPipe],
   selector: 'app-compra-details',
   styleUrls: ['./compra-details.css', '../estados-compra.css'],
   templateUrl: './compra-details.html',
@@ -97,7 +98,7 @@ export class CompraDetails implements OnInit {
 
     const confirmado = await this.confirmacionService.confirmar({
       titulo: 'Cancelar compra',
-      mensaje: `¿Desea cancelar la compra #${compra.id} a ${compra.nombreProveedor}?`,
+      mensaje: `¿Querés cancelar la compra #${compra.id} a ${compra.nombreProveedor}?`,
       textoConfirmar: 'Cancelar compra',
       textoCancelar: 'Volver',
       tipo: 'peligro'

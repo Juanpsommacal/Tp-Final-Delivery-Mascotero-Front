@@ -4,20 +4,33 @@
 
         <article class="detalle">
 
-            <h2>{{ cliente.nombre }} {{ cliente.apellido }}</h2>
+            <h1>{{ cliente.nombre }} {{ cliente.apellido }}</h1>
 
             <dl class="datos">
                 <dt>Teléfono</dt>
-                <dd>{{ cliente.telefono }}</dd>
+                <dd>
+                    <a class="telefono" [href]="'tel:' + cliente.telefono">{{ cliente.telefono }}</a>
+                </dd>
+                @if (ultimoPedido(); as ultimo) {
+                    <dt>Último pedido</dt>
+                    <dd><a [routerLink]="['/pedidos', ultimo.id]">#{{ ultimo.id }} del {{ ultimo.fecha | date:'dd/MM/yyyy' }}</a></dd>
+                }
             </dl>
 
             <div class="acciones">
                 <a class="boton boton-secundario" routerLink="/clientes">Volver</a>
-                <a class="boton" [routerLink]="['/clientes/editar', cliente.id]">Editar</a>
+                @if (ultimoPedido()) {
+                    <a class="boton" routerLink="/pedidos/nuevo" [queryParams]="{ cliente: cliente.id, repetir: 1 }">
+                        <app-icono nombre="repetir" [tamano]="18" /> Repetir último pedido
+                    </a>
+                } @else {
+                    <a class="boton" routerLink="/pedidos/nuevo" [queryParams]="{ cliente: cliente.id }">Nuevo pedido</a>
+                }
+                <a class="boton boton-secundario" [routerLink]="['/clientes/editar', cliente.id]">Editar</a>
            
                 @if (esAdmin) {
                     <button type="button" class="boton boton-peligro" [disabled]="eliminado()" (click)="eliminarCliente()">
-                        {{ eliminado() ? 'Eliminando...' : 'Eliminar' }}
+                        {{ eliminado() ? 'Eliminando…' : 'Eliminar' }}
                     </button>
                 }
 
@@ -160,7 +173,7 @@
 
                 <div class="acciones">
                     <button type="submit" class="boton" [disabled]="agregarDeshabilitado()"> 
-                        {{ agregando() ? 'Agregando...' : (direccionSeleccionada() 
+                        {{ agregando() ? 'Agregando…' : (direccionSeleccionada() 
                         ? 'Asociar dirección' : 'Agregar dirección') }}
                     </button>
                 </div>
@@ -176,7 +189,7 @@
             <div class="deuda-total" [class.sin-deuda]="deudaTotal() === 0">
                 <span>{{ deudaTotal() > 0 ? 'Debe en total' : 'No tiene deudas' }}</span>
                 @if (deudaTotal() > 0) {
-                    <strong>{{ deudaTotal() | currency:'ARS':'symbol-narrow' }}</strong>
+                    <strong>{{ deudaTotal() | pesos }}</strong>
                 }
             </div>
 
@@ -189,7 +202,7 @@
                                 <a [routerLink]="['/pedidos', pedido.id]"><strong>Pedido #{{ pedido.id }}</strong></a>
                                 <span>{{ pedido.fecha | date:'dd/MM/yyyy' }} · {{ pedido.estadoPago | formatoEnum }}</span>
                             </div>
-                            <strong class="monto-deuda">{{ saldo(pedido) | currency:'ARS':'symbol-narrow' }}</strong>
+                            <strong class="monto-deuda">{{ saldo(pedido) | pesos }}</strong>
                         </li>
                     }
                 </ul>
@@ -206,7 +219,7 @@
                                 <a [routerLink]="['/pedidos', pago.pedidoId]">Pedido #{{ pago.pedidoId }}</a>
                             </span>
                         </div>
-                        <strong>{{ pago.monto | currency:'ARS':'symbol-narrow' }}</strong>
+                        <strong>{{ pago.monto | pesos }}</strong>
                     </li>
                 } @empty {
                     <li class="vacio">Este cliente todavía no hizo pagos.</li>
@@ -216,7 +229,7 @@
         </article>
 
     } @else {
-        <p>Cargando cliente...</p>
+        <p>Cargando cliente…</p>
     }
 
 </section>

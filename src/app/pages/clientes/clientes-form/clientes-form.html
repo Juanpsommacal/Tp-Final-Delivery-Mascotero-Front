@@ -1,6 +1,6 @@
 <section class="contenedor-form">
 
-    <h2> {{ idCliente() ? 'Editar cliente' : 'Nuevo cliente' }} </h2>
+    <h1> {{ idCliente() ? 'Editar cliente' : 'Nuevo cliente' }} </h1>
 
     <form [formGroup]="formulario" (ngSubmit)="onSubmit()" novalidate>
 
@@ -35,7 +35,7 @@
         <div class="acciones">
             <button type="button" class="boton boton-secundario" (click)="volver()">Cancelar</button>
             <button type="submit" class="boton" [disabled]="guardando()">
-                {{ guardando() ? 'Guardando...' : 'Guardar' }}
+                {{ guardando() ? 'Guardando…' : 'Guardar' }}
             </button>
         </div>
 

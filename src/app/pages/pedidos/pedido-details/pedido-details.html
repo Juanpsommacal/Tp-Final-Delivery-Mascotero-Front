@@ -2,10 +2,12 @@
 
     @if (pedido(); as pedido) {
 
+        <a class="volver" routerLink="/pedidos">← Pedidos</a>
+
         <article class="detalle">
 
             <div class="titulo">
-                <h2>Pedido #{{ pedido.id }}</h2>
+                <h1>Pedido #{{ pedido.id }}</h1>
                 <div class="estados">
                     <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">{{ pedido.estadoPedido | formatoEnum }}</span>
                     @if (pedido.estadoPago !== 'PEDIDO_CANCELADO') {
@@ -14,68 +16,107 @@
                 </div>
             </div>
 
-            <dl class="datos">
-                <dt>Cliente</dt>
-                <dd>{{ pedido.nombreCliente }}</dd>
+            @if (pedido.estadoPedido !== 'CANCELADO' && saldo() > 0) {
+                <p class="saldo-cabecera">Debe <strong>{{ saldo() | pesos }}</strong> de {{ pedido.montoTotal | pesos }}</p>
+            }
 
-                <dt>Fecha</dt>
-                <dd>{{ pedido.fecha | date:'dd/MM/yyyy' }}</dd>
+            <!-- Lo que necesita el repartidor: a quién, dónde y cómo contactarlo -->
+            <div class="reparto">
+                <div class="dato-reparto">
+                    <span class="etiqueta">Cliente</span>
+                    <a class="valor enlace-simple" [routerLink]="['/clientes', pedido.clienteId]">{{ pedido.nombreCliente }}</a>
+                    @if (telefonoVisible(); as telefono) {
+                        <span class="detalle-dato numerico">{{ telefono }}</span>
+                    }
+                </div>
+                <div class="dato-reparto">
+                    <span class="etiqueta">Entrega</span>
+                    <span class="valor">{{ pedido.direccionCompleta }}</span>
+                    @if (pisoDepto(); as piso) {
+                        <span class="detalle-dato">{{ piso }}</span>
+                    }
+                    <span class="detalle-dato">Pedido el {{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
+                </div>
 
-                <dt>Entrega</dt>
-                <dd>{{ pedido.direccionCompleta }} <span class="texto-secundario">({{ pedido.pisoDepto }})</span></dd>
-            </dl>
-
-            <div class="acciones">
-                <a class="boton boton-secundario" routerLink="/pedidos">Volver</a>
-
-                @if (puedeEntregar()) {
-                    <button type="button" class="boton" [disabled]="procesando()" (click)="entregar()">Marcar como entregado</button>
-                }
-                @if (puedeRegistrarPago()) {
-                    <button type="button" class="boton boton-accent" [disabled]="procesando()" (click)="registrarPago()">Registrar pago</button>
-                }
-                @if (puedeCancelar()) {
-                    <button type="button" class="boton boton-peligro" [disabled]="procesando()" (click)="cancelar()">Cancelar pedido</button>
-                }
+                <div class="contacto">
+                    @if (telefonoNormalizado(); as numero) {
+                        <a class="boton boton-secundario" [href]="'tel:+' + numero">
+                            <app-icono nombre="telefono" [tamano]="18" /> Llamar
+                        </a>
+                    }
+                    <button type="button" class="boton boton-secundario boton-wa" (click)="abrirWhatsapp()">
+                        <app-icono nombre="mensaje" [tamano]="18" /> WhatsApp
+                    </button>
+                    @if (linkMapa(); as mapa) {
+                        <a class="boton boton-secundario" [href]="mapa" target="_blank" rel="noopener">
+                            <app-icono nombre="mapa" [tamano]="18" /> Mapa
+                        </a>
+                    }
+                </div>
             </div>
+
+            @if (accionPrincipal() || puedeRegistrarPago() || puedeCancelar()) {
+                <div class="acciones">
+                    @if (accionPrincipal() === 'entregar') {
+                        <button type="button" class="boton boton-principal" [disabled]="procesando()" (click)="entregar()">Marcar como entregado</button>
+                    }
+                    @if (puedeRegistrarPago()) {
+                        <button type="button" class="boton"
+                                [class.boton-principal]="accionPrincipal() === 'cobrar'"
+                                [class.boton-accent]="accionPrincipal() === 'cobrar'"
+                                [class.boton-secundario]="accionPrincipal() !== 'cobrar'"
+                                [disabled]="procesando()" (click)="registrarPago()">
+                            @if (accionPrincipal() === 'cobrar') { Cobrar {{ saldo() | pesos }} } @else { Registrar pago adelantado }
+                        </button>
+                    }
+                    @if (puedeCancelar()) {
+                        <details class="mas-acciones">
+                            <summary>Más acciones</summary>
+                            <div class="menu-mas">
+                                <button type="button" class="opcion-peligro" [disabled]="procesando()" (click)="cancelar()">Cancelar pedido</button>
+                            </div>
+                        </details>
+                    }
+                </div>
+            }
 
         </article>
 
         <article class="detalle">
 
-            <h3>Productos</h3>
+            <h2>Productos</h2>
 
             <div class="tabla-contenedor">
-                <table>
+                <table class="tabla-productos">
                     <thead>
                         <tr>
-                            <th>Producto</th>
-                            <th class="numero">Cant.</th>
-                            <th class="numero">Precio</th>
-                            <th class="numero">Subtotal</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col" class="numero">Cant.</th>
+                            <th scope="col" class="numero">Precio</th>
+                            <th scope="col" class="numero">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         @for (detalle of pedido.detallePedido; track $index) {
                             <tr>
-                                <td>{{ detalle.nombreProducto }}</td>
-                                <td class="numero">{{ detalle.cantidad }}</td>
-                                <td class="numero">
+                                <td class="col-producto">{{ detalle.nombreProducto }}</td>
+                                <td class="numero col-cantidad"><span class="solo-mobile">{{ detalle.cantidad }} ×</span><span class="solo-desktop">{{ detalle.cantidad }}</span></td>
+                                <td class="numero col-precio">
                                     @if (detalle.descuentoAplicado) {
-                                        <span class="precio-anterior">{{ detalle.precioUnitario | currency:'ARS':'symbol-narrow' }}</span>
-                                        <span class="oferta">{{ detalle.precioDescuento | currency:'ARS':'symbol-narrow' }} (-{{ detalle.descuentoAplicado }}%)</span>
+                                        <del class="precio-anterior"><span class="solo-lector">Antes </span>{{ detalle.precioUnitario | pesos }}</del>
+                                        <span class="oferta">{{ detalle.precioDescuento | pesos }} <span class="descuento">−{{ detalle.descuentoAplicado }}%</span></span>
                                     } @else {
-                                        {{ detalle.precioUnitario | currency:'ARS':'symbol-narrow' }}
+                                        {{ detalle.precioUnitario | pesos }}
                                     }
                                 </td>
-                                <td class="numero">{{ detalle.subtotal | currency:'ARS':'symbol-narrow' }}</td>
+                                <td class="numero col-subtotal">{{ detalle.subtotal | pesos }}</td>
                             </tr>
                         }
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="3">Total</td>
-                            <td class="numero">{{ pedido.montoTotal | currency:'ARS':'symbol-narrow' }}</td>
+                            <td class="numero">{{ pedido.montoTotal | pesos }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -85,7 +126,7 @@
 
         <article class="detalle">
 
-            <h3>Pagos</h3>
+            <h2>Pagos</h2>
 
             <ul class="lista-pagos">
                 @for (pago of pedido.pagos; track pago.id) {
@@ -94,7 +135,7 @@
                             <strong>{{ pago.metodoPago | formatoEnum }}</strong>
                             <span class="texto-secundario">{{ pago.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
                         </div>
-                        <strong>{{ pago.monto | currency:'ARS':'symbol-narrow' }}</strong>
+                        <strong>{{ pago.monto | pesos }}</strong>
                     </li>
                 } @empty {
                     <li class="vacio">Este pedido todavía no tiene pagos registrados.</li>
@@ -104,54 +145,69 @@
             @if (pedido.estadoPedido !== 'CANCELADO') {
                 <dl class="datos">
                     <dt>Pagado</dt>
-                    <dd>{{ totalPagado() | currency:'ARS':'symbol-narrow' }}</dd>
+                    <dd>{{ totalPagado() | pesos }}</dd>
 
                     <dt>Saldo</dt>
-                    <dd [class.deuda]="saldo() > 0">{{ saldo() | currency:'ARS':'symbol-narrow' }}</dd>
+                    <dd [class.deuda]="saldo() > 0">{{ saldo() | pesos }}</dd>
+
+                    @if (pedido.ultimoRecordatorio && saldo() > 0) {
+                        <dt>Recordatorio</dt>
+                        <dd>Enviado {{ haceCuanto(pedido.ultimoRecordatorio) }} <span class="texto-secundario">({{ pedido.ultimoRecordatorio | date:'dd/MM HH:mm' }})</span></dd>
+                    }
                 </dl>
             }
 
         </article>
 
+        @if (modalWhatsapp(); as plantilla) {
+            <app-modal-whatsapp
+                [pedido]="pedido"
+                [telefono]="telefonoCliente()"
+                [plantillaInicial]="plantilla"
+                (cerrar)="modalWhatsapp.set(null)"
+                (recordatorioRegistrado)="alRegistrarRecordatorio($event)" />
+        }
+
         @if (mostrarModalPago()) {
             <div class="modal-overlay" (click)="cerrarModalPago()">
                 <div class="modal-tarjeta" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-pago"
-                     (click)="$event.stopPropagation()">
+                     appModalFoco (click)="$event.stopPropagation()">
 
                     <div class="modal-cabecera">
                         <div>
-                            <h3 id="titulo-modal-pago">Registrar pago</h3>
+                            <h2 id="titulo-modal-pago">Registrar pago</h2>
                             <p class="texto-secundario">Pedido #{{ pedido.id }} · {{ pedido.nombreCliente }}</p>
                         </div>
-                        <button type="button" class="modal-cerrar" aria-label="Cerrar" (click)="cerrarModalPago()">✕</button>
+                        <button type="button" class="modal-cerrar" aria-label="Cerrar" (click)="cerrarModalPago()"><app-icono nombre="cerrar" [tamano]="18" /></button>
                     </div>
 
                     <form class="modal-cuerpo" [formGroup]="formularioPago" (ngSubmit)="guardarPago()" novalidate>
 
                         <dl class="resumen">
                             <dt>Total</dt>
-                            <dd>{{ pedido.montoTotal | currency:'ARS':'symbol-narrow' }}</dd>
+                            <dd>{{ pedido.montoTotal | pesos }}</dd>
                             <dt>Pagado</dt>
-                            <dd>{{ totalPagado() | currency:'ARS':'symbol-narrow' }}</dd>
+                            <dd>{{ totalPagado() | pesos }}</dd>
                             <dt>Saldo</dt>
-                            <dd class="deuda">{{ saldo() | currency:'ARS':'symbol-narrow' }}</dd>
+                            <dd class="deuda">{{ saldo() | pesos }}</dd>
                         </dl>
 
                         <label class="campo">
                             Monto *
-                            <input type="number" min="0.01" step="0.01" [max]="saldo()" formControlName="monto" />
-                            <span class="error">{{ mensajeErrorPago('monto') }}</span>
+                            <input type="number" min="0.01" step="0.01" [max]="saldo()" formControlName="monto" data-foco-inicial
+                                   [attr.aria-invalid]="!!mensajeErrorPago('monto')" aria-describedby="error-monto" />
+                            <span class="error" id="error-monto" aria-live="polite">{{ mensajeErrorPago('monto') }}</span>
                         </label>
 
                         <label class="campo">
                             Método de pago *
-                            <select formControlName="metodoPago">
+                            <select formControlName="metodoPago" [attr.aria-invalid]="!!mensajeErrorPago('metodoPago')" aria-describedby="error-metodo">
                                 <option [ngValue]="null" disabled>Elegí una opción</option>
                                 @for (metodo of metodosPago; track metodo) {
                                     <option [ngValue]="metodo">{{ metodo | formatoEnum }}</option>
                                 }
                             </select>
-                            <span class="error">{{ mensajeErrorPago('metodoPago') }}</span>
+                            <span class="error" id="error-metodo" aria-live="polite">{{ mensajeErrorPago('metodoPago') }}</span>
                         </label>
 
                         @if (estadoDespuesDelPago(); as estado) {
@@ -168,7 +224,7 @@
                         <div class="acciones">
                             <button type="button" class="boton boton-secundario" (click)="cerrarModalPago()">Cancelar</button>
                             <button type="submit" class="boton boton-accent" [disabled]="guardandoPago()">
-                                {{ guardandoPago() ? 'Guardando...' : 'Registrar pago' }}
+                                {{ guardandoPago() ? 'Guardando…' : 'Registrar pago' }}
                             </button>
                         </div>
                     </form>
@@ -178,7 +234,7 @@
         }
 
     } @else {
-        <p>Cargando pedido...</p>
+        <p>Cargando pedido…</p>
     }
 
 </section>

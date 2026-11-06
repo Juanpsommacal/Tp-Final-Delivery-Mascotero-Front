@@ -1,17 +1,21 @@
 import {
   Component,
+  ElementRef,
   EventEmitter,
   HostListener,
   Input,
   Output,
   computed,
+  effect,
   inject,
+  viewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { AlertaService, TipoAlerta } from '../../services/alerta/alerta-service';
+import { Icono, NombreIcono } from '../icono/icono';
+import { atraparFoco } from '../../utils/foco-util';
 
 @Component({
-  imports: [CommonModule],
+  imports: [Icono],
   selector: 'app-modal-alerta',
   styleUrl: './modal-alerta.css',
   templateUrl: './modal-alerta.html',
@@ -25,10 +29,15 @@ export class ModalAlerta {
   @Input() mensaje = '';
   @Input() tipo: TipoAlerta = 'info';
   @Input() textoBoton = 'Aceptar';
-  @Input() icono?: string;
+  @Input() icono?: NombreIcono;
 
   // Outputs para uso directo en plantillas
   @Output() cerrar = new EventEmitter<void>();
+
+  private tarjeta = viewChild<ElementRef<HTMLElement>>('tarjeta');
+  private botonAceptar = viewChild<ElementRef<HTMLButtonElement>>('botonAceptar');
+  // Elemento que tenía el foco antes de abrir: se le devuelve al cerrar
+  private focoPrevio: HTMLElement | null = null;
 
   estaVisible = computed(() => {
     return this.visible || this.alertaService.estado() !== null;
@@ -57,17 +66,31 @@ export class ModalAlerta {
     };
   });
 
-  private iconoPorTipo(tipo?: TipoAlerta): string {
+  constructor() {
+    // El foco entra al botón al abrir y vuelve a donde estaba al cerrar
+    effect(() => {
+      const boton = this.botonAceptar();
+      if (boton) {
+        this.focoPrevio ??= document.activeElement as HTMLElement | null;
+        boton.nativeElement.focus();
+      } else if (this.focoPrevio) {
+        this.focoPrevio.focus?.();
+        this.focoPrevio = null;
+      }
+    });
+  }
+
+  private iconoPorTipo(tipo?: TipoAlerta): NombreIcono {
     switch (tipo) {
       case 'exito':
-        return '✅';
+        return 'check';
       case 'error':
-        return '❌';
+        return 'error';
       case 'advertencia':
-        return '⚠️';
+        return 'alerta';
       case 'info':
       default:
-        return 'ℹ️';
+        return 'info';
     }
   }
 
@@ -79,12 +102,17 @@ export class ModalAlerta {
     }
   }
 
+  alTeclear(evento: KeyboardEvent): void {
+    const tarjeta = this.tarjeta()?.nativeElement;
+    if (tarjeta) atraparFoco(evento, tarjeta);
+  }
+
   @HostListener('document:keydown.escape')
-  @HostListener('document:keydown.enter')
-  alPresionarTecla(): void {
+  alPresionarEscape(): void {
     if (this.estaVisible()) {
       this.alCerrar();
+    } else if (this.alertaService.aviso()) {
+      this.alertaService.cerrarAviso();
     }
   }
 }
-

@@ -5,13 +5,13 @@
         <article class="detalle">
 
             <span class="tipo">{{ tipo() | formatoEnum }}</span>
-            <h2>{{ producto.marca }} {{ producto.nombre }}</h2>
+            <h1>{{ producto.marca }} {{ producto.nombre }}</h1>
 
             @if (producto.precioOferta != null) {
-                <p class="precio oferta">{{ producto.precioOferta | currency:'ARS':'symbol-narrow' }}</p>
-                <p class="precio-anterior">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
+                <p class="precio oferta">{{ producto.precioOferta | pesos }}</p>
+                <p class="precio-anterior"><del><span class="solo-lector">Antes </span>{{ producto.precio | pesos }}</del></p>
             } @else {
-                <p class="precio">{{ producto.precio | currency:'ARS':'symbol-narrow' }}</p>
+                <p class="precio">{{ producto.precio | pesos }}</p>
             }
 
             @if (producto.descripcion) {
@@ -54,7 +54,7 @@
                 @if (esAdmin) {
                     <a class="boton" [routerLink]="['/productos', tipo()?.toLowerCase(), producto.id, 'editar']">Editar</a>
                     <button type="button" class="boton boton-peligro" [disabled]="eliminando()" (click)="eliminarProducto()">
-                        {{ eliminando() ? 'Eliminando...' : 'Eliminar' }}
+                        {{ eliminando() ? 'Eliminando…' : 'Eliminar' }}
                     </button>
                 }
             </div>
@@ -62,7 +62,7 @@
         </article>
 
     } @else {
-        <p>Cargando producto...</p>
+        <p>Cargando producto…</p>
     }
 
 </section>
