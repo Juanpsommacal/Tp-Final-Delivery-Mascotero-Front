@@ -36,6 +36,13 @@
                 <li>
                     <a routerLink="/compras" routerLinkActive="activo">Compras</a>
                 </li>
+
+                @if (auth.tieneRol('ADMIN')) {
+                    <li>
+                        <a routerLink="/reportes" routerLinkActive="activo">Métricas</a>
+                    </li>
+                }
+
             </ul>
 
             <div class="auth-acciones">

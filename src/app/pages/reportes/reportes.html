@@ -1,0 +1,187 @@
+<section class="contenedor-metricas">
+
+    <div class="encabezado">
+        <h2>Métricas</h2>
+        <p class="subtitulo">Resumen de ventas, pedidos y deudas del negocio.</p>
+    </div>
+
+    <!-- Deuda pendiente de cobro -->
+    <article class="panel panel-deuda">
+        <h3>Deuda pendiente de cobro</h3>
+
+        @if (cargandoDeuda()) {
+            <p class="estado">Cargando...</p>
+        } @else if (errorDeuda()) {
+            <p class="error">{{ errorDeuda() }}</p>
+        } @else {
+            <div class="deuda">
+                <strong class="deuda-monto">{{ deudaTotal() | currency:'ARS':'symbol-narrow' }}</strong>
+                <span class="deuda-detalle">
+                    en {{ pedidosConDeuda().length }}
+                    {{ pedidosConDeuda().length === 1 ? 'pedido entregado' : 'pedidos entregados' }}
+                    con saldo sin cobrar
+                </span>
+            </div>
+        }
+    </article>
+
+    <!-- Resumen del mes -->
+    <article class="panel">
+        <h3>Resumen del mes</h3>
+        <p class="nota">Las ventas y el ticket promedio cuentan solo pedidos entregados y pagados.</p>
+
+        <div class="filtros">
+            <label>
+                Mes
+                <select [value]="mes()" (change)="mes.set(+$any($event.target).value)">
+                    @for (m of meses; track m.valor) {
+                        <option [value]="m.valor" [selected]="m.valor === mes()">{{ m.nombre }}</option>
+                    }
+                </select>
+            </label>
+
+            <label>
+                Año
+                <input type="number" min="2000" max="2100" [value]="anio()"
+                       (input)="anio.set(+$any($event.target).value)" />
+            </label>
+
+            <button type="button" class="boton" [disabled]="!anioValido() || cargandoMes()" (click)="cargarMes()">
+                Ver mes
+            </button>
+        </div>
+
+        @if (cargandoMes()) {
+            <p class="estado">Cargando...</p>
+        } @else if (errorMes()) {
+            <p class="error">{{ errorMes() }}</p>
+        } @else {
+
+            <div class="kpis">
+                <div class="kpi">
+                    <span class="kpi-titulo">Ventas del mes</span>
+                    <strong class="kpi-valor">{{ (ventasMes()?.montoTotal ?? 0) | currency:'ARS':'symbol-narrow' }}</strong>
+                </div>
+
+                <div class="kpi">
+                    <span class="kpi-titulo">Pedidos pagados</span>
+                    <strong class="kpi-valor">{{ ventasMes()?.cantidadPedidos ?? 0 }}</strong>
+                </div>
+
+                <div class="kpi">
+                    <span class="kpi-titulo">Ticket promedio</span>
+                    <strong class="kpi-valor">{{ (ticket()?.ticketPromedio ?? 0) | currency:'ARS':'symbol-narrow' }}</strong>
+                </div>
+            </div>
+
+            @if (!ventasMes()) {
+                <p class="vacio">No hubo ventas (pedidos entregados y pagados) en {{ periodoMes() }}.</p>
+            }
+
+            <h4>Pedidos por estado</h4>
+
+            @if (pedidosPorEstado().length) {
+                <div class="estados">
+                    @for (estado of estados; track estado) {
+                        <div [class]="'chip chip-' + estado.toLowerCase()">
+                            <span class="chip-cantidad">{{ cantidadPorEstado(estado) }}</span>
+                            <span>{{ estado | formatoEnum }}</span>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <p class="vacio">No hubo pedidos en {{ periodoMes() }}.</p>
+            }
+
+        }
+    </article>
+
+    <!-- Ventas por rango de fechas -->
+    <article class="panel">
+        <h3>Ventas por rango de fechas</h3>
+        <p class="nota">Cuenta solo pedidos entregados y pagados dentro del rango.</p>
+
+        <div class="filtros">
+            <label>
+                Desde
+                <input type="date" [value]="fechaInicio()" (input)="fechaInicio.set($any($event.target).value)" />
+            </label>
+
+            <label>
+                Hasta
+                <input type="date" [value]="fechaFin()" (input)="fechaFin.set($any($event.target).value)" />
+            </label>
+
+            <button type="button" class="boton" [disabled]="!rangoValido() || cargandoRango()" (click)="cargarRango()">
+                Calcular
+            </button>
+        </div>
+
+        @if (fechaInicio() && fechaFin() && !rangoValido()) {
+            <p class="error">La fecha de inicio no puede ser posterior a la de fin.</p>
+        }
+
+        @if (cargandoRango()) {
+            <p class="estado">Cargando...</p>
+        } @else if (errorRango()) {
+            <p class="error">{{ errorRango() }}</p>
+        } @else {
+
+            <div class="kpis">
+                <div class="kpi">
+                    <span class="kpi-titulo">Total de ventas</span>
+                    <strong class="kpi-valor">{{ (ventasRango()?.totalVentas ?? 0) | currency:'ARS':'symbol-narrow' }}</strong>
+                </div>
+
+                <div class="kpi">
+                    <span class="kpi-titulo">Pedidos pagados</span>
+                    <strong class="kpi-valor">{{ ventasRango()?.cantidadPedidos ?? 0 }}</strong>
+                </div>
+            </div>
+
+            @if (!ventasRango()?.cantidadPedidos) {
+                <p class="vacio">No hubo ventas en ese rango de fechas.</p>
+            }
+
+        }
+    </article>
+
+    <!-- Top 5 de productos mas vendidos -->
+    <article class="panel">
+        <h3>Top 5 productos más vendidos</h3>
+        <p class="nota">Unidades vendidas en pedidos entregados y pagados (histórico).</p>
+
+        @if (cargandoTop()) {
+            <p class="estado">Cargando...</p>
+        } @else if (errorTop()) {
+            <p class="error">{{ errorTop() }}</p>
+        } @else if (top5().length) {
+
+            <ol class="ranking">
+                @for (producto of top5(); track producto.productoId; let i = $index) {
+                    <li>
+                        <span class="puesto">{{ i + 1 }}</span>
+
+                        <div class="ranking-datos">
+                            <div class="ranking-linea">
+                                <strong>{{ producto.nombreProducto }}</strong>
+                                <span>
+                                    {{ producto.cantidadVendida }}
+                                    {{ producto.cantidadVendida === 1 ? 'unidad' : 'unidades' }}
+                                </span>
+                            </div>
+
+                            <div class="barra">
+                                <div class="barra-relleno" [style.width.%]="(producto.cantidadVendida / maxVendido()) * 100"></div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ol>
+
+        } @else {
+            <p class="vacio">Todavía no hay productos vendidos (entregados y pagados).</p>
+        }
+    </article>
+
+</section>
