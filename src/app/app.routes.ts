@@ -22,6 +22,7 @@ import { PagosList } from './pages/pagos/pagos-list/pagos-list';
 import { ComprasList } from './pages/compras/compras-list/compras-list';
 import { ComprasForm } from './pages/compras/compras-form/compras-form';
 import { CompraDetails } from './pages/compras/compra-details/compra-details';
+import { Reportes } from './pages/reportes/reportes';
 
 
 export const routes: Routes = [
@@ -51,5 +52,6 @@ export const routes: Routes = [
     {path: 'compras', component: ComprasList, canActivate: [authGuard]},
     {path: 'compras/nueva', component: ComprasForm, canActivate: [authGuard]},
     {path: 'compras/:id', component: CompraDetails, canActivate: [authGuard]},
+    {path: 'reportes', component: Reportes, canActivate: [adminGuard]},
     {path: '**', redirectTo: ''}
 ];
