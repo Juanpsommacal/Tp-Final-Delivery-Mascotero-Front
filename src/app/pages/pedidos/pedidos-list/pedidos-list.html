@@ -5,11 +5,24 @@
         <a class="boton" routerLink="/pedidos/nuevo">Nuevo pedido</a>
     </div>
 
+    <div class="etapas">
+        @for (etapa of etapas; track etapa.estado) {
+            <button type="button" class="etapa" [class.activa]="filtroEstado() === etapa.estado"
+                    [attr.aria-pressed]="filtroEstado() === etapa.estado" (click)="alternarEtapa(etapa.estado)">
+                <span class="etapa-cantidad">{{ contadores()[etapa.estado] ?? '–' }}</span>
+                <span class="etapa-texto">
+                    <strong>{{ etapa.titulo }}</strong>
+                    <span>{{ etapa.detalle }}</span>
+                </span>
+            </button>
+        }
+    </div>
+
     <div class="filtros" [class.abiertos]="filtrosAbiertos()">
         <label class="buscar">
             Buscar por cliente, dirección o número
             <input type="search" placeholder="Ej: Pérez, Luro 1234 o 12"
-                   [value]="busqueda()" (input)="cambiarBusqueda($any($event.target).value)" />
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
         </label>
 
         <button type="button" class="boton boton-secundario boton-filtros" [attr.aria-expanded]="filtrosAbiertos()"
@@ -43,19 +56,39 @@
             </select>
         </label>
 
+        <app-selector-periodo class="filtro-extra filtro-fechas" [(desde)]="desde" [(hasta)]="hasta" />
+
         <label class="switch filtro-extra">
             <input type="checkbox" role="switch"
                    [checked]="mostrarCancelados()"
-                   (change)="cambiarCancelados($any($event.target).checked)" />
+                   (change)="mostrarCancelados.set($any($event.target).checked)" />
             <span class="switch-pista" aria-hidden="true"></span>
             Mostrar cancelados
         </label>
     </div>
 
-    @if (cargando()) {
+    @if (faltantes().length > 0) {
+        <section class="para-conseguir" aria-labelledby="titulo-conseguir">
+            <div class="para-conseguir-cabecera">
+                <h2 id="titulo-conseguir">Para conseguir</h2>
+                <a class="boton boton-secundario" routerLink="/compras/nueva">Nueva compra</a>
+            </div>
+            <ul>
+                @for (item of faltantes(); track item.productoId) {
+                    <li>
+                        <span class="faltan">Faltan {{ item.faltante }}</span>
+                        <span class="producto-falta">{{ item.nombreProducto }}</span>
+                        <span class="detalle-falta">Piden {{ item.cantidadPedida }} · hay {{ item.stock }} · {{ item.pedidos }} {{ item.pedidos === 1 ? 'pedido' : 'pedidos' }}</span>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
+
+    @if (tabla.cargando()) {
         <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando pedidos…" />
-    } @else if (pedidosFiltrados().length === 0) {
-        @if (pedidos().length > 0) {
+    } @else if (tabla.filasPagina().length === 0) {
+        @if (hayFiltros()) {
             <div class="estado-vacio">
                 <strong>Ningún pedido con esos filtros</strong>
                 <span>Probá con otra búsqueda o limpiá los filtros.</span>
@@ -70,50 +103,50 @@
         }
     } @else {
         <p class="resumen" aria-live="polite">
-            {{ rango().total }} {{ rango().total === 1 ? 'pedido' : 'pedidos' }}
+            {{ tabla.rango().total }} {{ tabla.rango().total === 1 ? 'pedido' : 'pedidos' }}
             @if (saldoFiltrado() > 0) {
                 · Falta cobrar <strong>{{ saldoFiltrado() | pesos }}</strong>
             }
         </p>
 
-        <app-orden-mobile [valor]="ordenActual()" [opciones]="opcionesOrden" (cambio)="ordenarComo($event)" />
+        <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
 
-        <div class="tabla-contenedor">
+        <div class="tabla-contenedor" [attr.aria-busy]="tabla.actualizando()">
             <table class="tabla-pedidos">
                 <caption class="solo-lector">Pedidos. Los encabezados con botón cambian el orden.</caption>
                 <thead>
                     <tr>
-                        <th scope="col" class="col-numero" [attr.aria-sort]="ariaOrden('id')">
-                            <button type="button" class="orden" (click)="ordenarPor('id')">
-                                N.º <span class="flecha" aria-hidden="true">{{ orden() === 'id' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                        <th scope="col" class="col-numero" [attr.aria-sort]="tabla.ariaOrden('id')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('id')">
+                                N.º <span class="flecha" aria-hidden="true">{{ tabla.flecha('id') }}</span>
                             </button>
                         </th>
-                        <th scope="col" class="col-fecha" [attr.aria-sort]="ariaOrden('fecha')">
-                            <button type="button" class="orden" (click)="ordenarPor('fecha')">
-                                Fecha <span class="flecha" aria-hidden="true">{{ orden() === 'fecha' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                        <th scope="col" class="col-fecha" [attr.aria-sort]="tabla.ariaOrden('fecha')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('fecha')">
+                                Fecha <span class="flecha" aria-hidden="true">{{ tabla.flecha('fecha') }}</span>
                             </button>
                         </th>
-                        <th scope="col" [attr.aria-sort]="ariaOrden('cliente')">
-                            <button type="button" class="orden" (click)="ordenarPor('cliente')">
-                                Cliente y dirección <span class="flecha" aria-hidden="true">{{ orden() === 'cliente' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                        <th scope="col" [attr.aria-sort]="tabla.ariaOrden('cliente')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('cliente')">
+                                Cliente y dirección <span class="flecha" aria-hidden="true">{{ tabla.flecha('cliente') }}</span>
                             </button>
                         </th>
                         <th scope="col">Entrega</th>
                         <th scope="col">Pago</th>
-                        <th scope="col" class="col-monto" [attr.aria-sort]="ariaOrden('total')">
-                            <button type="button" class="orden" (click)="ordenarPor('total')">
-                                Total <span class="flecha" aria-hidden="true">{{ orden() === 'total' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('total')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('total')">
+                                Total <span class="flecha" aria-hidden="true">{{ tabla.flecha('total') }}</span>
                             </button>
                         </th>
-                        <th scope="col" class="col-monto" [attr.aria-sort]="ariaOrden('saldo')">
-                            <button type="button" class="orden" (click)="ordenarPor('saldo')">
-                                Saldo <span class="flecha" aria-hidden="true">{{ orden() === 'saldo' ? (ascendente() ? '▲' : '▼') : '' }}</span>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('saldo')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('saldo')">
+                                Saldo <span class="flecha" aria-hidden="true">{{ tabla.flecha('saldo') }}</span>
                             </button>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for (pedido of pedidosPagina(); track pedido.id) {
+                    @for (pedido of tabla.filasPagina(); track pedido.id) {
                         <tr [class.cancelado]="pedido.estadoPedido === 'CANCELADO'" (click)="abrir(pedido)">
                             <td class="col-numero" data-titulo="N.º">
                                 <a class="enlace-fila" [routerLink]="['/pedidos', pedido.id]" (click)="$event.stopPropagation()">#{{ pedido.id }}</a>
@@ -127,6 +160,12 @@
                                 <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">
                                     {{ pedido.estadoPedido | formatoEnum }}
                                 </span>
+                                @if (pedido.fechaEntrega) {
+                                    <span class="fecha-entrega">{{ pedido.fechaEntrega + 'T00:00:00' | date:'dd/MM' }}</span>
+                                }
+                                @if (pedido.alcanzaStock) {
+                                    <span class="ya-alcanza">Ya alcanza el stock</span>
+                                }
                             </td>
                             <td data-titulo="Pago">
                                 <!-- En un pedido cancelado el "estado de pago" no aporta nada -->
@@ -165,20 +204,7 @@
             </table>
         </div>
 
-        @if (totalPaginas() > 1) {
-            <nav class="paginacion" aria-label="Páginas de pedidos">
-                <span class="info-paginacion">{{ rango().desde }}–{{ rango().hasta }} de {{ rango().total }}</span>
-                <div class="botones-paginacion">
-                    <button type="button" class="boton boton-secundario" (click)="irAPagina(pagina() - 1)" [disabled]="pagina() === 1">
-                        Anterior
-                    </button>
-                    <span class="pagina-actual">Página {{ pagina() }} de {{ totalPaginas() }}</span>
-                    <button type="button" class="boton boton-secundario" (click)="irAPagina(pagina() + 1)" [disabled]="pagina() >= totalPaginas()">
-                        Siguiente
-                    </button>
-                </div>
-            </nav>
-        }
+        <app-paginacion [tabla]="tabla" nombre="pedidos" />
     }
 
 </article>
@@ -186,7 +212,7 @@
 @if (pedidoWhatsapp(); as pedido) {
 <app-modal-whatsapp
     [pedido]="pedido"
-    [telefono]="telefonoDe(pedido)"
+    [telefono]="pedido.telefonoCliente"
     plantillaInicial="saldo"
     (cerrar)="pedidoWhatsapp.set(null)"
     (recordatorioRegistrado)="alRegistrarRecordatorio($event)" />

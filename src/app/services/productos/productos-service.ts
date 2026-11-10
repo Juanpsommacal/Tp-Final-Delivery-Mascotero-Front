@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import Producto from '../../models/Producto';
+import { parametros } from '../../utils/http-util';
+import Pagina, { ConsultaPagina } from '../../models/Pagina';
 import Alimento from '../../models/Alimento';
 import Antipulgas from '../../models/Antipulgas';
 import { TipoProducto } from '../../models/Enums';
@@ -26,6 +28,10 @@ export class ProductosService {
 
     getAllProductos() {
         return this.http.get<Producto[]>(`${this.url}/productos`)
+    }
+
+    getPagina(consulta: ConsultaPagina, filtros: { q: string, tipo: string, stockMaximo: number | null }) {
+        return this.http.get<Pagina<Producto>>(`${this.url}/productos/pagina`, { params: parametros({ ...consulta, ...filtros }) })
     }
 
     getProductoById(tipo: TipoProducto, id: number) {

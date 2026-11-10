@@ -1,4 +1,4 @@
-.contenedor-metricas {
+.contenedor-reportes {
     max-width: 1000px;
     margin: 0 auto;
     padding: 32px 16px;
@@ -53,6 +53,12 @@
 .error {
     color: var(--color-danger);
     font-weight: 600;
+}
+
+@media (max-width: 720px) {
+    .panel {
+        padding: 16px;
+    }
 }
 
 /* Filtros */
@@ -138,7 +144,7 @@
     font-weight: 800;
 }
 
-.chip-pendiente {
+.chip-falta_mercaderia {
     background-color: var(--color-accent-light);
     color: var(--color-accent-dark);
 }
@@ -204,4 +210,14 @@
     height: 100%;
     background-color: var(--color-accent);
     border-radius: var(--radius-full);
+}
+
+.chip-a_coordinar {
+    background-color: #fbf2d5;
+    color: #7a5a00;
+}
+
+.chip-programado {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
 }

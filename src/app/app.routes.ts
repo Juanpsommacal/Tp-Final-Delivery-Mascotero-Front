@@ -23,6 +23,7 @@ import { ComprasList } from './pages/compras/compras-list/compras-list';
 import { ComprasForm } from './pages/compras/compras-form/compras-form';
 import { CompraDetails } from './pages/compras/compra-details/compra-details';
 import { Reportes } from './pages/reportes/reportes';
+import { Reparto } from './pages/reparto/reparto';
 
 
 export const routes: Routes = [
@@ -47,10 +48,11 @@ export const routes: Routes = [
     {path: 'pedidos', title: 'Pedidos', component: PedidosList, canActivate: [authGuard]},
     {path: 'pedidos/nuevo', title: 'Nuevo pedido', component: PedidosForm, canActivate: [authGuard]},
     {path: 'pedidos/:id', title: 'Pedido', component: PedidoDetails, canActivate: [authGuard]},
+    {path: 'reparto', title: 'Reparto', component: Reparto, canActivate: [authGuard]},
     {path: 'pagos', title: 'Pagos', component: PagosList, canActivate: [authGuard]},
     {path: 'compras', title: 'Compras', component: ComprasList, canActivate: [authGuard]},
     {path: 'compras/nueva', title: 'Nueva compra', component: ComprasForm, canActivate: [authGuard]},
     {path: 'compras/:id', title: 'Compra', component: CompraDetails, canActivate: [authGuard]},
-    {path: 'reportes', title: 'Métricas', component: Reportes, canActivate: [adminGuard]},
+    {path: 'reportes', title: 'Reportes', component: Reportes, canActivate: [adminGuard]},
     {path: '**', redirectTo: ''}
 ];

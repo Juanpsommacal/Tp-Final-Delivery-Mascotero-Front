@@ -2,12 +2,12 @@
 
 /* Cada método tiene su color: el mismo en el filtro y en la tabla */
 :host {
-    --metodo-efectivo: #1b7a43;
-    --metodo-efectivo-fondo: #e6f6ed;
-    --metodo-transferencia: #155e70;
-    --metodo-transferencia-fondo: #e5f1f4;
-    --metodo-link: #9a3d16;
-    --metodo-link-fondo: #fef0eb;
+    --metodo-efectivo: #2a7445;
+    --metodo-efectivo-fondo: #e6f4e9;
+    --metodo-transferencia: #1a6b8f;
+    --metodo-transferencia-fondo: #e3f1f6;
+    --metodo-link: #7d3f9f;
+    --metodo-link-fondo: #f4eaf9;
 }
 
 fieldset {
@@ -17,9 +17,37 @@ fieldset {
     min-width: 0;
 }
 
+/* Buscador y métodos en la misma columna, con las fechas al costado */
+.contenedor-list .filtros {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr);
+    grid-template-areas:
+        "buscar fechas"
+        "metodos fechas";
+    align-items: start;
+    gap: 12px 24px;
+}
+
+.contenedor-list .filtros .buscar {
+    grid-area: buscar;
+}
+
+.filtro-metodos {
+    grid-area: metodos;
+}
+
 .filtro-fechas {
-    display: block;
-    flex: 1 1 320px;
+    grid-area: fechas;
+}
+
+@media (max-width: 720px) {
+    .contenedor-list .filtros {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "buscar"
+            "metodos"
+            "fechas";
+    }
 }
 
 legend {
@@ -34,10 +62,6 @@ legend {
 }
 
 /* ---------- Métodos de pago (selección múltiple) ---------- */
-.filtro-metodos {
-    margin-bottom: 24px;
-}
-
 .opciones-metodo {
     display: flex;
     flex-wrap: wrap;

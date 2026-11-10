@@ -1,29 +1,16 @@
 import { OrdenMobile, OpcionOrden } from '../../../components/orden-mobile/orden-mobile';
 import { PesosPipe } from '../../../pipes/pesos-pipe';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import Cliente from '../../../models/Cliente';
-import Pedido from '../../../models/Pedido';
 import { ClientesService } from '../../../services/clientes/clientes-service';
-import { PedidosService } from '../../../services/pedidos/pedidos-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
 import { extraerMensajeError } from '../../../utils/error-util';
-import { coincideBusqueda } from '../../../utils/busqueda-util';
-import { saldoDe, tieneDeuda } from '../../../utils/pedido-utils';
 import { SkeletonLista } from '../../../components/skeleton-lista/skeleton-lista';
 import { Paginacion } from '../../../components/paginacion/paginacion';
-import { filtrosEnUrl, TablaOrdenable } from '../../../utils/tabla';
+import { filtrosEnUrl, TablaServidor } from '../../../utils/tabla';
 import { formatearTelefono, normalizarTelefono } from '../../../utils/whatsapp-util';
-
-interface FilaCliente {
-  cliente: Cliente
-  pedidos: number
-  deuda: number
-  // Fecha (yyyy-MM-dd) e id del último pedido no cancelado; null si nunca pidió
-  ultimoPedido: string | null
-  ultimoPedidoId: number | null
-}
 
 @Component({
   imports: [RouterLink, DatePipe, SkeletonLista, Paginacion, PesosPipe, OrdenMobile],
@@ -31,53 +18,16 @@ interface FilaCliente {
   styleUrl: './clientes-list.css',
   templateUrl: './clientes-list.html',
 })
-export class ClientesList implements OnInit {
+export class ClientesList {
 
   private clienteService = inject(ClientesService)
-  private pedidosService = inject(PedidosService)
   private alertaService = inject(AlertaService)
   private router = inject(Router)
 
-  clientes = signal<Cliente[]>([])
-  // Para las columnas Pedidos y Debe. Si fallan, la tabla se ve igual sin esos datos
-  private pedidos = signal<Pedido[] | null>(null)
-  cargando = signal(true)
   busqueda = signal('')
   soloConDeuda = signal(false)
 
-  conDatosDePedidos = computed(() => this.pedidos() !== null)
-
-  filas = computed<FilaCliente[]>(() => {
-    const vacio = () => ({ pedidos: 0, deuda: 0, ultimoPedido: null as string | null, ultimoPedidoId: null as number | null })
-    const porCliente = new Map<string, ReturnType<typeof vacio>>()
-    for (const pedido of this.pedidos() ?? []) {
-      if (pedido.estadoPedido === 'CANCELADO') continue
-      const datos = porCliente.get(String(pedido.clienteId)) ?? vacio()
-      datos.pedidos++
-      if (tieneDeuda(pedido)) datos.deuda += saldoDe(pedido)
-      // El más reciente; a igual fecha, el de número más alto
-      const esMasNuevo = !datos.ultimoPedido || pedido.fecha > datos.ultimoPedido ||
-        (pedido.fecha === datos.ultimoPedido && pedido.id > (datos.ultimoPedidoId ?? 0))
-      if (esMasNuevo) {
-        datos.ultimoPedido = pedido.fecha
-        datos.ultimoPedidoId = pedido.id
-      }
-      porCliente.set(String(pedido.clienteId), datos)
-    }
-    return this.clientes().map(cliente => ({
-      cliente,
-      ...(porCliente.get(String(cliente.id)) ?? vacio()),
-    }))
-  })
-
-  filasFiltradas = computed(() => {
-    const texto = this.busqueda()
-    const conDeuda = this.soloConDeuda()
-    return this.filas().filter(fila =>
-      (!conDeuda || fila.deuda > 0) &&
-      coincideBusqueda(`${fila.cliente.nombre} ${fila.cliente.apellido} ${fila.cliente.telefono}`, texto)
-    )
-  })
+  hayFiltros = computed(() => !!this.busqueda() || this.soloConDeuda())
 
   // Opciones del select "Ordenar por" que se ve en el celular
   readonly opcionesOrden: OpcionOrden[] = [
@@ -88,42 +38,22 @@ export class ClientesList implements OnInit {
     { valor: 'pedidos-desc', etiqueta: 'Más pedidos' },
   ]
 
-  tabla = new TablaOrdenable({
-    filas: this.filasFiltradas,
-    columnas: {
-      nombre: (f: FilaCliente) => `${f.cliente.apellido} ${f.cliente.nombre}`.toLowerCase(),
-      pedidos: (f: FilaCliente) => f.pedidos,
-      // Los que nunca pidieron quedan al final cuando se ordena del más reciente al más viejo
-      ultimo: (f: FilaCliente) => f.ultimoPedido ?? '',
-      deuda: (f: FilaCliente) => f.deuda,
-    },
+  tabla = new TablaServidor({
+    columnas: ['nombre', 'pedidos', 'ultimo', 'deuda'] as const,
     ordenInicial: 'nombre',
     ascendenteInicial: true,
     columnasTexto: ['nombre'],
-    reiniciarPaginaCon: () => [this.busqueda(), this.soloConDeuda()],
+    busqueda: this.busqueda,
+    filtros: () => this.soloConDeuda(),
+    cargar: consulta => this.clienteService.getPagina(consulta, this.busqueda(), this.soloConDeuda()),
+    alError: async (error, primeraCarga) => {
+      await this.alertaService.error(extraerMensajeError(error))
+      if (primeraCarga) this.router.navigate(['/'])
+    },
   })
 
   constructor() {
     filtrosEnUrl({ q: this.busqueda, deuda: this.soloConDeuda }, this.tabla)
-  }
-
-  ngOnInit(): void {
-    this.clienteService.getAllClientes().subscribe({
-      next: (data) => {
-        this.clientes.set(data)
-        this.cargando.set(false)
-      },
-      error: async (error) => {
-        this.cargando.set(false)
-        await this.alertaService.error(extraerMensajeError(error))
-        this.router.navigate(['/'])
-      }
-    })
-
-    this.pedidosService.getAllPedidos().subscribe({
-      next: (data) => this.pedidos.set(data),
-      error: () => this.pedidos.set(null),
-    })
   }
 
   // "Hoy", "Ayer", "Hace 5 días"... para ver de un vistazo quién hace mucho que no pide

@@ -117,16 +117,16 @@
             } @else {
                 <div class="sugerencias-lista">
                     @for (p of productosFiltrados(); track p.id) {
-                        <div class="sugerencia-item" [class.ya-agregado]="estaAgregado(p) || p.stock <= 0">
+                        <div class="sugerencia-item" [class.ya-agregado]="estaAgregado(p)">
                             <div class="sugerencia-info">
                                 <strong>{{ p.marca }} {{ p.nombre }}</strong>
                                 <span class="sugerencia-precio">{{ precioFinal(p) | pesos }}</span>
                                 <span class="texto-secundario">Stock: {{ p.stock }}</span>
                             </div>
                             <button type="button" class="boton-agregar"
-                                    [disabled]="estaAgregado(p) || p.stock <= 0"
+                                    [disabled]="estaAgregado(p)"
                                     (click)="agregarProducto(p)">
-                                {{ p.stock <= 0 ? 'Sin stock' : (estaAgregado(p) ? '✓ Agregado' : '+ Agregar') }}
+                                {{ estaAgregado(p) ? '✓ Agregado' : '+ Agregar' }}
                             </button>
                         </div>
                     } @empty {
@@ -148,10 +148,12 @@
                                 · Stock: {{ item.producto.stock }}
                             </span>
                             <span class="error">{{ errorCantidad(item) }}</span>
+                            @if (faltanteDe(item) > 0) {
+                                <span class="falta-mercaderia">Faltan {{ faltanteDe(item) }}: hay que conseguirlas</span>
+                            }
                         </div>
 
                         <input class="cantidad" type="number" min="1" step="1"
-                               [max]="item.producto.stock"
                                [attr.aria-label]="'Cantidad de ' + item.producto.nombre"
                                [value]="item.cantidad"
                                (input)="cambiarCantidad(item.producto, $any($event.target).value)" />
@@ -168,6 +170,10 @@
             </div>
 
             <span class="error">{{ intentoGuardar() && items().length === 0 ? 'Agregá al menos un producto' : '' }}</span>
+
+            @if (faltaMercaderia()) {
+                <p class="aviso-mercaderia" role="status">Este pedido va a quedar como <strong>Falta mercadería</strong> hasta que la consigas.</p>
+            }
 
             <div class="total">
                 <span>Total</span>

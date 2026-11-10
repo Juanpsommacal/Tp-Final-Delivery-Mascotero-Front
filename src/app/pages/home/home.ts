@@ -5,17 +5,19 @@ import { DatePipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import Pedido from '../../models/Pedido';
 import Producto from '../../models/Producto';
+import { saldoDe } from '../../utils/pedido-utils';
 import { PedidosService } from '../../services/pedidos/pedidos-service';
 import { ProductosService } from '../../services/productos/productos-service';
-import { saldoDe, tieneDeuda } from '../../utils/pedido-utils';
-import { ClientesService } from '../../services/clientes/clientes-service';
 import { ModalWhatsapp } from '../../components/modal-whatsapp/modal-whatsapp';
 import { Icono } from '../../components/icono/icono';
 import { haceCuanto } from '../../utils/whatsapp-util';
+import { getFechaLocalISO } from '../../utils/fecha-util';
+import { EstadoPedido } from '../../models/Enums';
 
 // Con este stock o menos un producto aparece en "Stock bajo"
 const STOCK_BAJO = 3
 const MAX_FILAS = 5
+const MAX_DEUDAS = 3
 
 @Component({
   imports: [RouterLink, DatePipe, ModalWhatsapp, Icono, PesosPipe],
@@ -27,44 +29,29 @@ export class Home implements OnInit {
 
   private pedidosService = inject(PedidosService)
   private productosService = inject(ProductosService)
-  private clientesService = inject(ClientesService)
 
   readonly stockBajo = STOCK_BAJO
   readonly hoy = new Date()
+  private readonly hoyISO = getFechaLocalISO()
 
   cargando = signal(true)
   error = signal(false)
-  pedidos = signal<Pedido[]>([])
-  productos = signal<Producto[]>([])
+  // Solo se traen las filas que se muestran; el total de cada cola viene aparte
+  porEntregar = signal<Pedido[]>([])
+  cantidadPorEntregar = signal(0)
+  private deudas = signal<Pedido[]>([])
+  cantidadPorCobrar = signal(0)
+  totalPorCobrar = signal(0)
+  contadores = signal<Partial<Record<EstadoPedido, number>>>({})
+  conStockBajo = signal<Producto[]>([])
+  cantidadStockBajo = signal(0)
 
-  // clienteId -> teléfono, para el botón de WhatsApp. null mientras carga
-  telefonos = signal<Map<string, string> | null>(null)
   // Pedido con el modal de WhatsApp abierto (siempre con la plantilla de saldo)
   pedidoWhatsapp = signal<Pedido | null>(null)
   readonly haceCuanto = haceCuanto
 
-  // Los más viejos primero: son los que hace más que esperan
-  porEntregar = computed(() =>
-    this.pedidos()
-      .filter(p => p.estadoPedido === 'PENDIENTE')
-      .sort((a, b) => a.fecha.localeCompare(b.fecha) || a.id - b.id)
-  )
-
   // Deuda más grande primero
-  porCobrar = computed(() =>
-    this.pedidos()
-      .filter(p => p.estadoPedido !== 'CANCELADO' && tieneDeuda(p))
-      .map(p => ({ pedido: p, saldo: saldoDe(p) }))
-      .sort((a, b) => b.saldo - a.saldo)
-  )
-
-  totalPorCobrar = computed(() => this.porCobrar().reduce((suma, d) => suma + d.saldo, 0))
-
-  conStockBajo = computed(() =>
-    this.productos()
-      .filter(p => p.activo !== false && p.stock <= STOCK_BAJO)
-      .sort((a, b) => a.stock - b.stock)
-  )
+  porCobrar = computed(() => this.deudas().map(pedido => ({ pedido, saldo: saldoDe(pedido) })))
 
   readonly maxFilas = MAX_FILAS
 
@@ -77,38 +64,31 @@ export class Home implements OnInit {
 
   ngOnInit(): void {
     this.cargar()
-    this.cargarTelefonos()
-  }
-
-  telefonoDe(pedido: Pedido): string | null | undefined {
-    const telefonos = this.telefonos()
-    return telefonos ? (telefonos.get(String(pedido.clienteId)) ?? null) : undefined
   }
 
   // Reemplaza el pedido en la lista para que se vea la fecha del recordatorio
   alRegistrarRecordatorio(actualizado: Pedido) {
-    this.pedidos.update(lista => lista.map(p => p.id === actualizado.id ? actualizado : p))
+    this.deudas.update(lista => lista.map(p => p.id === actualizado.id ? actualizado : p))
   }
-
-  private cargarTelefonos() {
-    this.clientesService.getAllClientes().subscribe({
-      next: (clientes) => this.telefonos.set(new Map(clientes.map(c => [String(c.id), c.telefono]))),
-      // Sin clientes el botón igual abre el modal, que avisa que falta el teléfono
-      error: () => this.telefonos.set(new Map()),
-    })
-  }
-
 
   cargar() {
     this.cargando.set(true)
     this.error.set(false)
     forkJoin({
-      pedidos: this.pedidosService.getAllPedidos(),
-      productos: this.productosService.getAllProductos(),
+      entregas: this.pedidosService.getReparto(this.hoyISO),
+      contadores: this.pedidosService.getContadores(),
+      deudas: this.pedidosService.getPagina({ page: 0, size: MAX_DEUDAS, orden: 'saldo-desc' }, { q: '', estado: '', filtroPago: 'CON_DEUDA', cancelados: false }),
+      stock: this.productosService.getPagina({ page: 0, size: MAX_FILAS, orden: 'stock-asc' }, { q: '', tipo: '', stockMaximo: STOCK_BAJO }),
     }).subscribe({
-      next: ({ pedidos, productos }) => {
-        this.pedidos.set(pedidos)
-        this.productos.set(productos)
+      next: ({ entregas, contadores, deudas, stock }) => {
+        this.porEntregar.set(entregas.slice(0, MAX_FILAS))
+        this.cantidadPorEntregar.set(entregas.length)
+        this.contadores.set(contadores)
+        this.deudas.set(deudas.contenido)
+        this.cantidadPorCobrar.set(deudas.totalElementos)
+        this.totalPorCobrar.set(deudas.saldoFiltrado)
+        this.conStockBajo.set(stock.contenido)
+        this.cantidadStockBajo.set(stock.totalElementos)
         this.cargando.set(false)
       },
       error: () => {
@@ -118,17 +98,7 @@ export class Home implements OnInit {
     })
   }
 
-  diasEsperando(pedido: Pedido): number {
-    const [anio, mes, dia] = pedido.fecha.split('-').map(Number)
-    const fecha = new Date(anio, mes - 1, dia)
-    const inicioHoy = new Date(this.hoy.getFullYear(), this.hoy.getMonth(), this.hoy.getDate())
-    return Math.max(0, Math.round((inicioHoy.getTime() - fecha.getTime()) / 86_400_000))
-  }
-
-  textoEspera(pedido: Pedido): string {
-    const dias = this.diasEsperando(pedido)
-    if (dias === 0) return 'Hoy'
-    if (dias === 1) return 'Ayer'
-    return `Hace ${dias} días`
+  estaAtrasado(pedido: Pedido): boolean {
+    return !!pedido.fechaEntrega && pedido.fechaEntrega < this.hoyISO
   }
 }

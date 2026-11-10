@@ -113,6 +113,11 @@
     flex: 2 1 280px;
 }
 
+.filtro-fechas {
+    display: block;
+    flex: 1 1 320px;
+}
+
 .resumen {
     margin-bottom: 12px;
     font-size: 0.92rem;
@@ -306,30 +311,6 @@
 }
 
 /* ========================================================
-   Paginación
-   ======================================================== */
-.paginacion {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 16px;
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-}
-
-.botones-paginacion {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.pagina-actual {
-    font-variant-numeric: tabular-nums;
-}
-
-/* ========================================================
    Mobile: cada fila pasa a ser un bloque compacto de 2 líneas
    ======================================================== */
 @media (max-width: 720px) {
@@ -380,8 +361,131 @@
     .tabla-pedidos td .sin-dato {
         display: none;
     }
+}
 
-    .paginacion {
-        justify-content: center;
+/* Accesos a cada etapa del pedido */
+.etapas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.etapa {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    font: inherit;
+    color: var(--color-text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.etapa:hover {
+    border-color: var(--color-primary);
+}
+
+.etapa.activa {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.etapa-cantidad {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.etapa-texto {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.etapa-texto span {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+}
+
+.para-conseguir {
+    margin-bottom: 20px;
+    padding: 16px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-accent-light);
+}
+
+.para-conseguir-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.para-conseguir h2 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-accent-dark);
+}
+
+.para-conseguir ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+}
+
+.para-conseguir li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+}
+
+.faltan {
+    font-weight: 800;
+    color: var(--color-accent-dark);
+}
+
+.producto-falta {
+    font-weight: 700;
+}
+
+.detalle-falta {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.fecha-entrega,
+.ya-alcanza {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.fecha-entrega {
+    color: var(--color-primary);
+}
+
+.ya-alcanza {
+    color: var(--color-success);
+}
+
+@media (max-width: 720px) {
+    .etapas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fecha-entrega,
+    .ya-alcanza {
+        display: inline;
+        margin: 0 0 0 6px;
     }
 }

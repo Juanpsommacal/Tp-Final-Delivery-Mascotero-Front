@@ -13,9 +13,10 @@ import {
 import { AlertaService, TipoAlerta } from '../../services/alerta/alerta-service';
 import { Icono, NombreIcono } from '../icono/icono';
 import { atraparFoco } from '../../utils/foco-util';
+import { CerrarAlFondo } from '../../utils/cerrar-al-fondo';
 
 @Component({
-  imports: [Icono],
+  imports: [Icono, CerrarAlFondo],
   selector: 'app-modal-alerta',
   styleUrl: './modal-alerta.css',
   templateUrl: './modal-alerta.html',

@@ -1,7 +1,7 @@
 import { SelectorPeriodo, nombrePeriodo } from '../../../components/selector-periodo/selector-periodo';
 import { OrdenMobile, OpcionOrden } from '../../../components/orden-mobile/orden-mobile';
 import { PesosPipe } from '../../../pipes/pesos-pipe';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
@@ -9,11 +9,10 @@ import { MetodoPago, METODOS_PAGO } from '../../../models/Enums';
 import Pago from '../../../models/Pago';
 import { PagosService } from '../../../services/pagos/pagos-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
-import { coincideBusqueda } from '../../../utils/busqueda-util';
 import { getFechaLocalISO } from '../../../utils/fecha-util';
 import { SkeletonLista } from '../../../components/skeleton-lista/skeleton-lista';
 import { Paginacion } from '../../../components/paginacion/paginacion';
-import { filtrosEnUrl, TablaOrdenable } from '../../../utils/tabla';
+import { filtrosEnUrl, TablaServidor } from '../../../utils/tabla';
 
 // En la URL los métodos viajan separados por coma (?metodos=EFECTIVO,TRANSFERENCIA)
 const TODOS_LOS_METODOS = METODOS_PAGO.join(',')
@@ -25,7 +24,7 @@ const TODOS_LOS_METODOS = METODOS_PAGO.join(',')
   styleUrl: './pagos-list.css',
   templateUrl: './pagos-list.html',
 })
-export class PagosList implements OnInit {
+export class PagosList {
 
   private pagosService = inject(PagosService)
   private alertaService = inject(AlertaService)
@@ -34,8 +33,6 @@ export class PagosList implements OnInit {
   readonly metodosPago = METODOS_PAGO
   readonly hoy = getFechaLocalISO()
 
-  pagos = signal<Pago[]>([])
-  cargando = signal(true)
   busqueda = signal('')
   // Por defecto, los pagos del día. Vacío = sin límite de ese lado
   desde = signal(this.hoy)
@@ -59,34 +56,7 @@ export class PagosList implements OnInit {
     return d && h && d > h ? { desde: h, hasta: d } : { desde: d, hasta: h }
   })
 
-  // Busca por cliente o por número de pedido (ej: "perez" o "12")
-  pagosFiltrados = computed(() => {
-    const texto = this.busqueda()
-    const elegidos = this.metodosElegidos()
-    const { desde, hasta } = this.rangoFechas()
-
-    return this.pagos().filter(pago => {
-      const dia = pago.fecha.slice(0, 10)
-      return elegidos.has(pago.metodoPago) &&
-        (!desde || dia >= desde) &&
-        (!hasta || dia <= hasta) &&
-        coincideBusqueda(`${pago.nombreCliente} ${pago.pedidoId}`, texto)
-    })
-  })
-
-  totalFiltrado = computed(() =>
-    Math.round(this.pagosFiltrados().reduce((suma, pago) => suma + pago.monto, 0) * 100) / 100
-  )
-
-  // Para cerrar la caja: cuánto entró por cada método en lo que se está viendo
-  totalPorMetodo = computed(() =>
-    METODOS_PAGO
-      .map(metodo => ({
-        metodo,
-        total: this.pagosFiltrados().filter(p => p.metodoPago === metodo).reduce((suma, p) => suma + p.monto, 0),
-      }))
-      .filter(fila => fila.total > 0)
-  )
+  sinFiltros = computed(() => !this.busqueda() && !this.desde() && !this.hasta() && this.todosLosMetodos())
 
   // Opciones del select "Ordenar por" que se ve en el celular
   readonly opcionesOrden: OpcionOrden[] = [
@@ -96,35 +66,31 @@ export class PagosList implements OnInit {
     { valor: 'cliente-asc', etiqueta: 'Cliente (A–Z)' },
   ]
 
-  tabla = new TablaOrdenable({
-    filas: this.pagosFiltrados,
-    columnas: {
-      fecha: (p: Pago) => p.fecha,
-      cliente: (p: Pago) => p.nombreCliente.toLowerCase(),
-      pedido: (p: Pago) => p.pedidoId,
-      monto: (p: Pago) => p.monto,
-    },
+  tabla = new TablaServidor({
+    columnas: ['fecha', 'cliente', 'pedido', 'monto'] as const,
     ordenInicial: 'fecha',
     columnasTexto: ['cliente'],
-    reiniciarPaginaCon: () => [this.busqueda(), this.metodos(), this.desde(), this.hasta()],
+    busqueda: this.busqueda,
+    filtros: () => [this.metodos(), this.rangoFechas()],
+    // Busca por cliente o por número de pedido (ej: "perez" o "12")
+    cargar: consulta => this.pagosService.getPagina(consulta, {
+      q: this.busqueda(),
+      ...this.rangoFechas(),
+      metodos: this.todosLosMetodos() ? null : this.metodos(),
+    }),
+    alError: async (_, primeraCarga) => {
+      await this.alertaService.error('No se pudieron cargar los pagos')
+      if (primeraCarga) this.router.navigate(['/'])
+    },
   })
+
+  totalFiltrado = computed(() => this.tabla.respuesta()?.totalFiltrado ?? 0)
+
+  // Para cerrar la caja: cuánto entró por cada método en lo que se está viendo
+  totalPorMetodo = computed(() => this.tabla.respuesta()?.totalPorMetodo ?? [])
 
   constructor() {
     filtrosEnUrl({ q: this.busqueda, desde: this.desde, hasta: this.hasta, metodos: this.metodos }, this.tabla)
-  }
-
-  ngOnInit(): void {
-    this.pagosService.getAllPagos().subscribe({
-      next: (data) => {
-        this.pagos.set(data)
-        this.cargando.set(false)
-      },
-      error: async () => {
-        this.cargando.set(false)
-        await this.alertaService.error('No se pudieron cargar los pagos')
-        this.router.navigate(['/'])
-      }
-    })
   }
 
   // Un pago no tiene detalle propio: la fila lleva al pedido

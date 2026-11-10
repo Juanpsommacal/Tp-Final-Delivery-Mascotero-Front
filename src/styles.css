@@ -584,6 +584,11 @@ a.celda-titulo:hover {
 .chip-peligro { color: var(--color-danger); background-color: var(--color-danger-light); }
 .chip-apagado { color: var(--color-text-muted); background-color: var(--color-bg-alt); }
 
+.tabla-contenedor[aria-busy='true'] {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
 .contenedor-list .paginacion {
   display: flex;
   justify-content: space-between;
@@ -610,6 +615,12 @@ a.celda-titulo:hover {
 @media (max-width: 720px) {
   .tabla-contenedor {
     overflow: visible;
+  }
+
+  /* Cada fila es una tarjeta: como tabla, el texto largo la ensancharía más que la pantalla */
+  .tabla-datos,
+  .tabla-datos tbody {
+    display: block;
   }
 
   /* El orden se elige con el select "Ordenar por": los encabezados no se muestran ni reciben foco */

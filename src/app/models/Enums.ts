@@ -15,7 +15,7 @@ export type EtapaVida = typeof ETAPAS_VIDA[number]
 export const TIPOS_ANTIPULGAS = ['PIPETA', 'COMPRIMIDO'] as const
 export type TipoAntipulgas = typeof TIPOS_ANTIPULGAS[number]
 
-export const ESTADOS_PEDIDO = ['PENDIENTE', 'ENTREGADO', 'CANCELADO'] as const
+export const ESTADOS_PEDIDO = ['FALTA_MERCADERIA', 'A_COORDINAR', 'PROGRAMADO', 'ENTREGADO', 'CANCELADO'] as const
 export type EstadoPedido = typeof ESTADOS_PEDIDO[number]
 
 export const ESTADOS_PAGO = ['PENDIENTE', 'DEUDA', 'DEUDA_PARCIAL', 'PAGADO', 'PEDIDO_CANCELADO'] as const

@@ -1,8 +1,8 @@
-<section class="contenedor-metricas">
+<section class="contenedor-reportes">
 
     <div class="encabezado">
-        <h1>Métricas</h1>
-        <p class="subtitulo">Resumen de ventas y pedidos del negocio. Lo que falta cobrar está en el inicio.</p>
+        <h1>Reportes</h1>
+        <p class="subtitulo">Resumen de ventas y pedidos del negocio.</p>
     </div>
 
     <!-- Resumen del mes -->
@@ -40,7 +40,7 @@
                 </div>
 
                 <div class="kpi">
-                    <span class="kpi-titulo">Pedidos pagados</span>
+                    <span class="kpi-titulo">Pedidos completados</span>
                     <strong class="kpi-valor">{{ ventasMes()?.cantidadPedidos ?? 0 }}</strong>
                 </div>
 
@@ -51,7 +51,7 @@
             </div>
 
             @if (!ventasMes()) {
-                <p class="vacio">No hubo ventas (pedidos entregados y pagados) en {{ periodoMes() }}.</p>
+                <p class="vacio">No hubo ventas completadas en {{ periodoMes() }}.</p>
             }
 
             <h4>Pedidos por estado</h4>
@@ -113,7 +113,7 @@
     <!-- Top 5 de productos mas vendidos -->
     <article class="panel">
         <h3>Top 5 productos más vendidos</h3>
-        <p class="nota">Unidades vendidas en pedidos entregados y pagados (histórico).</p>
+        <p class="nota">Unidades vendidas en pedidos completados (histórico).</p>
 
         @if (cargandoTop()) {
             <p class="estado">Cargando…</p>
@@ -144,7 +144,7 @@
             </ol>
 
         } @else {
-            <p class="vacio">Todavía no hay productos vendidos (entregados y pagados).</p>
+            <p class="vacio">Todavía no hay productos en pedidos completados.</p>
         }
     </article>
 

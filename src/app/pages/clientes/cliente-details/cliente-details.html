@@ -208,21 +208,26 @@
                 </ul>
             }
 
-            <h4>Pagos</h4>
+            <h4>Últimos pedidos</h4>
             <ul class="lista-cuenta">
-                @for (pago of pagos(); track pago.id) {
+                @for (pedido of ultimosPedidos(); track pedido.id) {
                     <li>
-                        <div class="direccion">
-                            <strong>{{ pago.metodoPago | formatoEnum }}</strong>
-                            <span>
-                                {{ pago.fecha | date:'dd/MM/yyyy HH:mm' }} ·
-                                <a [routerLink]="['/pedidos', pago.pedidoId]">Pedido #{{ pago.pedidoId }}</a>
-                            </span>
-                        </div>
-                        <strong>{{ pago.monto | pesos }}</strong>
+                        <a class="fila-pedido" [routerLink]="['/pedidos', pedido.id]">
+                            <div class="direccion">
+                                <strong>Pedido #{{ pedido.id }}</strong>
+                                <span>
+                                    {{ pedido.fecha | date:'dd/MM/yyyy' }}
+                                    @if (pedido.estadoPago !== 'PEDIDO_CANCELADO') { · {{ pedido.estadoPago | formatoEnum }} }
+                                </span>
+                            </div>
+                            <div class="pedido-lateral">
+                                <strong>{{ pedido.montoTotal | pesos }}</strong>
+                                <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">{{ pedido.estadoPedido | formatoEnum }}</span>
+                            </div>
+                        </a>
                     </li>
                 } @empty {
-                    <li class="vacio">Este cliente todavía no hizo pagos.</li>
+                    <li class="vacio">Este cliente todavía no hizo pedidos.</li>
                 }
             </ul>
 

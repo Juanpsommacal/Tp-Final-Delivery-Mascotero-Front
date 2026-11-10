@@ -5,6 +5,7 @@ export default interface Pedido {
     id: number
     clienteId: number
     nombreCliente: string
+    telefonoCliente: string
     fecha: string
     estadoPedido: EstadoPedido
     montoTotal: number
@@ -15,6 +16,20 @@ export default interface Pedido {
     pagos: Pago[]
     // Último recordatorio de saldo mandado por WhatsApp (null si nunca)
     ultimoRecordatorio: string | null
+    // Día pactado con el cliente (null mientras no esté programado)
+    fechaEntrega: string | null
+    ordenReparto: number | null
+    // Solo con mercadería faltante: si el stock actual ya alcanza para completarlo
+    alcanzaStock: boolean
+}
+
+export interface FaltanteProducto {
+    productoId: number
+    nombreProducto: string
+    cantidadPedida: number
+    stock: number
+    faltante: number
+    pedidos: number
 }
 
 export interface DetallePedido {
@@ -22,6 +37,7 @@ export interface DetallePedido {
     productoId?: number
     nombreProducto: string
     cantidad: number
+    stockDisponible?: number
     precioUnitario: number
     descuentoAplicado: number | null
     precioDescuento: number

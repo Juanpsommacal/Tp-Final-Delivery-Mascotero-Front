@@ -67,7 +67,7 @@ export class Login implements OnInit {
         requestAnimationFrame(() => this.estadoGatito.set('frenando'))
         this.temporizadorFreno = setTimeout(() => {
           if (this.estadoGatito() === 'frenando') this.estadoGatito.set('paseando');
-        }, 2600);
+        }, 2000);
 
         if (error.status === 401) {
           this.mensaje.set('El email o la contraseña no coinciden. Revisalos y volvé a intentar.');

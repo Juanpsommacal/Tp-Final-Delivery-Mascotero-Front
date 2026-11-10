@@ -7,3 +7,9 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+@media (max-width: 720px) {
+    .productos {
+        max-width: none;
+    }
+}

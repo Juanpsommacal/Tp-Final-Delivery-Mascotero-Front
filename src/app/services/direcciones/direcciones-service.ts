@@ -9,8 +9,8 @@ export class DireccionesService {
     private http = inject(HttpClient)
     private url = `${environment.apiUrl}/direcciones`
 
-    getAll() {
-        return this.http.get<Direccion[]>(this.url)
+    buscar(q: string) {
+        return this.http.get<Direccion[]>(`${this.url}/buscar`, { params: { q } })
     }
 
 }

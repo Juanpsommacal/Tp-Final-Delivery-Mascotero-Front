@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { TablaOrdenable } from '../../utils/tabla';
+import { TablaBase } from '../../utils/tabla';
 
 // Anterior / Siguiente debajo de una tabla. No se muestra si entra todo en una página
 @Component({
@@ -24,6 +24,6 @@ import { TablaOrdenable } from '../../utils/tabla';
   `,
 })
 export class Paginacion {
-  tabla = input.required<TablaOrdenable<any, any>>()
+  tabla = input.required<TablaBase<any>>()
   nombre = input('resultados')
 }

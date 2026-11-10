@@ -36,6 +36,9 @@
                         <span class="detalle-dato">{{ piso }}</span>
                     }
                     <span class="detalle-dato">Pedido el {{ pedido.fecha | date:'dd/MM/yyyy' }}</span>
+                    @if (pedido.fechaEntrega) {
+                        <span class="detalle-dato fecha-pactada">Entrega pactada el {{ pedido.fechaEntrega + 'T00:00:00' | date:'dd/MM/yyyy' }}</span>
+                    }
                 </div>
 
                 <div class="contacto">
@@ -55,10 +58,21 @@
                 </div>
             </div>
 
+            @if (accionPrincipal() === 'mercaderia' && !pedido.alcanzaStock) {
+                <p class="aviso-mercaderia" role="status">Todavía no alcanza el stock. Cuando llegue la mercadería vas a poder confirmarlo.</p>
+            }
+
             @if (accionPrincipal() || puedeRegistrarPago() || puedeCancelar()) {
                 <div class="acciones">
+                    @if (accionPrincipal() === 'mercaderia') {
+                        <button type="button" class="boton boton-principal" [disabled]="procesando() || !pedido.alcanzaStock" (click)="confirmarMercaderia()">Ya tengo la mercadería</button>
+                    }
+                    @if (accionPrincipal() === 'programar') {
+                        <button type="button" class="boton boton-principal" [disabled]="procesando()" (click)="mostrarModalProgramar.set(true)">Programar entrega</button>
+                    }
                     @if (accionPrincipal() === 'entregar') {
                         <button type="button" class="boton boton-principal" [disabled]="procesando()" (click)="entregar()">Marcar como entregado</button>
+                        <button type="button" class="boton boton-secundario" [disabled]="procesando()" (click)="mostrarModalProgramar.set(true)">Cambiar fecha</button>
                     }
                     @if (puedeRegistrarPago()) {
                         <button type="button" class="boton"
@@ -69,11 +83,16 @@
                             @if (accionPrincipal() === 'cobrar') { Cobrar {{ saldo() | pesos }} } @else { Registrar pago adelantado }
                         </button>
                     }
-                    @if (puedeCancelar()) {
+                    @if (puedeCancelar() || puedeEntregar()) {
                         <details class="mas-acciones">
                             <summary>Más acciones</summary>
                             <div class="menu-mas">
-                                <button type="button" class="opcion-peligro" [disabled]="procesando()" (click)="cancelar()">Cancelar pedido</button>
+                                @if (puedeEntregar()) {
+                                    <button type="button" class="opcion-peligro opcion-neutra" [disabled]="procesando()" (click)="volverACoordinar()">Quitar fecha de entrega</button>
+                                }
+                                @if (puedeCancelar()) {
+                                    <button type="button" class="opcion-peligro" [disabled]="procesando()" (click)="cancelar()">Cancelar pedido</button>
+                                }
                             </div>
                         </details>
                     }
@@ -99,7 +118,12 @@
                     <tbody>
                         @for (detalle of pedido.detallePedido; track $index) {
                             <tr>
-                                <td class="col-producto">{{ detalle.nombreProducto }}</td>
+                                <td class="col-producto">
+                                    {{ detalle.nombreProducto }}
+                                    @if (faltanteDe(detalle) > 0) {
+                                        <span class="falta-producto">Hay {{ detalle.stockDisponible }}, faltan {{ faltanteDe(detalle) }}</span>
+                                    }
+                                </td>
                                 <td class="numero col-cantidad"><span class="solo-mobile">{{ detalle.cantidad }} ×</span><span class="solo-desktop">{{ detalle.cantidad }}</span></td>
                                 <td class="numero col-precio">
                                     @if (detalle.descuentoAplicado) {
@@ -168,8 +192,12 @@
                 (recordatorioRegistrado)="alRegistrarRecordatorio($event)" />
         }
 
+        @if (mostrarModalProgramar()) {
+            <app-modal-programar-entrega [pedido]="pedido" (cerrar)="mostrarModalProgramar.set(false)" (guardado)="alProgramar($event)" />
+        }
+
         @if (mostrarModalPago()) {
-            <div class="modal-overlay" (click)="cerrarModalPago()">
+            <div class="modal-overlay" (appCerrarAlFondo)="cerrarModalPago()">
                 <div class="modal-tarjeta" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-pago"
                      appModalFoco (click)="$event.stopPropagation()">
 

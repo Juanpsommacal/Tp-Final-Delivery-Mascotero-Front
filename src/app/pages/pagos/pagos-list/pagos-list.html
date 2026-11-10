@@ -12,32 +12,32 @@
                    [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
         </label>
 
+        <fieldset class="filtro-metodos">
+            <legend>
+                Método de pago
+                @if (!todosLosMetodos()) {
+                    <button type="button" class="atajo" (click)="elegirTodosLosMetodos()">Elegir todos</button>
+                }
+            </legend>
+            <div class="opciones-metodo">
+                @for (metodo of metodosPago; track metodo) {
+                    <label class="opcion-metodo" [attr.data-metodo]="metodo" [class.elegida]="metodosElegidos().has(metodo)">
+                        <input type="checkbox" [checked]="metodosElegidos().has(metodo)"
+                               (change)="alternarMetodo(metodo, $any($event.target).checked)" />
+                        <span class="punto" aria-hidden="true"></span>
+                        {{ metodo | formatoEnum }}
+                    </label>
+                }
+            </div>
+        </fieldset>
+
         <app-selector-periodo class="filtro-fechas" [(desde)]="desde" [(hasta)]="hasta" />
     </div>
 
-    <fieldset class="filtro-metodos">
-        <legend>
-            Método de pago
-            @if (!todosLosMetodos()) {
-                <button type="button" class="atajo" (click)="elegirTodosLosMetodos()">Elegir todos</button>
-            }
-        </legend>
-        <div class="opciones-metodo">
-            @for (metodo of metodosPago; track metodo) {
-                <label class="opcion-metodo" [attr.data-metodo]="metodo" [class.elegida]="metodosElegidos().has(metodo)">
-                    <input type="checkbox" [checked]="metodosElegidos().has(metodo)"
-                           (change)="alternarMetodo(metodo, $any($event.target).checked)" />
-                    <span class="punto" aria-hidden="true"></span>
-                    {{ metodo | formatoEnum }}
-                </label>
-            }
-        </div>
-    </fieldset>
-
-    @if (cargando()) {
+    @if (tabla.cargando()) {
         <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando pagos…" />
-    } @else if (pagosFiltrados().length === 0) {
-        @if (pagos().length === 0) {
+    } @else if (tabla.filasPagina().length === 0) {
+        @if (sinFiltros()) {
             <div class="estado-vacio">
                 <strong>Todavía no se registraron pagos</strong>
                 <span>Se cargan desde el detalle de cada pedido, con "Registrar pago".</span>
@@ -83,7 +83,7 @@
 
         <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
 
-        <div class="tabla-contenedor">
+        <div class="tabla-contenedor" [attr.aria-busy]="tabla.actualizando()">
             <table class="tabla-datos">
                 <caption class="solo-lector">Pagos. Los encabezados con botón cambian el orden.</caption>
                 <thead>

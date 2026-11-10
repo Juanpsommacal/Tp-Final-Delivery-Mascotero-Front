@@ -5,7 +5,7 @@ import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Va
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
-import Pedido from '../../../models/Pedido';
+import Pedido, { DetallePedido } from '../../../models/Pedido';
 import { EstadoPago, MetodoPago, METODOS_PAGO } from '../../../models/Enums';
 import { PedidosService } from '../../../services/pedidos/pedidos-service';
 import { PagosService } from '../../../services/pagos/pagos-service';
@@ -14,6 +14,8 @@ import { AlertaService } from '../../../services/alerta/alerta-service';
 import { extraerMensajeError } from '../../../utils/error-util';
 import { digitos } from '../../../validators/producto-validators';
 import { ModalFoco } from '../../../utils/modal-foco';
+import { CerrarAlFondo } from '../../../utils/cerrar-al-fondo';
+import { ModalProgramarEntrega } from '../../../components/modal-programar-entrega/modal-programar-entrega';
 import { Icono } from '../../../components/icono/icono';
 import { ModalWhatsapp } from '../../../components/modal-whatsapp/modal-whatsapp';
 import { ClientesService } from '../../../services/clientes/clientes-service';
@@ -29,7 +31,7 @@ function redondear(valor: number): number {
 }
 
 @Component({
-  imports: [RouterLink, DatePipe, FormatoEnumPipe, ReactiveFormsModule, ModalFoco, Icono, ModalWhatsapp, PesosPipe],
+  imports: [RouterLink, DatePipe, FormatoEnumPipe, ReactiveFormsModule, ModalFoco, CerrarAlFondo, ModalProgramarEntrega, Icono, ModalWhatsapp, PesosPipe],
   selector: 'app-pedido-details',
   styleUrls: ['./pedido-details.css', '../estados-pedido.css'],
   templateUrl: './pedido-details.html',
@@ -62,22 +64,24 @@ export class PedidoDetails implements OnInit {
   saldo = computed(() => redondear((this.pedido()?.montoTotal ?? 0) - this.totalPagado()))
 
   // Mismas reglas que PedidoService en el back, para no mostrar botones que van a fallar
-  puedeEntregar = computed(() => this.pedido()?.estadoPedido === 'PENDIENTE')
+  puedeEntregar = computed(() => this.pedido()?.estadoPedido === 'PROGRAMADO')
 
-  // Un pedido con pagos adelantados sigue en PENDIENTE, pero el back no deja cancelarlo
-  puedeCancelar = computed(() =>
-    this.pedido()?.estadoPedido === 'PENDIENTE'
-    && this.pedido()?.estadoPago === 'PENDIENTE'
-    && this.pedido()?.pagos.length === 0
-  )
+  // Antes de entregar se puede cancelar, salvo que ya tenga pagos: esa plata quedaría sin pedido
+  puedeCancelar = computed(() => {
+    const pedido = this.pedido()
+    return !!pedido && pedido.estadoPedido !== 'ENTREGADO' && pedido.estadoPedido !== 'CANCELADO' && pedido.pagos.length === 0
+  })
 
   puedeRegistrarPago = computed(() => {
     const pedido = this.pedido()
     return !!pedido && pedido.estadoPedido !== 'CANCELADO' && PAGOS_CON_SALDO.includes(pedido.estadoPago)
   })
 
-  // Una sola acción destacada según lo que falta: primero entregar, después cobrar
-  accionPrincipal = computed<'entregar' | 'cobrar' | null>(() => {
+  // Una sola acción destacada según lo que falta para completar el pedido
+  accionPrincipal = computed<'mercaderia' | 'programar' | 'entregar' | 'cobrar' | null>(() => {
+    const estado = this.pedido()?.estadoPedido
+    if (estado === 'FALTA_MERCADERIA') return 'mercaderia'
+    if (estado === 'A_COORDINAR') return 'programar'
     if (this.puedeEntregar()) return 'entregar'
     if (this.puedeRegistrarPago() && this.saldo() > 0) return 'cobrar'
     return null
@@ -121,6 +125,8 @@ export class PedidoDetails implements OnInit {
       next: (data) => {
         this.pedido.set(data)
         this.cargarTelefono(data.clienteId)
+        // Viene de "Cobrar" en el reparto
+        if (this.route.snapshot.queryParamMap.get('cobrar') === '1' && this.puedeRegistrarPago() && this.saldo() > 0) this.registrarPago()
       },
       error: async (error) => {
         await this.alertaService.error(extraerMensajeError(error))
@@ -138,6 +144,56 @@ export class PedidoDetails implements OnInit {
     this.clientesService.getClienteById(String(clienteId)).subscribe({
       next: (cliente) => this.telefonoCliente.set(cliente.telefono || null),
       error: () => this.telefonoCliente.set(null),
+    })
+  }
+
+  ///----- Mercadería y fecha de entrega -----
+
+  mostrarModalProgramar = signal(false)
+
+  alProgramar(actualizado: Pedido) {
+    this.pedido.set(actualizado)
+    this.mostrarModalProgramar.set(false)
+  }
+
+  faltanteDe(detalle: DetallePedido): number {
+    if (this.pedido()?.estadoPedido !== 'FALTA_MERCADERIA') return 0
+    return Math.max(0, detalle.cantidad - (detalle.stockDisponible ?? 0))
+  }
+
+  confirmarMercaderia() {
+    const pedido = this.pedido()
+    if (!pedido) return
+
+    this.procesando.set(true)
+    this.pedidosService.confirmarMercaderia(pedido.id).subscribe({
+      next: (actualizado) => {
+        this.pedido.set(actualizado)
+        this.procesando.set(false)
+        this.alertaService.exito(`Pedido #${pedido.id} listo para coordinar la entrega`)
+      },
+      error: (error) => {
+        this.procesando.set(false)
+        this.alertaService.error(extraerMensajeError(error))
+      }
+    })
+  }
+
+  volverACoordinar() {
+    const pedido = this.pedido()
+    if (!pedido) return
+
+    this.procesando.set(true)
+    this.pedidosService.volverACoordinar(pedido.id).subscribe({
+      next: (actualizado) => {
+        this.pedido.set(actualizado)
+        this.procesando.set(false)
+        this.alertaService.exito(`Pedido #${pedido.id} sin fecha de entrega`)
+      },
+      error: (error) => {
+        this.procesando.set(false)
+        this.alertaService.error(extraerMensajeError(error))
+      }
     })
   }
 
@@ -173,7 +229,9 @@ export class PedidoDetails implements OnInit {
 
     const confirmado = await this.confirmacionService.confirmar({
       titulo: 'Cancelar pedido',
-      mensaje: `¿Querés cancelar el pedido #${pedido.id}? El stock de los productos se va a devolver.`,
+      mensaje: pedido.estadoPedido === 'FALTA_MERCADERIA'
+        ? `¿Querés cancelar el pedido #${pedido.id}? Todavía no se había reservado stock.`
+        : `¿Querés cancelar el pedido #${pedido.id}? El stock de los productos se va a devolver.`,
       textoConfirmar: 'Cancelar pedido',
       textoCancelar: 'Volver',
       tipo: 'peligro'

@@ -37,10 +37,10 @@
         </label>
     </div>
 
-    @if (cargando()) {
+    @if (tabla.cargando()) {
         <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando productos…" />
-    } @else if (productosFiltrados().length === 0) {
-        @if (productos().length > 0) {
+    } @else if (tabla.filasPagina().length === 0) {
+        @if (hayFiltros()) {
             <div class="estado-vacio">
                 <strong>Ningún producto con esos filtros</strong>
                 <span>Probá con otra búsqueda o limpiá los filtros.</span>
@@ -59,7 +59,7 @@
 
         <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
 
-        <div class="tabla-contenedor">
+        <div class="tabla-contenedor" [attr.aria-busy]="tabla.actualizando()">
             <table class="tabla-datos">
                 <caption class="solo-lector">Productos. Los encabezados con botón cambian el orden.</caption>
                 <thead>
@@ -89,6 +89,9 @@
                                 <a class="celda-titulo" [routerLink]="rutaDe(producto)" (click)="$event.stopPropagation()">
                                     {{ producto.marca }} {{ producto.nombre }}
                                 </a>
+                                @if (producto.presentacion) {
+                                    <span class="celda-detalle">{{ producto.presentacion }}</span>
+                                }
                             </td>
                             <td>
                                 <span class="chip" [class.chip-alerta]="producto.tipoProducto === 'ANTIPULGAS'">{{ producto.tipoProducto | formatoEnum }}</span>

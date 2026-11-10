@@ -5,6 +5,7 @@ import Pedido from '../../models/Pedido';
 import { PedidosService } from '../../services/pedidos/pedidos-service';
 import { AlertaService } from '../../services/alerta/alerta-service';
 import { ModalFoco } from '../../utils/modal-foco';
+import { CerrarAlFondo } from '../../utils/cerrar-al-fondo';
 import { Icono } from '../icono/icono';
 import {
   formatearTelefono,
@@ -21,7 +22,7 @@ import {
  * recién con "Abrir WhatsApp" se abre el chat (wa.me) y el usuario lo manda desde ahí.
  */
 @Component({
-  imports: [DatePipe, RouterLink, ModalFoco, Icono],
+  imports: [DatePipe, RouterLink, ModalFoco, CerrarAlFondo, Icono],
   selector: 'app-modal-whatsapp',
   styleUrl: './modal-whatsapp.css',
   templateUrl: './modal-whatsapp.html',

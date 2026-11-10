@@ -16,9 +16,10 @@ import {
 } from '../../services/confirmacion/confirmacion-service';
 import { Icono, NombreIcono } from '../icono/icono';
 import { atraparFoco } from '../../utils/foco-util';
+import { CerrarAlFondo } from '../../utils/cerrar-al-fondo';
 
 @Component({
-  imports: [Icono],
+  imports: [Icono, CerrarAlFondo],
   selector: 'app-modal-confirmacion',
   styleUrl: './modal-confirmacion.css',
   templateUrl: './modal-confirmacion.html',

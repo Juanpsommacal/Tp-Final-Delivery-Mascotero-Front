@@ -7,6 +7,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class FormatoEnumPipe implements PipeTransform {
   transform(valor: string | null | undefined): string {
     if (!valor) return ''
+    if (valor === 'FALTA_MERCADERIA') return 'Falta mercadería'
     const texto = valor.replace(/_/g, ' ').toLowerCase()
     return texto.charAt(0).toUpperCase() + texto.slice(1)
   }

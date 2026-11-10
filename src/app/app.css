@@ -1,5 +1,7 @@
 .contenedor-general {
     display: grid;
+    /* minmax(0, ...): que el contenido ancho no estire la página entera */
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto 1fr auto;
     grid-template-areas: 
         'header'

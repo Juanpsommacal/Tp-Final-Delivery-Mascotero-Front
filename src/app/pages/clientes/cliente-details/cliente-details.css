@@ -196,7 +196,7 @@
     background-color: var(--color-bg);
 }
 
-/* Cuenta del cliente: deuda y pagos */
+/* Cuenta del cliente: deuda y últimos pedidos */
 .detalle h4 {
     font-size: 1rem;
     font-weight: 700;
@@ -250,4 +250,44 @@
 
 .monto-deuda {
     color: var(--color-danger);
+}
+
+/* Toda la fila lleva al detalle del pedido, donde están sus pagos */
+.lista-cuenta li:has(.fila-pedido) {
+    padding: 0;
+}
+
+.fila-pedido {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 10px 8px;
+    margin-inline: -8px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: inherit;
+}
+
+.fila-pedido:hover {
+    background-color: var(--color-primary-light);
+}
+
+.fila-pedido .direccion strong {
+    color: var(--color-primary);
+}
+
+.pedido-lateral {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.pedido-lateral .estado {
+    align-self: flex-end;
 }

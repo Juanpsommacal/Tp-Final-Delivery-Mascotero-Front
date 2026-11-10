@@ -29,8 +29,13 @@
     background-color: var(--color-danger-light);
 }
 
-.estado-pendiente,
+.estado-falta_mercaderia,
 .pago-pendiente {
     color: var(--color-accent-dark);
     background-color: var(--color-accent-light);
+}
+
+.estado-a_coordinar {
+    color: #7a5a00;
+    background-color: #fbf2d5;
 }

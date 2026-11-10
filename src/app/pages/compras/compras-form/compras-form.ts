@@ -1,9 +1,11 @@
 import { PesosPipe, formatearPesos } from '../../../pipes/pesos-pipe';
 import { Icono } from '../../../components/icono/icono';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
 import Producto from '../../../models/Producto';
-import Compra, { CompraRequest } from '../../../models/Compra';
+import { CompraRequest } from '../../../models/Compra';
 import { Proveedor } from '../../../models/Proveedor';
 import { ProveedoresService } from '../../../services/proveedores/proveedores-service';
 import { ConfirmacionService } from '../../../services/confirmacion/confirmacion-service';
@@ -55,27 +57,14 @@ export class ComprasForm implements OnInit {
   busquedaProducto = signal('')
   items = signal<ItemCompra[]>([])
 
-  // Historial de compras: de ahi sale el ultimo precio de cada producto y que productos vende cada proveedor
-  private compras = signal<Compra[]>([])
+  // Último precio de cada producto. Si falla solo se pierde la sugerencia, la compra se puede cargar igual
+  private ultimoPrecio = signal(new Map<number, number>())
 
-  private ultimoPrecio = computed(() => {
-    const precios = new Map<number, number>()
-    // De la mas vieja a la mas nueva, asi la ultima compra pisa a las anteriores
-    for (const compra of [...this.compras()].sort((a, b) => a.id - b.id)) {
-      if (compra.estadoCompra === 'CANCELADA') continue
-      for (const detalle of compra.detalleResponseDTO) precios.set(detalle.productoId, detalle.precioUnitario)
-    }
-    return precios
-  })
-
-  private productosDelProveedor = computed(() => {
-    const id = this.proveedorId()
-    return new Set(
-      this.compras()
-        .filter(compra => String(compra.proveedorId) === id)
-        .flatMap(compra => compra.detalleResponseDTO.map(d => d.productoId))
-    )
-  })
+  // Productos que ya se le compraron al proveedor elegido
+  private productosDelProveedor = toSignal(toObservable(this.proveedorId).pipe(
+    switchMap(id => id ? this.comprasService.getProductosDeProveedor(id).pipe(catchError(() => of<number[]>([]))) : of<number[]>([])),
+    map(ids => new Set(ids)),
+  ), { initialValue: new Set<number>() })
 
   // Los que ya se le compraron a este proveedor van primero, y dentro de cada grupo
   // el de menos stock arriba: son los que más urge reponer
@@ -115,10 +104,8 @@ export class ComprasForm implements OnInit {
       }
     })
 
-    // Si falla solo se pierde la ayuda (ultimo precio y orden por proveedor), la compra se puede cargar igual
-    this.comprasService.getAllCompras().subscribe({
-      next: (data) => this.compras.set(data),
-      error: () => this.compras.set([])
+    this.comprasService.getUltimosPrecios().subscribe({
+      next: (precios) => this.ultimoPrecio.set(new Map(precios.map(p => [p.productoId, p.precioUnitario]))),
     })
   }
 

@@ -1,6 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import Cliente, { ClienteRequest } from '../../models/Cliente';
+import { parametros } from '../../utils/http-util';
+import Pagina, { ConsultaPagina } from '../../models/Pagina';
+
+export interface FilaCliente {
+    cliente: Cliente
+    pedidos: number
+    deuda: number
+    // Fecha (yyyy-MM-dd) e id del último pedido no cancelado; null si nunca pidió
+    ultimoPedido: string | null
+    ultimoPedidoId: number | null
+}
 import { DireccionRequest } from '../../models/Direccion';
 import { environment } from '../../../environments/environment';
 
@@ -10,8 +21,8 @@ export class ClientesService {
     private http = inject(HttpClient)
     private url = `${environment.apiUrl}/clientes`
 
-    getAllClientes() {
-        return this.http.get<Cliente[]>(this.url)
+    getPagina(consulta: ConsultaPagina, q: string, conDeuda: boolean) {
+        return this.http.get<Pagina<FilaCliente>>(`${this.url}/pagina`, { params: parametros({ ...consulta, q, conDeuda }) })
     }
 
     getClienteById(id: string) {

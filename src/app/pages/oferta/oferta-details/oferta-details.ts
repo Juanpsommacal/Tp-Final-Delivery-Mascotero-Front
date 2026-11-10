@@ -1,5 +1,6 @@
 import { PesosPipe } from '../../../pipes/pesos-pipe';
 import { ModalFoco } from '../../../utils/modal-foco';
+import { CerrarAlFondo } from '../../../utils/cerrar-al-fondo';
 import { Icono } from '../../../components/icono/icono';
 import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -17,7 +18,7 @@ import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import { ProductosService } from '../../../services/productos/productos-service';
 
 @Component({
-  imports: [RouterLink, DatePipe, NgClass, FormatoEnumPipe, ModalFoco, Icono, PesosPipe],
+  imports: [RouterLink, DatePipe, NgClass, FormatoEnumPipe, ModalFoco, CerrarAlFondo, Icono, PesosPipe],
   selector: 'app-oferta-details',
   styleUrl: './oferta-details.css',
   templateUrl: './oferta-details.html',

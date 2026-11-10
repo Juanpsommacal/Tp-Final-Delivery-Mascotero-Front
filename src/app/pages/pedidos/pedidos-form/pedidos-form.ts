@@ -2,6 +2,8 @@ import { DatePipe } from '@angular/common';
 import { PesosPipe, formatearPesos } from '../../../pipes/pesos-pipe';
 import { Icono } from '../../../components/icono/icono';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, debounceTime, distinctUntilChanged, map, of, switchMap } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import Cliente from '../../../models/Cliente';
 import Direccion from '../../../models/Direccion';
@@ -12,7 +14,6 @@ import { ProductosService } from '../../../services/productos/productos-service'
 import { PedidosService } from '../../../services/pedidos/pedidos-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
 import { ConfirmacionService } from '../../../services/confirmacion/confirmacion-service';
-import { coincideBusqueda } from '../../../utils/busqueda-util';
 import { coincideProducto } from '../../../utils/producto-util';
 import { extraerMensajeError } from '../../../utils/error-util';
 
@@ -49,20 +50,25 @@ export class PedidosForm implements OnInit {
 
   ///----- Cliente -----
 
-  clientes = signal<Cliente[]>([])
   busquedaCliente = signal('')
   clienteSeleccionado = signal<Cliente | null>(null)
   mostrarSugerencias = signal(false)
   indiceActivo = signal(-1)
 
-  sugerenciasClientes = computed(() => {
-    const texto = this.busquedaCliente()
-    if (texto.trim().length < 2) return []
-
-    return this.clientes()
-      .filter(c => coincideBusqueda(`${c.nombre} ${c.apellido} ${c.telefono}`, texto))
-      .slice(0, MAX_SUGERENCIAS)
-  })
+  sugerenciasClientes = toSignal(toObservable(this.busquedaCliente).pipe(
+    map(texto => texto.trim()),
+    debounceTime(300),
+    distinctUntilChanged(),
+    switchMap(texto => texto.length < 2 ? of<Cliente[]>([]) : this.clientesService.getPagina(
+      { page: 0, size: MAX_SUGERENCIAS, orden: 'nombre-asc' }, texto, false
+    ).pipe(
+      map(pagina => pagina.contenido.map(fila => fila.cliente)),
+      catchError(() => {
+        this.alertaService.error('No se pudieron cargar los clientes')
+        return of<Cliente[]>([])
+      }),
+    )),
+  ), { initialValue: [] as Cliente[] })
 
   ///----- Direccion -----
 
@@ -88,9 +94,12 @@ export class PedidosForm implements OnInit {
 
   hayErroresEnItems = computed(() => this.items().some(item => this.errorCantidad(item) !== null))
 
+  // Si no alcanza el stock el pedido se crea igual, esperando la mercadería
+  faltaMercaderia = computed(() => this.items().some(item => item.cantidad > item.producto.stock))
+
   ///----- Repetir el último pedido -----
 
-  // Historial para "Repetir último pedido": el alimento se compra todos los meses
+  // Pedidos del cliente elegido, para "Repetir último pedido": el alimento se compra todos los meses
   private pedidos = signal<Pedido[]>([])
   // Qué no se pudo copiar tal cual (sin stock, dado de baja, menos unidades)
   avisosRepetir = signal<string[]>([])
@@ -99,7 +108,7 @@ export class PedidosForm implements OnInit {
     const cliente = this.clienteSeleccionado()
     if (!cliente) return null
     return this.pedidos()
-      .filter(p => String(p.clienteId) === String(cliente.id) && p.estadoPedido !== 'CANCELADO')
+      .filter(p => p.estadoPedido !== 'CANCELADO')
       .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id - a.id)[0] ?? null
   })
 
@@ -121,17 +130,18 @@ export class PedidosForm implements OnInit {
       )
       if (!producto || producto.activo === false) {
         avisos.push(`${detalle.nombreProducto} ya no está a la venta.`)
-      } else if (producto.stock <= 0) {
-        avisos.push(`${detalle.nombreProducto} no tiene stock.`)
       } else {
-        const cantidad = Math.min(detalle.cantidad, producto.stock)
-        if (cantidad < detalle.cantidad) {
-          avisos.push(`${detalle.nombreProducto}: había ${detalle.cantidad}, solo quedan ${producto.stock}.`)
+        if (producto.stock <= 0) {
+          avisos.push(`${detalle.nombreProducto} no tiene stock.`)
+        } else if (detalle.cantidad > producto.stock) {
+          const disponible = producto.stock === 1 ? 'queda 1' : `quedan ${producto.stock}`
+          avisos.push(`${detalle.nombreProducto}: el pedido anterior tenía ${detalle.cantidad} pero solo ${disponible} en stock.`)
         }
-        if (this.precioFinal(producto) !== detalle.precioDescuento) {
-          avisos.push(`${detalle.nombreProducto} cambió de precio: antes ${formatearPesos(detalle.precioDescuento)}, ahora ${formatearPesos(this.precioFinal(producto))}.`)
+        const cambioDePrecio = this.textoCambioDePrecio(producto, detalle.precioDescuento)
+        if (cambioDePrecio) {
+          avisos.push(`${detalle.nombreProducto} ${cambioDePrecio}: antes ${formatearPesos(detalle.precioDescuento)}, ahora ${formatearPesos(this.precioFinal(producto))}.`)
         }
-        items.push({ producto, cantidad })
+        items.push({ producto, cantidad: detalle.cantidad })
       }
     }
 
@@ -143,37 +153,31 @@ export class PedidosForm implements OnInit {
     if (direccion) this.direccionSeleccionada.set(direccion)
   }
 
+  private textoCambioDePrecio(producto: Producto, precioAnterior: number): string | null {
+    const precioActual = this.precioFinal(producto)
+    if (precioActual === precioAnterior) return null
+    if (precioActual > precioAnterior) return 'aumentó de precio'
+    return producto.precioOferta != null ? 'tiene una oferta' : 'bajó de precio'
+  }
+
   ngOnInit(): void {
     // ?cliente=3&repetir=1 llega desde el detalle del cliente
     const params = this.route.snapshot.queryParamMap
     const clienteInicial = params.get('cliente')
-    const repetir = params.get('repetir') === '1'
+    this.repetirAlCargar = params.get('repetir') === '1'
 
-    this.clientesService.getAllClientes().subscribe({
-      next: (data) => {
-        this.clientes.set(data)
-        const cliente = clienteInicial ? data.find(c => String(c.id) === clienteInicial) : null
-        if (cliente) this.seleccionarCliente(cliente)
-        if (repetir) this.repetirSiEstaTodo()
-      },
-      error: () => this.alertaService.error('No se pudieron cargar los clientes')
-    })
-
-
-    this.pedidosService.getAllPedidos().subscribe({
-      next: (data) => {
-        this.pedidos.set(data)
-        if (repetir) this.repetirSiEstaTodo()
-      },
-      // Sin historial solo se pierde el botón de repetir
-      error: () => this.pedidos.set([]),
-    })
+    if (clienteInicial) {
+      this.clientesService.getClienteById(clienteInicial).subscribe({
+        next: (cliente) => this.seleccionarCliente(cliente),
+        error: () => this.alertaService.error('No se pudo cargar el cliente')
+      })
+    }
 
     this.productosService.getAllProductos().subscribe({
       next: (data) => {
         this.productos.set(data)
         this.cargandoProductos.set(false)
-        if (repetir) this.repetirSiEstaTodo()
+        this.repetirSiEstaTodo()
       },
       error: () => {
         this.cargandoProductos.set(false)
@@ -182,11 +186,11 @@ export class PedidosForm implements OnInit {
     })
   }
 
-  // Clientes, productos e historial llegan por separado: se repite cuando están los tres
-  private yaRepetido = false
+  // Productos e historial del cliente llegan por separado: se repite cuando están los dos
+  private repetirAlCargar = false
   private repetirSiEstaTodo() {
-    if (this.yaRepetido || !this.clienteSeleccionado() || this.cargandoProductos() || this.pedidos().length === 0) return
-    this.yaRepetido = true
+    if (!this.repetirAlCargar || !this.clienteSeleccionado() || this.cargandoProductos() || this.pedidos().length === 0) return
+    this.repetirAlCargar = false
     this.repetirUltimoPedido()
   }
 
@@ -227,11 +231,24 @@ export class PedidosForm implements OnInit {
 
     // Si tiene una sola direccion se elige sola
     this.direccionSeleccionada.set(cliente.direcciones.length === 1 ? cliente.direcciones[0] : null)
+
+    this.pedidos.set([])
+    this.pedidosService.getPedidosDeCliente(cliente.id!).subscribe({
+      next: (data) => {
+        // Si mientras tanto se eligió otro cliente, esta respuesta ya no sirve
+        if (this.clienteSeleccionado()?.id !== cliente.id) return
+        this.pedidos.set(data)
+        this.repetirSiEstaTodo()
+      },
+      // Sin historial solo se pierde el botón de repetir
+      error: () => this.pedidos.set([]),
+    })
   }
 
   cambiarCliente() {
     this.clienteSeleccionado.set(null)
     this.direccionSeleccionada.set(null)
+    this.pedidos.set([])
     this.avisosRepetir.set([])
   }
 
@@ -252,7 +269,7 @@ export class PedidosForm implements OnInit {
   }
 
   agregarProducto(producto: Producto) {
-    if (this.estaAgregado(producto) || producto.stock <= 0) return
+    if (this.estaAgregado(producto)) return
     this.items.update(items => [...items, { producto, cantidad: 1 }])
   }
 
@@ -273,9 +290,11 @@ export class PedidosForm implements OnInit {
       return 'La cantidad tiene que ser un entero mayor a 0'
     if (item.cantidad > MAX_CANTIDAD)
       return `No se pueden pedir más de ${MAX_CANTIDAD} unidades`
-    if (item.cantidad > item.producto.stock)
-      return `Solo hay ${item.producto.stock} en stock`
     return null
+  }
+
+  faltanteDe(item: ItemPedido): number {
+    return Math.max(0, item.cantidad - item.producto.stock)
   }
 
   ///----- Guardar -----
@@ -305,7 +324,9 @@ export class PedidosForm implements OnInit {
       titulo: 'Revisá el pedido',
       mensaje: `${cliente.nombre} ${cliente.apellido}, a ${direccion.calle} ${direccion.numero}. ` +
         `${unidades} ${unidades === 1 ? 'unidad' : 'unidades'} por ${formatearPesos(this.total())}. ` +
-        `Al crearlo se descuenta el stock de los productos.`,
+        (this.faltaMercaderia()
+          ? `Como falta mercadería, va a quedar en espera y todavía no se descuenta stock.`
+          : `Al crearlo se descuenta el stock de los productos.`),
       textoConfirmar: 'Crear pedido',
       textoCancelar: 'Seguir editando',
       tipo: 'info',

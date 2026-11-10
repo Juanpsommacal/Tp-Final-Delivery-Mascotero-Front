@@ -1,7 +1,8 @@
 import { Icono } from '../../../components/icono/icono';
 import { PesosPipe } from '../../../pipes/pesos-pipe';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import Cliente from '../../../models/Cliente';
@@ -12,15 +13,14 @@ import { DireccionesService } from '../../../services/direcciones/direcciones-se
 import { ConfirmacionService } from '../../../services/confirmacion/confirmacion-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
 import { PedidosService } from '../../../services/pedidos/pedidos-service';
-import { PagosService } from '../../../services/pagos/pagos-service';
 import Pedido from '../../../models/Pedido';
-import Pago from '../../../models/Pago';
 import { ClientesService } from '../../../services/clientes/clientes-service';
 import { DatePipe } from '@angular/common';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
 import { AuthService } from '../../../services/authentication/auth-service';
 
 const MAX_SUGERENCIAS = 8
+const MAX_ULTIMOS_PEDIDOS = 5
 
 // Saldo de un pedido redondeado a centavos
 function saldoDe(pedido: Pedido): number {
@@ -31,7 +31,7 @@ function saldoDe(pedido: Pedido): number {
 @Component({
   imports: [RouterLink, ReactiveFormsModule, DatePipe, FormatoEnumPipe, PesosPipe, Icono],
   selector: 'app-cliente-details',
-  styleUrl: './cliente-details.css',
+  styleUrls: ['./cliente-details.css', '../../pedidos/estados-pedido.css'],
   templateUrl: './cliente-details.html',
 })
 export class ClienteDetails implements OnInit{
@@ -46,7 +46,6 @@ export class ClienteDetails implements OnInit{
   private fb = inject(FormBuilder)
 
   private pedidosService = inject(PedidosService)
-  private pagosService = inject(PagosService)
 
   cliente = signal<Cliente | null>(null)
   agregando = signal(false)
@@ -54,11 +53,12 @@ export class ClienteDetails implements OnInit{
   esAdmin = this.auth.tieneRol('ADMIN')
   eliminado = signal(false)
 
-  // Cuenta del cliente: pedidos que debe (entregados y no pagados del todo) y pagos que hizo
+  // Cuenta del cliente: pedidos que debe (entregados y no pagados del todo) y los más recientes
   pedidosConDeuda = signal<Pedido[]>([])
   // Último pedido no cancelado, para "Repetir último pedido"
   ultimoPedido = signal<Pedido | null>(null)
-  pagos = signal<Pago[]>([])
+  // Incluye los cancelados: es el historial tal cual pasó
+  ultimosPedidos = signal<Pedido[]>([])
 
   deudaTotal = computed(() =>
     Math.round(this.pedidosConDeuda().reduce((suma, pedido) => suma + this.saldo(pedido), 0) * 100) / 100
@@ -68,8 +68,6 @@ export class ClienteDetails implements OnInit{
     return saldoDe(pedido)
   }
 
-  // Autocompletado de calle: direcciones ya cargadas en la BDD (de cualquier cliente)
-  todasLasDirecciones = signal<Direccion[]>([])
   direccionSeleccionada = signal<Direccion | null>(null)
   mostrarSugerencias = signal(false)
   indiceActivo = signal(-1)
@@ -85,6 +83,21 @@ export class ClienteDetails implements OnInit{
   private textoCalle = toSignal(this.formularioDireccion.controls.calle.valueChanges, { initialValue: '' })
   private valoresDireccion = toSignal(this.formularioDireccion.valueChanges, { initialValue: this.formularioDireccion.value })
 
+  // Autocompletado: direcciones ya cargadas en la BDD (de cualquier cliente) que coinciden con lo escrito.
+  // Con el número incluido también permite detectar si esa misma dirección ya existe
+  private textoBusquedaDireccion = computed(() => {
+    const calle = this.normalizar(this.valoresDireccion().calle ?? '')
+    const numero = this.valoresDireccion().numero
+    return calle.length < 2 ? '' : `${calle} ${numero ?? ''}`.trim()
+  })
+
+  // Si falla, el formulario sigue funcionando para cargar direcciones nuevas
+  private direccionesEncontradas = toSignal(toObservable(this.textoBusquedaDireccion).pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    switchMap(texto => texto ? this.direccionesService.buscar(texto).pipe(catchError(() => of<Direccion[]>([]))) : of<Direccion[]>([])),
+  ), { initialValue: [] as Direccion[] })
+
   // Direccion de la BDD con los mismos datos que se estan escribiendo a mano (mismo criterio que el back).
   // Si se ignora la sugerencia y se carga igual, el back reutiliza esta en vez de crear otra
   coincidencia = computed(() => {
@@ -95,7 +108,7 @@ export class ClienteDetails implements OnInit{
     const piso = valores.piso ?? null
     const departamento = this.normalizar(valores.departamento ?? '')
 
-    return this.todasLasDirecciones().find(d =>
+    return this.direccionesEncontradas().find(d =>
       this.normalizar(d.calle) === calle
       && d.numero === valores.numero
       && (d.piso ?? null) === piso
@@ -114,7 +127,7 @@ export class ClienteDetails implements OnInit{
 
     const yaAsociadas = new Set(this.cliente()?.direcciones.map(d => d.id) ?? [])
 
-    return this.todasLasDirecciones()
+    return this.direccionesEncontradas()
       .filter(d => !yaAsociadas.has(d.id) && this.normalizar(d.direccionCompleta).includes(texto))
       .slice(0, MAX_SUGERENCIAS)
   })
@@ -154,39 +167,21 @@ export class ClienteDetails implements OnInit{
       }
     })
 
-    this.cargarDirecciones()
     this.cargarCuenta(id)
   }
 
   // Si falla, el resto de la ficha se sigue viendo: la cuenta es informativa
   private cargarCuenta(clienteId: string) {
-    this.pedidosService.getAllPedidos().subscribe({
-      next: (pedidos) => {
-        const delCliente = pedidos.filter(p => String(p.clienteId) === String(clienteId))
+    this.pedidosService.getPedidosDeCliente(clienteId).subscribe({
+      next: (delCliente) => {
         this.pedidosConDeuda.set(
           delCliente.filter(p => p.estadoPago === 'DEUDA' || p.estadoPago === 'DEUDA_PARCIAL')
         )
-        this.ultimoPedido.set(
-          delCliente
-            .filter(p => p.estadoPedido !== 'CANCELADO')
-            .sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id - a.id)[0] ?? null
-        )
+        const masNuevosPrimero = [...delCliente].sort((a, b) => b.fecha.localeCompare(a.fecha) || b.id - a.id)
+        this.ultimosPedidos.set(masNuevosPrimero.slice(0, MAX_ULTIMOS_PEDIDOS))
+        this.ultimoPedido.set(masNuevosPrimero.find(p => p.estadoPedido !== 'CANCELADO') ?? null)
       },
       error: () => this.pedidosConDeuda.set([])
-    })
-
-    this.pagosService.getPagosByCliente(clienteId).subscribe({
-      // Los mas nuevos primero
-      next: (pagos) => this.pagos.set([...pagos].sort((a, b) => b.id - a.id)),
-      error: () => this.pagos.set([])
-    })
-  }
-
-  private cargarDirecciones() {
-    // Si falla, el formulario sigue funcionando para cargar direcciones nuevas
-    this.direccionesService.getAll().subscribe({
-      next: (data) => this.todasLasDirecciones.set(data),
-      error: () => this.todasLasDirecciones.set([])
     })
   }
 
@@ -277,7 +272,6 @@ export class ClienteDetails implements OnInit{
         this.cliente.set(actualizado)
         this.formularioDireccion.reset()
         this.agregando.set(false)
-        this.cargarDirecciones()
       },
       error: (error) => {
         this.mensajeDireccion.set(extraerMensajeError(error))

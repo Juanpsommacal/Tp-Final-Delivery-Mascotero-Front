@@ -9,7 +9,7 @@ function inicioDeSemana(fecha: Date): Date {
 
 /**
  * Elegir un período: atajos (Hoy, Esta semana, Este mes, Todos) o un rango a mano.
- * Se aplica al instante, sin botón "Calcular". Mismo control en Pagos y en Métricas.
+ * Se aplica al instante, sin botón "Calcular". Mismo control en Pagos y en Reportes.
  */
 @Component({
   selector: 'app-selector-periodo',
@@ -34,6 +34,11 @@ function inicioDeSemana(fecha: Date): Date {
     </fieldset>
   `,
   styles: `
+    :host {
+      display: block;
+      min-width: 0;
+    }
+
     .selector-periodo {
       min-width: 0;
       margin: 0;
@@ -49,14 +54,16 @@ function inicioDeSemana(fecha: Date): Date {
       color: var(--color-text);
     }
 
+    /* En pantallas muy angostas pasan a dos renglones antes que cortar la fecha */
     .rango {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
     }
 
     .rango input {
-      flex: 1;
+      flex: 1 1 130px;
       min-width: 0;
       padding: 10px 12px;
       border: 1px solid var(--color-border);

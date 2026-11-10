@@ -26,6 +26,9 @@
                     <a routerLink="/pedidos" routerLinkActive="activo" ariaCurrentWhenActive="page">Pedidos</a>
                 </li>
                 <li>
+                    <a routerLink="/reparto" routerLinkActive="activo" ariaCurrentWhenActive="page">Reparto</a>
+                </li>
+                <li>
                     <a routerLink="/pagos" routerLinkActive="activo" ariaCurrentWhenActive="page">Pagos</a>
                 </li>
                 <li>
@@ -48,7 +51,7 @@
                 @if (auth.tieneRol('ADMIN')) {
                     <li class="separador" aria-hidden="true"></li>
                     <li>
-                        <a routerLink="/reportes" routerLinkActive="activo" ariaCurrentWhenActive="page">Métricas</a>
+                        <a routerLink="/reportes" routerLinkActive="activo" ariaCurrentWhenActive="page">Reportes</a>
                     </li>
                 }
 
