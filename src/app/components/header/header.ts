@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../../services/authentication/auth-service';
+import { SidebarService } from '../../services/sidebar/sidebar-service';
 
 @Component({
   imports: [RouterLink, RouterLinkActive],
@@ -11,20 +12,28 @@ import { AuthService } from '../../services/authentication/auth-service';
   templateUrl: './header.html',
 })
 export class Header {
-  protected auth = inject(AuthService)
+  protected auth = inject(AuthService);
+  protected sidebar = inject(SidebarService);
 
-  // Solo se usa en pantallas chicas, donde el menú se esconde detrás de un botón
-  menuAbierto = signal(false)
+  // Menú abierto en mobile (off-canvas drawer)
+  menuAbierto = signal(false);
+
+  // Expone la señal colapsado del servicio
+  colapsado = this.sidebar.colapsado;
 
   constructor() {
-    // Al elegir una sección el menú se cierra solo
+    // Al navegar en mobile, el menú se cierra automáticamente
     inject(Router).events
-      .pipe(filter(evento => evento instanceof NavigationEnd), takeUntilDestroyed())
-      .subscribe(() => this.menuAbierto.set(false))
+      .pipe(filter((evento) => evento instanceof NavigationEnd), takeUntilDestroyed())
+      .subscribe(() => this.menuAbierto.set(false));
+  }
+
+  toggleColapsar(): void {
+    this.sidebar.toggle();
   }
 
   @HostListener('document:keydown.escape')
-  cerrarMenu() {
-    this.menuAbierto.set(false)
+  cerrarMenu(): void {
+    this.menuAbierto.set(false);
   }
 }

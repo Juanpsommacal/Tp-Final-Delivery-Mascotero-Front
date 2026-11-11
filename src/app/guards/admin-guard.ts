@@ -13,5 +13,5 @@ export const adminGuard: CanActivateFn = (route, state) => {
     })
   }
   
-  return auth.tieneRol('ADMIN') ? true : router.createUrlTree(['/']);
+  return auth.esAdmin() ? true : router.createUrlTree(['/']);
 };

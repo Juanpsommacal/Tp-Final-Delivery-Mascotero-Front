@@ -1,8 +1,14 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
 .footer {
     background-color: #0d3842;
     color: #e5f1f4;
     padding: 24px 20px;
     border-top: 2px solid var(--color-border);
+    width: 100%;
 }
 
 .footer-contenido {
