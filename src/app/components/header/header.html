@@ -1,65 +1,305 @@
-<header class="header" [class.menu-abierto]="menuAbierto()">
+@if (!auth.logueado()) {
+  <!-- Encabezado básico horizontal en el inicio / login (sin sesión iniciada) -->
+  <header class="header-publico" aria-label="Encabezado principal">
     <div class="marca">
-        <a [routerLink]="auth.logueado() ? '/' : '/login'" class="logo-link">
-            <img src="/DeliveryMascoteroLogo.jpg" alt="" class="logo-img" />
-            <div class="logo-textos">
-                <span class="logo-titulo">Delivery Mascotero</span>
-                <span class="logo-subtitulo">Pet Shop & Envíos</span>
-            </div>
-        </a>
+      <a routerLink="/login" class="logo-link">
+        <img src="/DeliveryMascoteroLogo.jpg" alt="" class="logo-img" />
+        <div class="logo-textos">
+          <h1 class="logo-titulo">Delivery Mascotero</h1>
+          <span class="logo-subtitulo">Pet Shop &amp; Envíos</span>
+        </div>
+      </a>
+    </div>
+  </header>
+} @else {
+  <!-- Barra superior visible solo en Mobile (< 992px) cuando está autenticado -->
+  <header class="topbar-mobile" aria-label="Barra superior">
+    <button type="button" class="btn-hamburguesa"
+            (click)="menuAbierto.set(!menuAbierto())"
+            [attr.aria-expanded]="menuAbierto()"
+            aria-controls="sidebar-principal"
+            aria-label="Abrir menú de navegación">
+      <span class="hamburguesa-barra" aria-hidden="true"></span>
+      <span class="hamburguesa-barra" aria-hidden="true"></span>
+      <span class="hamburguesa-barra" aria-hidden="true"></span>
+    </button>
+
+    <a routerLink="/" class="topbar-logo" (click)="menuAbierto.set(false)">
+      <img src="/DeliveryMascoteroLogo.jpg" alt="" class="topbar-logo-img" />
+      <span class="topbar-titulo">Delivery Mascotero</span>
+    </a>
+
+    <div class="topbar-acciones">
+      @if (auth.esAdmin()) {
+        <span class="badge-rol admin" title="Administrador">Admin</span>
+      } @else {
+        <span class="badge-rol user" title="Operador">Operador</span>
+      }
+    </div>
+  </header>
+
+  <!-- Telón de fondo (backdrop) para cerrar drawer en Mobile -->
+  @if (menuAbierto()) {
+    <div class="sidebar-backdrop"
+         (click)="menuAbierto.set(false)"
+         aria-hidden="true"></div>
+  }
+
+  <!-- Sidebar principal lateral (Fijo en Desktop, Drawer desplegable en Mobile) -->
+  <aside id="sidebar-principal"
+         class="sidebar"
+         [class.colapsado]="colapsado()"
+         [class.abierto-mobile]="menuAbierto()"
+         aria-label="Barra de navegación principal">
+
+    <!-- Encabezado de la barra lateral -->
+    <div class="sidebar-header">
+      <a routerLink="/" class="sidebar-logo" (click)="menuAbierto.set(false)">
+        <img src="/DeliveryMascoteroLogo.jpg" alt="" class="logo-img" />
+        <div class="logo-textos">
+          <h1 class="logo-titulo">Delivery Mascotero</h1>
+          <span class="logo-subtitulo">Pet Shop &amp; Envíos</span>
+        </div>
+      </a>
+
+      <!-- Botón cerrar solo visible en mobile con menú abierto -->
+      @if (menuAbierto()) {
+        <button type="button" class="btn-cerrar-mobile"
+                (click)="menuAbierto.set(false)"
+                aria-label="Cerrar menú">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      }
     </div>
 
-    @if (auth.logueado()) {
-        <button type="button" class="boton-menu"
-                [attr.aria-expanded]="menuAbierto()" aria-controls="menu-principal"
-                (click)="menuAbierto.set(!menuAbierto())">
-            <span class="hamburguesa" aria-hidden="true"><span></span></span>
-            {{ menuAbierto() ? 'Ocultar' : 'Menú' }}
+    <!-- Navegación por módulos de negocio agrupados -->
+    <nav class="sidebar-nav" aria-label="Módulos del sistema">
+
+      <!-- Grupo 1: Operación Diaria -->
+      <div class="nav-seccion">
+        <div class="seccion-titulo" title="Operación">
+          <span class="seccion-indicador op" aria-hidden="true"></span>
+          <span class="titulo-texto">Operación</span>
+        </div>
+        <ul class="nav-lista">
+          <li>
+            <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }" title="Inicio">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Inicio</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/pedidos" routerLinkActive="activo" title="Pedidos">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                  <path d="M9 12h6"/>
+                  <path d="M9 16h6"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Pedidos</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/reparto" routerLinkActive="activo" title="Reparto">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="3" width="15" height="13"/>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+                  <circle cx="5.5" cy="18.5" r="2.5"/>
+                  <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Reparto</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/pagos" routerLinkActive="activo" title="Pagos">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="2"/>
+                  <line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Pagos</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Grupo 2: Catálogo y Clientes -->
+      <div class="nav-seccion">
+        <div class="seccion-titulo" title="Catálogo">
+          <span class="seccion-indicador cat" aria-hidden="true"></span>
+          <span class="titulo-texto">Catálogo</span>
+        </div>
+        <ul class="nav-lista">
+          <li>
+            <a routerLink="/clientes" routerLinkActive="activo" title="Clientes">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Clientes</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/productos" routerLinkActive="activo" title="Productos">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m7.5 4.27 9 5.15"/>
+                  <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                  <path d="m3.3 7 8.7 5 8.7-5"/>
+                  <path d="M12 22V12"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Productos</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/ofertas" routerLinkActive="activo" title="Ofertas">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                  <line x1="7" y1="7" x2="7.01" y2="7"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Ofertas</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Grupo 3: Abastecimiento y Proveedores -->
+      <div class="nav-seccion">
+        <div class="seccion-titulo" title="Abastecimiento">
+          <span class="seccion-indicador abast" aria-hidden="true"></span>
+          <span class="titulo-texto">Abastecimiento</span>
+        </div>
+        <ul class="nav-lista">
+          <li>
+            <a routerLink="/compras" routerLinkActive="activo" title="Compras">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="8" cy="21" r="1"/>
+                  <circle cx="19" cy="21" r="1"/>
+                  <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Compras</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/proveedores" routerLinkActive="activo" title="Proveedores">
+              <span class="nav-icono" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="16" height="20" x="4" y="2" rx="2" ry="2"/>
+                  <path d="M9 22v-4h6v4"/>
+                  <path d="M8 6h.01"/>
+                  <path d="M16 6h.01"/>
+                  <path d="M12 6h.01"/>
+                  <path d="M12 10h.01"/>
+                  <path d="M12 14h.01"/>
+                  <path d="M16 10h.01"/>
+                  <path d="M16 14h.01"/>
+                  <path d="M8 10h.01"/>
+                  <path d="M8 14h.01"/>
+                </svg>
+              </span>
+              <span class="nav-texto">Proveedores</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Grupo 4: Administración (Solo perfil ADMIN) -->
+      @if (auth.esAdmin()) {
+        <div class="nav-seccion seccion-admin">
+          <div class="seccion-titulo seccion-titulo-admin" title="Administración">
+            <span class="seccion-indicador admin" aria-hidden="true"></span>
+            <span class="titulo-texto">Administración</span>
+            <span class="seccion-badge-admin">Admin</span>
+          </div>
+          <ul class="nav-lista">
+            <li>
+              <a routerLink="/reportes" routerLinkActive="activo" title="Reportes">
+                <span class="nav-icono" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="20" x2="12" y2="10"/>
+                    <line x1="18" y1="20" x2="18" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="16"/>
+                  </svg>
+                </span>
+                <span class="nav-texto">Reportes</span>
+              </a>
+            </li>
+            <li>
+              <a routerLink="/usuarios" routerLinkActive="activo" title="Usuarios">
+                <span class="nav-icono" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <span class="nav-texto">Usuarios</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      }
+    </nav>
+
+    <!-- Pie del Sidebar: Rol, Botón colapsar y Cerrar sesión -->
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        @if (auth.esAdmin()) {
+          <span class="badge-rol admin" title="Rol: Administrador">Admin</span>
+        } @else {
+          <span class="badge-rol user" title="Rol: Operador">Operador</span>
+        }
+        <span class="usuario-estado-texto">Conectado</span>
+      </div>
+
+      <div class="sidebar-acciones">
+        <button type="button" class="btn-sidebar btn-colapsar"
+                (click)="toggleColapsar()"
+                [attr.title]="colapsado() ? 'Expandir barra lateral' : 'Colapsar barra lateral'"
+                [attr.aria-label]="colapsado() ? 'Expandir barra lateral' : 'Colapsar barra lateral'">
+          <span class="nav-icono" aria-hidden="true">
+            <svg class="icono-flecha" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </span>
+          <span class="nav-texto">{{ colapsado() ? 'Expandir menú' : 'Colapsar menú' }}</span>
         </button>
 
-        <nav class="nav-container" id="menu-principal" aria-label="Principal">
-            <ul class="menu">
-                <li>
-                    <a routerLink="/" routerLinkActive="activo" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
-                </li>
-                <li>
-                    <a routerLink="/pedidos" routerLinkActive="activo" ariaCurrentWhenActive="page">Pedidos</a>
-                </li>
-                <li>
-                    <a routerLink="/reparto" routerLinkActive="activo" ariaCurrentWhenActive="page">Reparto</a>
-                </li>
-                <li>
-                    <a routerLink="/pagos" routerLinkActive="activo" ariaCurrentWhenActive="page">Pagos</a>
-                </li>
-                <li>
-                    <a routerLink="/clientes" routerLinkActive="activo" ariaCurrentWhenActive="page">Clientes</a>
-                </li>
-                <li class="separador" aria-hidden="true"></li>
-                <li>
-                    <a routerLink="/productos" routerLinkActive="activo" ariaCurrentWhenActive="page">Productos</a>
-                </li>
-                <li>
-                    <a routerLink="/ofertas" routerLinkActive="activo" ariaCurrentWhenActive="page">Ofertas</a>
-                </li>
-                <li>
-                    <a routerLink="/compras" routerLinkActive="activo" ariaCurrentWhenActive="page">Compras</a>
-                </li>
-                <li>
-                    <a routerLink="/proveedores" routerLinkActive="activo" ariaCurrentWhenActive="page">Proveedores</a>
-                </li>
-
-                @if (auth.tieneRol('ADMIN')) {
-                    <li class="separador" aria-hidden="true"></li>
-                    <li>
-                        <a routerLink="/reportes" routerLinkActive="activo" ariaCurrentWhenActive="page">Reportes</a>
-                    </li>
-                }
-
-            </ul>
-
-            <div class="auth-acciones">
-                <button class="boton-logout" (click)="auth.logout()">Cerrar sesión</button>
-            </div>
-        </nav>
-    }
-</header>
+        <button type="button" class="btn-sidebar btn-logout"
+                (click)="auth.logout()"
+                title="Cerrar sesión"
+                aria-label="Cerrar sesión">
+          <span class="nav-icono" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </span>
+          <span class="nav-texto">Cerrar sesión</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+}

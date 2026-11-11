@@ -23,6 +23,7 @@ import { ComprasList } from './pages/compras/compras-list/compras-list';
 import { ComprasForm } from './pages/compras/compras-form/compras-form';
 import { CompraDetails } from './pages/compras/compra-details/compra-details';
 import { Reportes } from './pages/reportes/reportes';
+import { UsuariosList } from './pages/usuarios/usuarios-list/usuarios-list';
 import { Reparto } from './pages/reparto/reparto';
 
 
@@ -54,5 +55,6 @@ export const routes: Routes = [
     {path: 'compras/nueva', title: 'Nueva compra', component: ComprasForm, canActivate: [authGuard]},
     {path: 'compras/:id', title: 'Compra', component: CompraDetails, canActivate: [authGuard]},
     {path: 'reportes', title: 'Reportes', component: Reportes, canActivate: [adminGuard]},
+    {path: 'usuarios', component: UsuariosList, canActivate: [adminGuard]},
     {path: '**', redirectTo: ''}
 ];

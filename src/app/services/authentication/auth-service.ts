@@ -77,8 +77,10 @@ export class AuthService {
     }
 
     tieneRol(rol: 'ADMIN' | 'USER'): boolean {
-        return this.leerPayload()?.role?.includes(`ROLE_${rol}`) ?? false
+        return this.leerPayload()?.role?.includes(`ROLE_${rol}`) ?? false;
     }
+
+    readonly esAdmin = computed(() => this.tieneRol('ADMIN'))
 
 
 }

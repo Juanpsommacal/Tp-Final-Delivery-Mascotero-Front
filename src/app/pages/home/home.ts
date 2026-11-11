@@ -13,6 +13,7 @@ import { Icono } from '../../components/icono/icono';
 import { haceCuanto } from '../../utils/whatsapp-util';
 import { getFechaLocalISO } from '../../utils/fecha-util';
 import { EstadoPedido } from '../../models/Enums';
+import { AuthService } from '../../services/authentication/auth-service';
 
 // Con este stock o menos un producto aparece en "Stock bajo"
 const STOCK_BAJO = 3
@@ -27,6 +28,7 @@ const MAX_DEUDAS = 3
 })
 export class Home implements OnInit {
 
+  protected auth = inject(AuthService)
   private pedidosService = inject(PedidosService)
   private productosService = inject(ProductosService)
 

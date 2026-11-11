@@ -715,3 +715,11 @@ a.celda-titulo:hover {
 .stock.sin-stock {
   color: var(--color-danger);
 }
+
+/* Sidebar colapsado: garantiza sincronización del margen del contenido y footer en toda la aplicación */
+@media (min-width: 992px) {
+  body.sidebar-compacto .contenido-principal:not(.sin-auth *),
+  .contenedor-general.sidebar-compacto:not(.sin-auth) .contenido-principal {
+    margin-left: 74px !important;
+  }
+}
