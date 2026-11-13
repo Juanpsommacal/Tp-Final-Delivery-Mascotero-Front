@@ -1,4 +1,163 @@
-<div class="home">
-    <h1>TP Final - Delivery Mascotero</h1>
-    <span>Matias Garcia - Juan Pablo Sommacal - Vega Matias</span>
-</div>
+<section class="panel-dia">
+
+    <header class="cabecera-dia">
+        <div>
+            <h1>{{ saludo() }}</h1>
+            <p class="fecha-hoy">{{ hoy | date:"EEEE d 'de' MMMM" }}</p>
+        </div>
+        <div class="acciones-rapidas">
+            <a class="boton" routerLink="/pedidos/nuevo">Nuevo pedido</a>
+            <a class="boton boton-secundario" routerLink="/compras/nueva">Nueva compra</a>
+        </div>
+    </header>
+
+    @if (error()) {
+        <div class="estado-vacio">
+            <strong>No se pudo cargar el resumen del día</strong>
+            <span>Revisá que el servidor esté prendido y volvé a intentar.</span>
+            <button type="button" class="boton boton-secundario" (click)="cargar()">Reintentar</button>
+        </div>
+    } @else {
+        <div class="seguimiento">
+            <a class="etapa" routerLink="/pedidos" [queryParams]="{ estado: 'FALTA_MERCADERIA', orden: 'id-asc' }">
+                <strong>{{ cargando() ? '–' : (contadores()['FALTA_MERCADERIA'] ?? 0) }}</strong>
+                <span>Falta mercadería</span>
+            </a>
+            <a class="etapa" routerLink="/pedidos" [queryParams]="{ estado: 'A_COORDINAR', orden: 'id-asc' }">
+                <strong>{{ cargando() ? '–' : (contadores()['A_COORDINAR'] ?? 0) }}</strong>
+                <span>A coordinar</span>
+            </a>
+            <a class="etapa" routerLink="/pedidos" [queryParams]="{ estado: 'PROGRAMADO', orden: 'id-asc' }">
+                <strong>{{ cargando() ? '–' : (contadores()['PROGRAMADO'] ?? 0) }}</strong>
+                <span>Programados</span>
+            </a>
+        </div>
+
+        <div class="tablero" [attr.aria-busy]="cargando()">
+
+            <!-- Lo principal: qué hay que entregar -->
+            <section class="cola cola-entregas" aria-labelledby="titulo-entregas">
+                <header class="cola-cabecera">
+                    <h2 id="titulo-entregas">
+                        Reparto de hoy
+                        @if (!cargando()) { <span class="cuenta">{{ cantidadPorEntregar() }}</span> }
+                    </h2>
+                    <a class="ver-todo" routerLink="/reparto">Ver reparto</a>
+                </header>
+
+                @if (cargando()) {
+                    <ul class="filas" aria-hidden="true">
+                        @for (i of [1, 2, 3, 4]; track i) {
+                            <li class="fila"><span class="skeleton skeleton-linea larga"></span></li>
+                        }
+                    </ul>
+                } @else if (cantidadPorEntregar() === 0) {
+                    <p class="cola-vacia">No hay entregas programadas para hoy.</p>
+                } @else {
+                    <ul class="filas">
+                        @for (pedido of porEntregar(); track pedido.id) {
+                            <li>
+                                <a class="fila fila-entrega" [routerLink]="['/pedidos', pedido.id]">
+                                    <span class="fila-principal">
+                                        <span class="fila-titulo">{{ pedido.nombreCliente }}</span>
+                                        <span class="fila-detalle">{{ pedido.direccionCompleta }}</span>
+                                    </span>
+                                    <span class="fila-lateral">
+                                        <span class="fila-monto">{{ pedido.montoTotal | pesos }}</span>
+                                        <span class="espera" [class.espera-larga]="estaAtrasado(pedido)">{{ estaAtrasado(pedido) ? 'Atrasado' : 'Hoy' }}</span>
+                                    </span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    @if (cantidadPorEntregar() > maxFilas) {
+                        <a class="mas" routerLink="/reparto">
+                            y {{ cantidadPorEntregar() - maxFilas }} más
+                        </a>
+                    }
+                }
+            </section>
+
+@if (pedidoWhatsapp(); as pedido) {
+<app-modal-whatsapp
+    [pedido]="pedido"
+    [telefono]="pedido.telefonoCliente"
+    plantillaInicial="detalle"
+    (cerrar)="pedidoWhatsapp.set(null)"
+    (recordatorioRegistrado)="alRegistrarRecordatorio($event)" />
+}
+
+            <div class="columna-lateral">
+
+                <section class="cola" aria-labelledby="titulo-cobrar">
+                    <header class="cola-cabecera">
+                        <h2 id="titulo-cobrar">Por cobrar</h2>
+                        <a class="ver-todo" routerLink="/pedidos" [queryParams]="{ pago: 'CON_DEUDA', orden: 'saldo-desc' }">Ver todos</a>
+                    </header>
+
+                    @if (cargando()) {
+                        <span class="skeleton skeleton-monto"></span>
+                    } @else if (cantidadPorCobrar() === 0) {
+                        <p class="cola-vacia">Nadie debe nada. Todos los pedidos están pagos.</p>
+                    } @else {
+                        <p class="total-cobrar">
+                            <span class="numerico">{{ totalPorCobrar() | pesos }}</span>
+                            en {{ cantidadPorCobrar() }} {{ cantidadPorCobrar() === 1 ? 'pedido' : 'pedidos' }}
+                        </p>
+                        <ul class="filas filas-compactas">
+                            @for (deuda of porCobrar(); track deuda.pedido.id) {
+                                <li class="fila-con-accion">
+                                    <a class="fila" [routerLink]="['/pedidos', deuda.pedido.id]">
+                                        <span class="fila-principal">
+                                            <span class="fila-titulo">{{ deuda.pedido.nombreCliente }} <span class="fila-detalle">#{{ deuda.pedido.id }}</span></span>
+                                            @if (deuda.pedido.ultimoRecordatorio) {
+                                                <span class="recordado">Recordado {{ haceCuanto(deuda.pedido.ultimoRecordatorio) }}</span>
+                                            }
+                                        </span>
+                                        <span class="fila-monto deuda">{{ deuda.saldo | pesos }}</span>
+                                    </a>
+                                    <button type="button" class="boton-wa-icono" (click)="pedidoWhatsapp.set(deuda.pedido)"
+                                            [attr.aria-label]="'Recordar saldo por WhatsApp a ' + deuda.pedido.nombreCliente"
+                                            title="Recordar saldo por WhatsApp">
+                                        <app-icono nombre="mensaje" [tamano]="18" />
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+
+                <section class="cola" aria-labelledby="titulo-stock">
+                    <header class="cola-cabecera">
+                        <h2 id="titulo-stock">
+                            Stock bajo
+                            @if (!cargando()) { <span class="cuenta">{{ cantidadStockBajo() }}</span> }
+                        </h2>
+                        <a class="ver-todo" routerLink="/compras/nueva">Reponer</a>
+                    </header>
+
+                    @if (cargando()) {
+                        <span class="skeleton skeleton-linea larga"></span>
+                    } @else if (cantidadStockBajo() === 0) {
+                        <p class="cola-vacia">Ningún producto tiene {{ stockBajo }} unidades o menos.</p>
+                    } @else {
+                        <ul class="filas filas-compactas">
+                            @for (producto of conStockBajo(); track producto.id) {
+                                <li>
+                                    <a class="fila" [routerLink]="['/productos', producto.tipoProducto?.toLowerCase(), producto.id]">
+                                        <span class="fila-titulo">{{ producto.marca }} {{ producto.nombre }}</span>
+                                        <span class="unidades" [class.agotado]="producto.stock === 0">
+                                            {{ producto.stock === 0 ? 'Sin stock' : producto.stock + (producto.stock === 1 ? ' unidad' : ' unidades') }}
+                                        </span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+
+            </div>
+        </div>
+    }
+
+</section>

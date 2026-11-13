@@ -1,0 +1,593 @@
+.contenedor-detalle {
+    max-width: 760px;
+    margin: 32px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* Sin esto, una tabla ancha estira la tarjeta y la página en el celular */
+    min-width: 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: clamp(16px, 5vw, 28px);
+    box-shadow: var(--shadow-md);
+}
+
+.detalle h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.detalle h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.volver {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: -8px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.volver:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ---------- Bloque de reparto ---------- */
+.reparto {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.dato-reparto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.etiqueta {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+
+.valor {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.enlace-simple {
+    text-decoration: none;
+}
+
+.enlace-simple:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.detalle-dato {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.contacto {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.contacto .boton {
+    min-height: 44px;
+}
+
+/* ---------- Acciones del pedido ---------- */
+.boton-principal {
+    min-height: 48px;
+    padding-inline: 22px;
+    font-size: 1rem;
+}
+
+.mas-acciones {
+    position: relative;
+    margin-left: auto;
+}
+
+.mas-acciones summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    list-style: none;
+}
+
+.mas-acciones summary::-webkit-details-marker {
+    display: none;
+}
+
+.mas-acciones summary::after {
+    content: '▾';
+    margin-left: 6px;
+    font-size: 0.8em;
+}
+
+.mas-acciones summary:hover,
+.mas-acciones[open] summary {
+    background-color: var(--color-bg-alt);
+    color: var(--color-text);
+}
+
+.menu-mas {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    z-index: 5;
+    min-width: 200px;
+    padding: 6px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+.opcion-peligro {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    color: var(--color-danger);
+    cursor: pointer;
+}
+
+.opcion-peligro:hover:not(:disabled) {
+    background-color: var(--color-danger-light);
+}
+
+.titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.estados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.datos {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 12px 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.datos dt {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.texto-secundario {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+/* Tabla de productos */
+.tabla-contenedor {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+th,
+td {
+    padding: 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+}
+
+th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+}
+
+.numero {
+    text-align: right;
+    white-space: nowrap;
+}
+
+td.numero span {
+    display: block;
+}
+
+tfoot td {
+    border-bottom: none;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.precio-anterior {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+}
+
+.descuento {
+    font-size: 0.82rem;
+}
+
+/* td.numero span pone display: block; por eso estos selectores llevan td */
+.tabla-productos td.numero .solo-mobile {
+    display: none;
+}
+
+/* La tabla de productos va dentro de la tarjeta: sin el marco de las tablas de listado */
+.tabla-contenedor {
+    border: none;
+    box-shadow: none;
+    background: none;
+    border-radius: 0;
+}
+
+.oferta {
+    color: var(--color-accent-dark);
+    font-weight: 600;
+}
+
+/* Pagos */
+.lista-pagos {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.lista-pagos li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lista-pagos li div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lista-pagos li.vacio {
+    color: var(--color-text-muted);
+    border-bottom: none;
+}
+
+.deuda {
+    color: var(--color-danger);
+    font-weight: 700;
+}
+
+/* Modal de registrar pago, mismo estilo que el de agregar producto en oferta-details */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(14, 66, 80, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.modal-tarjeta {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.25);
+}
+
+.modal-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px 24px 14px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-cabecera h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.modal-cerrar {
+    border: none;
+    background: transparent;
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+}
+
+.modal-cerrar:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.modal-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 24px 24px;
+}
+
+.resumen {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 16px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg);
+}
+
+.resumen dd {
+    text-align: right;
+    font-weight: 600;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.campo input,
+.campo select {
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.95rem;
+    background-color: white;
+}
+
+.campo input:focus,
+.campo select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.campo input.ng-invalid.ng-touched,
+.campo select.ng-invalid.ng-touched {
+    border-color: var(--color-danger);
+}
+
+.error {
+    color: var(--color-danger);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.campo .error {
+    min-height: 1.2em;
+}
+
+.mensaje {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-danger-light);
+    text-align: center;
+}
+
+.aviso-estado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.modal-cuerpo .acciones {
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.saldo-cabecera {
+    margin-top: -6px;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.saldo-cabecera strong {
+    font-size: 1.1rem;
+    color: var(--color-danger);
+}
+
+.boton-wa {
+    color: #0d5f3a;
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 600px) {
+    .contenedor-detalle {
+        margin: 16px auto;
+        gap: 16px;
+    }
+
+    .reparto {
+        grid-template-columns: 1fr;
+    }
+
+    /* Llamar, WhatsApp y Mapa en una fila, al alcance del pulgar */
+    .contacto {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+
+    .contacto .boton {
+        padding-inline: 8px;
+    }
+
+    .acciones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .acciones > .boton {
+        width: 100%;
+    }
+
+    .mas-acciones {
+        margin-left: 0;
+        align-self: center;
+    }
+
+    .menu-mas {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+
+    /* Productos como lista: nombre arriba, "2 × $ 80.000" y subtotal abajo */
+    .tabla-productos thead {
+        display: none;
+    }
+
+    .tabla-productos tbody tr {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "producto producto producto"
+            "cantidad precio subtotal";
+        gap: 4px 6px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .tabla-productos tbody td {
+        padding: 0;
+        border: none;
+    }
+
+    .tabla-productos .col-producto { grid-area: producto; font-weight: 600; }
+    .tabla-productos .col-cantidad { grid-area: cantidad; text-align: left; color: var(--color-text-muted); }
+    .tabla-productos .col-precio { grid-area: precio; text-align: left; color: var(--color-text-muted); }
+    .tabla-productos .col-subtotal { grid-area: subtotal; font-weight: 700; }
+
+    .tabla-productos .col-precio .precio-anterior {
+        display: inline;
+        margin-right: 4px;
+    }
+
+    .tabla-productos td.numero .solo-mobile {
+        display: inline;
+    }
+
+    .tabla-productos td.numero .solo-desktop {
+        display: none;
+    }
+
+    .tabla-productos tfoot tr {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .tabla-productos tfoot td {
+        padding: 12px 0 0;
+    }
+
+    .modal-cabecera {
+        padding: 18px 18px 12px;
+    }
+
+    .modal-cuerpo {
+        padding: 16px 18px 20px;
+    }
+}
+
+/* Mercadería y fecha de entrega */
+.fecha-pactada {
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.aviso-mercaderia {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-accent-light);
+    color: var(--color-accent-dark);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.falta-producto {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+}
+
+.opcion-neutra {
+    color: var(--color-text);
+}

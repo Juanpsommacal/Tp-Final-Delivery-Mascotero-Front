@@ -1,0 +1,15 @@
+/* La tabla, los filtros y la paginación vienen de styles.css (.contenedor-list / .tabla-datos) */
+
+/* Lista de productos en una sola línea: el detalle completo está en la compra */
+.productos {
+    max-width: 420px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+    .productos {
+        max-width: none;
+    }
+}

@@ -1,0 +1,293 @@
+.contenedor-detalle {
+    max-width: 680px;
+    margin: 32px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+.detalle h1,
+.detalle h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.datos {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 12px 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.datos dt {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.lista-direcciones {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lista-direcciones li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lista-direcciones li:last-child {
+    border-bottom: none;
+}
+
+.direccion {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.direccion strong {
+    color: var(--color-text);
+}
+
+.direccion span {
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+}
+
+.vacio {
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: 8px 0;
+}
+
+.form-direccion {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.campo input {
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.95rem;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.campo input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.error {
+    color: var(--color-danger);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.form-direccion h4 {
+    color: var(--color-primary-dark);
+}
+
+.fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.fila .campo {
+    flex: 1 1 200px;
+}
+
+.mensaje {
+    font-size: 0.95rem;
+}
+
+.autocompletar {
+    position: relative;
+}
+
+.sugerencias {
+    position: absolute;
+    top: calc(1lh + 6px + 2.6rem);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+    max-height: 260px;
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+}
+
+.sugerencias li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.sugerencias li span {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+.sugerencias li:hover,
+.sugerencias li.activa {
+    background-color: var(--color-primary-light);
+}
+
+.seleccionada,
+.aviso-coincidencia {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-bg);
+}
+
+/* Cuenta del cliente: deuda y últimos pedidos */
+.detalle h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.deuda-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-danger-light);
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.deuda-total strong {
+    font-size: 1.4rem;
+}
+
+.deuda-total.sin-deuda {
+    background-color: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.lista-cuenta {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.lista-cuenta li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.lista-cuenta li:last-child {
+    border-bottom: none;
+}
+
+.lista-cuenta a {
+    color: var(--color-primary);
+}
+
+.monto-deuda {
+    color: var(--color-danger);
+}
+
+/* Toda la fila lleva al detalle del pedido, donde están sus pagos */
+.lista-cuenta li:has(.fila-pedido) {
+    padding: 0;
+}
+
+.fila-pedido {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 10px 8px;
+    margin-inline: -8px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: inherit;
+}
+
+.fila-pedido:hover {
+    background-color: var(--color-primary-light);
+}
+
+.fila-pedido .direccion strong {
+    color: var(--color-primary);
+}
+
+.pedido-lateral {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.pedido-lateral .estado {
+    align-self: flex-end;
+}

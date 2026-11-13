@@ -1,0 +1,41 @@
+/* Chips de estado del pedido y del pago. Se comparte entre el listado y el detalle */
+.estado {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.estado-entregado,
+.pago-pagado {
+    color: var(--color-success);
+    background-color: var(--color-success-light);
+}
+
+.estado-cancelado,
+.pago-pedido_cancelado {
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-alt);
+}
+
+.pago-deuda,
+.pago-deuda_parcial {
+    color: var(--color-danger);
+    background-color: var(--color-danger-light);
+}
+
+.estado-falta_mercaderia,
+.pago-pendiente {
+    color: var(--color-accent-dark);
+    background-color: var(--color-accent-light);
+}
+
+.estado-a_coordinar {
+    color: #7a5a00;
+    background-color: #fbf2d5;
+}

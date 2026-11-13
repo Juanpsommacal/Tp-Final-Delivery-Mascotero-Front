@@ -1,14 +1,327 @@
-.home {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #472727;
-    color: #ebeca8;
-    padding: 30px;
-    margin-top: 20px;
+.panel-dia {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 16px 48px;
 }
 
-.home span {
-    color: white;
+/* ========================================================
+   Saludo y acciones rápidas
+   ======================================================== */
+.cabecera-dia {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.cabecera-dia h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--color-primary);
+}
+
+.fecha-hoy {
+    margin-top: 4px;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+}
+
+.fecha-hoy::first-letter {
+    text-transform: uppercase;
+}
+
+.acciones-rapidas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* ========================================================
+   Tablero: entregas a la izquierda, cobros y stock a la derecha
+   ======================================================== */
+.tablero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.columna-lateral {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cola {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cola-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.cola-cabecera h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-text);
+}
+
+.cuenta {
+    min-width: 26px;
+    padding: 1px 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.ver-todo,
+.mas {
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ver-todo:hover,
+.mas:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.mas {
+    align-self: flex-start;
+    color: var(--color-primary);
+}
+
+.cola-vacia {
+    padding: 8px 0 4px;
+    font-size: 0.92rem;
+    color: var(--color-text-muted);
+}
+
+/* ========================================================
+   Filas de cada cola
+   ======================================================== */
+.filas {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    margin: 0 -10px;
+}
+
+.filas li + li {
+    border-top: 1px solid #efe7da;
+}
+
+.fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 11px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+}
+
+a.fila:hover {
+    background-color: #f5fafb;
+    color: var(--color-text);
+}
+
+.filas-compactas .fila {
+    padding: 8px 10px;
+}
+
+.fila-principal {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.fila-titulo {
+    min-width: 0;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fila-detalle {
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+}
+
+.fila-lateral {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
+.fila-monto {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.fila-monto.deuda {
+    color: var(--color-danger);
+}
+
+.espera {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.espera.espera-larga {
+    color: var(--color-accent-dark);
+    font-weight: 700;
+}
+
+.total-cobrar {
+    font-size: 0.92rem;
+    color: var(--color-text-muted);
+}
+
+.total-cobrar .numerico {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--color-danger);
+}
+
+.unidades {
+    flex-shrink: 0;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+}
+
+.unidades.agotado {
+    color: var(--color-danger);
+}
+
+@media (max-width: 820px) {
+    .tablero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cabecera-dia h1 {
+        font-size: 1.6rem;
+    }
+}
+
+/* Fila de "Por cobrar" con el botón de WhatsApp al costado */
+.fila-con-accion {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.fila-con-accion .fila {
+    flex: 1;
+    min-width: 0;
+}
+
+.recordado {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.boton-wa-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: #12784a;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.boton-wa-icono:hover {
+    background-color: #e8f5ee;
+    border-color: #b7dcc6;
+}
+
+/* Etapas de los pedidos que hay que resolver */
+.seguimiento {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.etapa {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    min-height: 56px;
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.etapa:hover {
+    border-color: var(--color-primary);
+}
+
+.etapa strong {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.etapa span {
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .seguimiento {
+        gap: 8px;
+    }
+
+    .etapa {
+        padding: 10px;
+    }
+
+    .etapa span {
+        font-size: 0.82rem;
+    }
 }

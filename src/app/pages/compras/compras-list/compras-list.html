@@ -1,0 +1,119 @@
+<article class="contenedor-list">
+
+    <div class="encabezado">
+        <h1>Compras</h1>
+        <a class="boton" routerLink="/compras/nueva">Nueva compra</a>
+    </div>
+
+    <div class="filtros" [class.abiertos]="filtrosAbiertos()">
+        <label class="buscar">
+            Buscar por proveedor, producto o número
+            <input type="search" placeholder="Ej: Distribuidora Sur, Proplan o 12"
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+        </label>
+
+        <button type="button" class="boton boton-secundario boton-filtros" [attr.aria-expanded]="filtrosAbiertos()"
+                (click)="filtrosAbiertos.set(!filtrosAbiertos())">
+            {{ filtrosAbiertos() ? 'Ocultar filtros' : 'Filtros' }}
+            @if (cantidadFiltros() > 0) { <span class="cuenta-filtros">{{ cantidadFiltros() }}</span> }
+        </button>
+
+        <label class="filtro-extra">
+            Estado
+            <select (change)="cambiarFiltroEstado($any($event.target).value)">
+                <option value="" [selected]="!filtroEstado()">Todos</option>
+                @for (estado of estadosCompra; track estado) {
+                    <option [value]="estado" [selected]="filtroEstado() === estado">{{ estado | formatoEnum }}</option>
+                }
+            </select>
+        </label>
+
+        <label class="switch filtro-extra">
+            <input type="checkbox" role="switch"
+                   [checked]="mostrarCanceladas()"
+                   (change)="mostrarCanceladas.set($any($event.target).checked)" />
+            <span class="switch-pista" aria-hidden="true"></span>
+            Mostrar canceladas
+        </label>
+    </div>
+
+    @if (tabla.cargando()) {
+        <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando compras…" />
+    } @else if (tabla.filasPagina().length === 0) {
+        @if (hayFiltros()) {
+            <div class="estado-vacio">
+                <strong>Ninguna compra con esos filtros</strong>
+                <span>Probá con otra búsqueda o limpiá los filtros.</span>
+                <button type="button" class="boton boton-secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+            </div>
+        } @else {
+            <div class="estado-vacio">
+                <strong>Todavía no hay compras a proveedores</strong>
+                <a class="boton" routerLink="/compras/nueva">Registrar la primera compra</a>
+            </div>
+        }
+    } @else {
+        <p class="resumen" aria-live="polite">
+            {{ tabla.rango().total }} {{ tabla.rango().total === 1 ? 'compra' : 'compras' }}
+            @if (totalPendiente() > 0) {
+                · Falta recibir <strong>{{ totalPendiente() | pesos }}</strong>
+            }
+        </p>
+
+        <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
+
+        <div class="tabla-contenedor" [attr.aria-busy]="tabla.actualizando()">
+            <table class="tabla-datos">
+                <caption class="solo-lector">Compras. Los encabezados con botón cambian el orden.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" class="col-numero" [attr.aria-sort]="tabla.ariaOrden('id')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('id')">
+                                N.º <span class="flecha" aria-hidden="true">{{ tabla.flecha('id') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" class="col-fecha" [attr.aria-sort]="tabla.ariaOrden('fecha')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('fecha')">
+                                Fecha <span class="flecha" aria-hidden="true">{{ tabla.flecha('fecha') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" [attr.aria-sort]="tabla.ariaOrden('proveedor')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('proveedor')">
+                                Proveedor y productos <span class="flecha" aria-hidden="true">{{ tabla.flecha('proveedor') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col">Estado</th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('total')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('total')">
+                                Total <span class="flecha" aria-hidden="true">{{ tabla.flecha('total') }}</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (compra of tabla.filasPagina(); track compra.id) {
+                        <tr class="clicable" [class.inactiva]="compra.estadoCompra === 'CANCELADA'" (click)="abrir(compra)">
+                            <td class="col-numero">
+                                <a class="enlace-fila" [routerLink]="['/compras', compra.id]" (click)="$event.stopPropagation()">#{{ compra.id }}</a>
+                            </td>
+                            <td class="col-fecha">{{ compra.fecha | date:'dd/MM/yy' }}</td>
+                            <td class="m-principal">
+                                <span class="celda-titulo">{{ compra.nombreProveedor }}</span>
+                                <span class="celda-detalle productos">
+                                    {{ unidades(compra) }} u. · {{ nombresProductos(compra) }}
+                                </span>
+                            </td>
+                            <td class="m-final">
+                                <span [class]="'estado compra-' + compra.estadoCompra.toLowerCase()">{{ compra.estadoCompra | formatoEnum }}</span>
+                            </td>
+                            <td class="col-monto m-lateral">{{ compra.montoTotal | pesos }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <app-paginacion [tabla]="tabla" nombre="compras" />
+    }
+
+</article>

@@ -1,0 +1,39 @@
+/* La tabla, los filtros y la paginación vienen de styles.css (.contenedor-list / .tabla-datos) */
+
+.celda-secundaria {
+    color: var(--color-text-muted);
+}
+
+.con-deuda {
+    color: var(--color-danger);
+    font-weight: 700;
+}
+
+.ultimo-pedido {
+    white-space: nowrap;
+}
+
+.fecha-pedido {
+    font-weight: 600;
+    color: var(--color-text);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+}
+
+.fecha-pedido:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.telefono {
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.telefono:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}

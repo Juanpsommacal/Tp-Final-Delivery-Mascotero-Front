@@ -1,0 +1,96 @@
+<section class="contenedor-detalle">
+
+    @if (compra(); as compra) {
+
+        <article class="detalle">
+
+            <div class="titulo">
+                <h1>Compra #{{ compra.id }}</h1>
+                <span [class]="'estado compra-' + compra.estadoCompra.toLowerCase()">{{ compra.estadoCompra | formatoEnum }}</span>
+            </div>
+
+            <dl class="datos">
+                <dt>Proveedor</dt>
+                <dd>{{ compra.nombreProveedor }}</dd>
+
+                <dt>Fecha</dt>
+                <dd>{{ compra.fecha | date:'dd/MM/yyyy' }}</dd>
+            </dl>
+
+            <div class="acciones">
+                <a class="boton boton-secundario" routerLink="/compras">Volver</a>
+
+                @if (pendiente()) {
+                    <button type="button" class="boton" [disabled]="procesando()" (click)="recibir()">Marcar como recibida</button>
+                    <button type="button" class="boton boton-peligro" [disabled]="procesando()" (click)="cancelar()">Cancelar compra</button>
+                }
+            </div>
+
+        </article>
+
+        <article class="detalle">
+
+            <h3>Productos</h3>
+
+            @if (pendiente()) {
+                <p class="texto-secundario">Al recibir la compra, el stock de cada producto pasa de lo que tiene hoy a lo que muestra la columna Stock.</p>
+            }
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="numero">Cant.</th>
+                            <th class="numero">Precio</th>
+                            <th class="numero">Subtotal</th>
+                            @if (pendiente()) {
+                                <th class="numero">Stock</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (detalle of compra.detalleResponseDTO; track detalle.productoId) {
+                            <tr>
+                                <td>{{ detalle.nombreProducto }}</td>
+                                <td class="numero">{{ detalle.cantidad }}</td>
+                                <td class="numero">
+                                    @if (detalle.precioUnitario === 0) {
+                                        <span class="bonificado">Bonificado</span>
+                                    } @else {
+                                        {{ detalle.precioUnitario | pesos }}
+                                    }
+                                </td>
+                                <td class="numero">{{ detalle.precioTotal | pesos }}</td>
+                                @if (pendiente()) {
+                                    <td class="numero">
+                                        @let stock = stockDe(detalle.productoId);
+                                        @if (stock !== undefined) {
+                                            {{ stock }} → <strong>{{ stock + detalle.cantidad }}</strong>
+                                        } @else {
+                                            -
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">Total</td>
+                            <td class="numero">{{ compra.montoTotal | pesos }}</td>
+                            @if (pendiente()) {
+                                <td></td>
+                            }
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+        </article>
+
+    } @else {
+        <p>Cargando compra…</p>
+    }
+
+</section>

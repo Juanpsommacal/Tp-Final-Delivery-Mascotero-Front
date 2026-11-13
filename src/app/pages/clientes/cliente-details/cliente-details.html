@@ -1,0 +1,240 @@
+<section class="contenedor-detalle">
+
+    @if (cliente(); as cliente) {
+
+        <article class="detalle">
+
+            <h1>{{ cliente.nombre }} {{ cliente.apellido }}</h1>
+
+            <dl class="datos">
+                <dt>Teléfono</dt>
+                <dd>
+                    <a class="telefono" [href]="'tel:' + cliente.telefono">{{ cliente.telefono }}</a>
+                </dd>
+                @if (ultimoPedido(); as ultimo) {
+                    <dt>Último pedido</dt>
+                    <dd><a [routerLink]="['/pedidos', ultimo.id]">#{{ ultimo.id }} del {{ ultimo.fecha | date:'dd/MM/yyyy' }}</a></dd>
+                }
+            </dl>
+
+            <div class="acciones">
+                <a class="boton boton-secundario" routerLink="/clientes">Volver</a>
+                @if (ultimoPedido()) {
+                    <a class="boton" routerLink="/pedidos/nuevo" [queryParams]="{ cliente: cliente.id, repetir: 1 }">
+                        <app-icono nombre="repetir" [tamano]="18" /> Repetir último pedido
+                    </a>
+                } @else {
+                    <a class="boton" routerLink="/pedidos/nuevo" [queryParams]="{ cliente: cliente.id }">Nuevo pedido</a>
+                }
+                <a class="boton boton-secundario" [routerLink]="['/clientes/editar', cliente.id]">Editar</a>
+           
+                @if (esAdmin) {
+                    <button type="button" class="boton boton-peligro" [disabled]="eliminado()" (click)="eliminarCliente()">
+                        {{ eliminado() ? 'Eliminando…' : 'Eliminar' }}
+                    </button>
+                }
+
+            </div>
+
+        </article>
+
+        <article class="detalle">
+
+            <h3>Direcciones</h3>
+
+            <ul class="lista-direcciones">
+
+                @for (direccion of cliente.direcciones; track direccion.id) {
+
+                    <li>
+                        <div class="direccion">
+                            <strong>{{ direccion.direccionCompleta }}</strong>
+                            <span>{{ direccion.pisoDepto }}</span>
+                            @if (direccion.observaciones) {
+                                <small>{{ direccion.observaciones }}</small>
+                            }
+                        </div>
+
+                        <button type="button" class="boton boton-peligro" (click)="eliminarDireccion(direccion)">Quitar</button>
+                    </li>
+
+                } @empty {
+                    <li class="vacio">Este cliente no tiene direcciones cargadas.</li>
+                }
+
+            </ul>
+
+            <form class="form-direccion" [formGroup]="formularioDireccion" (ngSubmit)="agregarDireccion()" novalidate>
+
+                <h4>Agregar dirección</h4>
+
+                @if (direccionSeleccionada(); as seleccionada) {
+
+                    <div class="seleccionada">
+                        <div class="direccion">
+                            <small>Dirección existente</small>
+                            <strong>{{ seleccionada.direccionCompleta }}</strong>
+                            <span>{{ seleccionada.pisoDepto }}</span>
+                            @if (seleccionada.observaciones) {
+                                <small>{{ seleccionada.observaciones }}</small>
+                            }
+                        </div>
+                        <button type="button" class="boton boton-secundario" (click)="cancelarSeleccion()">Volver</button>
+                    </div>
+
+                } @else {
+
+                    <div class="fila">
+                        <label class="campo autocompletar">
+                            Calle *
+                            <input
+                                type="text"
+                                formControlName="calle"
+                                autocomplete="off"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-controls="sugerencias-direccion"
+                                [attr.aria-expanded]="mostrarSugerencias() && sugerencias().length > 0"
+                                [attr.aria-activedescendant]="indiceActivo() >= 0 ? 'sugerencia-' + indiceActivo() : null"
+                                (focus)="abrirSugerencias()"
+                                (input)="abrirSugerencias()"
+                                (blur)="cerrarSugerencias()"
+                                (keydown)="navegarSugerencias($event)" />
+
+                            @if (mostrarSugerencias() && sugerencias().length > 0) {
+                                <ul id="sugerencias-direccion" class="sugerencias" role="listbox">
+                                    @for (sugerencia of sugerencias(); track sugerencia.id; let i = $index) {
+                                        <!-- mousedown + preventDefault: elige antes de que el blur cierre la lista -->
+                                        <li
+                                            [id]="'sugerencia-' + i"
+                                            role="option"
+                                            [class.activa]="i === indiceActivo()"
+                                            [attr.aria-selected]="i === indiceActivo()"
+                                            (mousedown)="$event.preventDefault(); seleccionarDireccion(sugerencia)">
+                                            <strong>{{ sugerencia.direccionCompleta }}</strong>
+                                            <span>{{ sugerencia.pisoDepto }}</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                            <span class="error">{{ mensajeError('calle') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Número *
+                            <input type="number" min="0" step="1" formControlName="numero" />
+                            <span class="error">{{ mensajeError('numero') }}</span>
+                        </label>
+                    </div>
+
+                    <div class="fila">
+                        <label class="campo">
+                            Piso
+                            <input type="number" min="0" step="1" formControlName="piso" />
+                            <span class="error">{{ mensajeError('piso') }}</span>
+                        </label>
+
+                        <label class="campo">
+                            Departamento
+                            <input type="text" formControlName="departamento" />
+                            <span class="error">{{ mensajeError('departamento') }}</span>
+                        </label>
+                    </div>
+
+                    <label class="campo">
+                        Observaciones
+                        <input type="text" formControlName="observaciones" />
+                        <span class="error">{{ mensajeError('observaciones') }}</span>
+                    </label>
+
+                    @if (coincidencia(); as coincidencia) {
+                        @if (coincidenciaYaAsociada()) {
+                            <p class="error mensaje">Este cliente ya tiene esa dirección asociada.</p>
+                        } @else {
+                            <div class="aviso-coincidencia" role="status">
+                                <p>
+                                    Esta dirección ya existe.
+                                    @if (coincidencia.clientes.length > 0) {
+                                        La usa: <strong>{{ coincidencia.clientes.join(', ') }}</strong>.
+                                    }
+                                    Se va a vincular la misma, con sus observaciones.
+                                </p>
+                                <button type="button" class="boton boton-secundario" (click)="seleccionarDireccion(coincidencia)">No quiero vincularla. Crear una nueva.</button>
+                            </div>
+                        }
+                    }
+
+                }
+
+                @if (mensajeDireccion() && !coincidenciaYaAsociada) {
+                    <p class="error mensaje">{{ mensajeDireccion() }}</p>
+                }
+
+                <div class="acciones">
+                    <button type="submit" class="boton" [disabled]="agregarDeshabilitado()"> 
+                        {{ agregando() ? 'Agregando…' : (direccionSeleccionada() 
+                        ? 'Asociar dirección' : 'Agregar dirección') }}
+                    </button>
+                </div>
+
+            </form>
+
+        </article>
+
+        <article class="detalle">
+
+            <h3>Cuenta</h3>
+
+            <div class="deuda-total" [class.sin-deuda]="deudaTotal() === 0">
+                <span>{{ deudaTotal() > 0 ? 'Debe en total' : 'No tiene deudas' }}</span>
+                @if (deudaTotal() > 0) {
+                    <strong>{{ deudaTotal() | pesos }}</strong>
+                }
+            </div>
+
+            @if (pedidosConDeuda().length > 0) {
+                <h4>Pedidos con deuda</h4>
+                <ul class="lista-cuenta">
+                    @for (pedido of pedidosConDeuda(); track pedido.id) {
+                        <li>
+                            <div class="direccion">
+                                <a [routerLink]="['/pedidos', pedido.id]"><strong>Pedido #{{ pedido.id }}</strong></a>
+                                <span>{{ pedido.fecha | date:'dd/MM/yyyy' }} · {{ pedido.estadoPago | formatoEnum }}</span>
+                            </div>
+                            <strong class="monto-deuda">{{ saldo(pedido) | pesos }}</strong>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <h4>Últimos pedidos</h4>
+            <ul class="lista-cuenta">
+                @for (pedido of ultimosPedidos(); track pedido.id) {
+                    <li>
+                        <a class="fila-pedido" [routerLink]="['/pedidos', pedido.id]">
+                            <div class="direccion">
+                                <strong>Pedido #{{ pedido.id }}</strong>
+                                <span>
+                                    {{ pedido.fecha | date:'dd/MM/yyyy' }}
+                                    @if (pedido.estadoPago !== 'PEDIDO_CANCELADO') { · {{ pedido.estadoPago | formatoEnum }} }
+                                </span>
+                            </div>
+                            <div class="pedido-lateral">
+                                <strong>{{ pedido.montoTotal | pesos }}</strong>
+                                <span [class]="'estado estado-' + pedido.estadoPedido.toLowerCase()">{{ pedido.estadoPedido | formatoEnum }}</span>
+                            </div>
+                        </a>
+                    </li>
+                } @empty {
+                    <li class="vacio">Este cliente todavía no hizo pedidos.</li>
+                }
+            </ul>
+
+        </article>
+
+    } @else {
+        <p>Cargando cliente…</p>
+    }
+
+</section>

@@ -1,0 +1,81 @@
+<div class="overlay" (appCerrarAlFondo)="cerrar.emit()">
+  <div class="tarjeta" role="dialog" aria-modal="true" aria-labelledby="whatsapp-titulo"
+       appModalFoco (click)="$event.stopPropagation()">
+
+    <div class="cabecera">
+      <div>
+        <h3 id="whatsapp-titulo">Enviar por WhatsApp</h3>
+        <p class="para">
+          Pedido #{{ pedido().id }} · {{ pedido().nombreCliente }}
+          @if (telefonoVisible(); as numero) {
+            · <span class="numero numerico">{{ numero }}</span>
+          }
+        </p>
+      </div>
+      <button type="button" class="cerrar" aria-label="Cerrar" (click)="cerrar.emit()">
+        <app-icono nombre="cerrar" [tamano]="18" />
+      </button>
+    </div>
+
+    <fieldset class="plantillas">
+      <legend class="solo-lector">Qué querés mandar</legend>
+      <label class="plantilla" [class.elegida]="plantilla() === 'detalle'">
+        <input type="radio" name="plantilla" value="detalle"
+               [checked]="plantilla() === 'detalle'" (change)="elegirPlantilla('detalle')" />
+        Detalle del pedido
+      </label>
+      <label class="plantilla" [class.elegida]="plantilla() === 'saldo'" [class.deshabilitada]="!tieneSaldo()">
+        <input type="radio" name="plantilla" value="saldo" [disabled]="!tieneSaldo()"
+               [checked]="plantilla() === 'saldo'" (change)="elegirPlantilla('saldo')" />
+        Saldo pendiente
+      </label>
+    </fieldset>
+
+    @if (plantilla() === 'saldo' && ultimoRecordatorio(); as fecha) {
+      <p class="aviso-recordatorio">
+        Ya se le recordó {{ haceCuantoRecordatorio() }} ({{ fecha | date:"dd/MM 'a las' HH:mm" }}).
+      </p>
+    }
+
+    <!-- El botón queda fuera del label: si no, el navegador le asigna la etiqueta al botón y el textarea queda sin nombre -->
+    <div class="campo-mensaje">
+      <div class="etiqueta">
+        <label for="whatsapp-mensaje">Mensaje</label>
+        <button type="button" class="restaurar" (click)="restaurarMensaje()">Volver al texto original</button>
+      </div>
+      <textarea id="whatsapp-mensaje" rows="11" data-foco-inicial [value]="mensaje()" (input)="mensaje.set($any($event.target).value)"></textarea>
+    </div>
+
+    @if (telefono() === undefined) {
+      <p class="estado-telefono">Buscando el teléfono del cliente…</p>
+    } @else if (!telefonoNormalizado()) {
+      <div class="sin-telefono" role="alert">
+        <app-icono nombre="alerta" [tamano]="18" />
+        <p>
+          @if (telefono()) {
+            El teléfono cargado (<strong>{{ telefono() }}</strong>) no tiene característica, así que no se puede armar el número de WhatsApp.
+          } @else {
+            Este cliente no tiene teléfono cargado.
+          }
+          Cargalo en formato internacional, por ejemplo <strong>+54 9 223 555 1234</strong>.
+          <a [routerLink]="['/clientes/editar', pedido().clienteId]" (click)="cerrar.emit()">Editar cliente</a>
+        </p>
+      </div>
+    }
+
+    <div class="acciones">
+      <button type="button" class="boton boton-secundario" (click)="cerrar.emit()">Cancelar</button>
+      @if (link(); as url) {
+        <a class="boton boton-whatsapp" [href]="url" target="_blank" rel="noopener" (click)="alAbrirWhatsapp()">
+          <app-icono nombre="mensaje" [tamano]="18" />
+          Abrir WhatsApp
+        </a>
+      } @else {
+        <button type="button" class="boton boton-whatsapp" disabled>
+          <app-icono nombre="mensaje" [tamano]="18" />
+          Abrir WhatsApp
+        </button>
+      }
+    </div>
+  </div>
+</div>

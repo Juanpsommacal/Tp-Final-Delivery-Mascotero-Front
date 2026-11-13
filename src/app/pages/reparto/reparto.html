@@ -1,0 +1,144 @@
+<section class="reparto">
+
+    <header class="encabezado">
+        <div>
+            <h1>Reparto</h1>
+            <p>{{ fecha() === hoy ? 'Hoy, ' : '' }}{{ fecha() + 'T00:00:00' | date:"EEEE d 'de' MMMM" }}</p>
+        </div>
+
+        <div class="selector-dia">
+            <button type="button" class="atajo" [class.activo]="fecha() === hoy" (click)="cambiarFecha(hoy)">Hoy</button>
+            <button type="button" class="atajo" [class.activo]="fecha() === manana" (click)="cambiarFecha(manana)">Mañana</button>
+            <label>
+                <span class="solo-lector">Día del reparto</span>
+                <input type="date" [value]="fecha()" (change)="cambiarFecha($any($event.target).value)" />
+            </label>
+        </div>
+    </header>
+
+    @if (cargando()) {
+        <p class="estado-carga" role="status">Cargando el reparto…</p>
+    } @else if (error()) {
+        <div class="estado-vacio">
+            <strong>No se pudo cargar el reparto</strong>
+            <span>Revisá que el servidor esté prendido y volvé a intentar.</span>
+            <button type="button" class="boton boton-secundario" (click)="cargar()">Reintentar</button>
+        </div>
+    } @else if (pedidos().length === 0) {
+        <div class="estado-vacio">
+            <strong>No hay entregas programadas para este día</strong>
+            <span>Programá los pedidos que ya tenés listos desde su detalle.</span>
+            <a class="boton boton-secundario" routerLink="/pedidos" [queryParams]="{ estado: 'A_COORDINAR', orden: 'id-asc' }">Ver pedidos a coordinar</a>
+        </div>
+    } @else {
+
+        <div class="resumen">
+            <div class="dato">
+                <span>Entregas</span>
+                <strong>{{ pedidos().length }}</strong>
+            </div>
+            <div class="dato">
+                <span>A cobrar</span>
+                <strong>{{ totalACobrar() | pesos }}</strong>
+            </div>
+            <div class="dato">
+                <span>Unidades a cargar</span>
+                <strong>{{ unidades() }}</strong>
+            </div>
+        </div>
+
+        <details class="cargar" open>
+            <summary>Mercadería a cargar</summary>
+            <ul>
+                @for (item of mercaderia(); track item.nombre) {
+                    <li><strong>{{ item.cantidad }}</strong> {{ item.nombre }}</li>
+                }
+            </ul>
+        </details>
+
+        <div class="recorrido">
+            <p>Salida de <strong>{{ salida }}</strong> y llegada a <strong>{{ llegada }}</strong>. Ordená las entregas con las flechas.</p>
+            <div class="links-recorrido">
+                @for (link of recorrido(); track link; let i = $index) {
+                    <a class="boton" [href]="link" target="_blank" rel="noopener">
+                        <app-icono nombre="mapa" [tamano]="18" />
+                        {{ recorrido().length === 1 ? 'Ver recorrido' : 'Tramo ' + (i + 1) + ' de ' + recorrido().length }}
+                    </a>
+                }
+            </div>
+        </div>
+
+        <ol class="entregas">
+            @for (pedido of pedidos(); track pedido.id; let i = $index; let primero = $first; let ultimo = $last) {
+                <li class="entrega" [class.atrasada]="esAtrasado(pedido)">
+                    <div class="orden">
+                        <button type="button" class="mover" [disabled]="primero" (click)="mover(i, -1)"
+                                [attr.aria-label]="'Subir a ' + pedido.nombreCliente">▲</button>
+                        <span class="posicion">{{ i + 1 }}</span>
+                        <button type="button" class="mover" [disabled]="ultimo" (click)="mover(i, 1)"
+                                [attr.aria-label]="'Bajar a ' + pedido.nombreCliente">▼</button>
+                    </div>
+
+                    <div class="contenido">
+                        <div class="fila-superior">
+                            <div class="destino">
+                                <a class="direccion" [routerLink]="['/pedidos', pedido.id]">{{ pedido.direccionCompleta }}</a>
+                                @if (pisoDepto(pedido); as piso) { <span class="piso">{{ piso }}</span> }
+                                <span class="cliente">{{ pedido.nombreCliente }} · #{{ pedido.id }}</span>
+                            </div>
+                            <div class="cobro">
+                                @if (saldo(pedido) > 0) {
+                                    <span>A cobrar</span>
+                                    <strong>{{ saldo(pedido) | pesos }}</strong>
+                                } @else {
+                                    <span class="pagado">Pagado</span>
+                                }
+                            </div>
+                        </div>
+
+                        @if (esAtrasado(pedido)) {
+                            <p class="aviso-atraso">Atrasado: era para el {{ pedido.fechaEntrega + 'T00:00:00' | date:'dd/MM' }}</p>
+                        }
+
+                        <ul class="productos">
+                            @for (detalle of pedido.detallePedido; track $index) {
+                                <li><strong>{{ detalle.cantidad }}</strong> {{ detalle.nombreProducto }}</li>
+                            }
+                        </ul>
+
+                        <div class="acciones">
+                            <button type="button" class="boton" [disabled]="procesando()" (click)="entregar(pedido)">Entregado</button>
+                            @if (saldo(pedido) > 0) {
+                                <a class="boton boton-secundario" [routerLink]="['/pedidos', pedido.id]" [queryParams]="{ cobrar: 1 }">Cobrar</a>
+                            }
+                            @if (telefonoLink(pedido); as telefono) {
+                                <a class="boton boton-secundario icono-solo" [href]="telefono" [attr.aria-label]="'Llamar a ' + pedido.nombreCliente" title="Llamar">
+                                    <app-icono nombre="telefono" [tamano]="18" />
+                                </a>
+                            }
+                            <button type="button" class="boton boton-secundario icono-solo" (click)="pedidoWhatsapp.set(pedido)"
+                                    [attr.aria-label]="'WhatsApp a ' + pedido.nombreCliente" title="WhatsApp">
+                                <app-icono nombre="mensaje" [tamano]="18" />
+                            </button>
+                            <button type="button" class="boton boton-secundario" (click)="pedidoReprogramar.set(pedido)">Reprogramar</button>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ol>
+    }
+
+</section>
+
+@if (pedidoWhatsapp(); as pedido) {
+    <app-modal-whatsapp
+        [pedido]="pedido"
+        [telefono]="pedido.telefonoCliente"
+        [plantillaInicial]="saldo(pedido) > 0 ? 'saldo' : 'detalle'"
+        (cerrar)="pedidoWhatsapp.set(null)"
+        (recordatorioRegistrado)="alRegistrarRecordatorio($event)" />
+}
+
+@if (pedidoReprogramar(); as pedido) {
+    <app-modal-programar-entrega [pedido]="pedido" (cerrar)="pedidoReprogramar.set(null)" (guardado)="alReprogramar()" />
+}

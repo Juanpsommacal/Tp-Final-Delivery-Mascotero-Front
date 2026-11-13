@@ -1,0 +1,140 @@
+<article class="contenedor-list">
+
+  <div class="encabezado">
+    <div>
+      <h2>Gestión de Usuarios</h2>
+      <p class="subtitulo">Visualizá las cuentas registradas y administrá sus permisos de acceso.</p>
+    </div>
+    <div class="resumen-chips">
+      <span class="chip chip-total">Total: {{ usuarios().length }}</span>
+      <span class="chip chip-admin">Admins: {{ totalAdmins() }}</span>
+      <span class="chip chip-user">Users: {{ totalUsers() }}</span>
+    </div>
+  </div>
+
+  <div class="filtros">
+    <label class="filtro-busqueda">
+      Buscar por nombre o email
+      <input
+        type="search"
+        placeholder="Ej: Pérez o usuario@correo.com"
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)"
+      />
+    </label>
+
+    <label class="filtro-rol">
+      Filtrar por rol
+      <select [value]="filtroRol()" (change)="filtroRol.set($any($event.target).value)">
+        <option value="TODOS">Todos los roles</option>
+        <option value="ADMIN">Solo Administradores</option>
+        <option value="USER">Solo Usuarios</option>
+      </select>
+    </label>
+  </div>
+
+  @if (cargando()) {
+    <div class="cargando">
+      <div class="spinner"></div>
+      <p>Cargando listado de usuarios...</p>
+    </div>
+  } @else {
+
+    <div class="tabla-contenedor">
+      <table class="tabla-usuarios">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th class="col-acciones">Acciones de Rol</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (usuario of usuariosFiltrados(); track usuario.id) {
+            <tr [class.fila-procesando]="procesandoId() === usuario.id">
+              <td>
+                <div class="usuario-info">
+                  <div class="avatar" [class.avatar-admin]="usuario.Role === 'ADMIN'">
+                    {{ usuario.nombre.charAt(0) }}{{ usuario.apellido.charAt(0) }}
+                  </div>
+                  <div>
+                    <span class="usuario-nombre">{{ usuario.nombre }} {{ usuario.apellido }}</span>
+                    <span class="usuario-id">ID #{{ usuario.id }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="usuario-email">{{ usuario.email }}</span>
+              </td>
+              <td>
+                @if (usuario.Role === 'ADMIN') {
+                  <span class="badge badge-admin">
+                    🛡️ ADMIN
+                  </span>
+                } @else {
+                  <span class="badge badge-user">
+                    👤 USER
+                  </span>
+                }
+              </td>
+              <td>
+                @if (usuario.active) {
+                  <span class="estado-tag estado-activo">Activo</span>
+                } @else {
+                  <span class="estado-tag estado-inactivo">Inactivo</span>
+                }
+              </td>
+              <td class="col-acciones">
+                <div class="acciones-grupo">
+                  @if (usuario.Role === 'ADMIN') {
+                    <button
+                      type="button"
+                      class="btn-accion btn-revocar"
+                      [disabled]="procesandoId() === usuario.id"
+                      (click)="cambiarRol(usuario)"
+                      title="Degradar a rol USER"
+                    >
+                      Quitar Admin
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn-accion btn-elevar"
+                      [disabled]="procesandoId() === usuario.id"
+                      (click)="cambiarRol(usuario)"
+                      title="Ascender a rol ADMIN"
+                    >
+                      Hacer Admin
+                    </button>
+                  }
+
+                  <button
+                    type="button"
+                    class="btn-accion btn-estado"
+                    [class.btn-dar-baja]="usuario.active"
+                    [class.btn-activar]="!usuario.active"
+                    [disabled]="procesandoId() === usuario.id"
+                    (click)="toggleEstado(usuario)"
+                    [title]="usuario.active ? 'Desactivar cuenta' : 'Activar cuenta'"
+                  >
+                    {{ usuario.active ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="vacio">
+                No se encontraron usuarios que coincidan con los filtros aplicados.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  }
+
+</article>

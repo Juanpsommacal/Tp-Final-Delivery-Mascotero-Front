@@ -1,0 +1,306 @@
+.contenedor-form {
+    max-width: 760px;
+    margin: 32px auto;
+    padding: 0 16px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    background-color: #fdfbf7;
+    min-width: 0;
+}
+
+legend {
+    font-weight: 700;
+    color: var(--color-primary);
+    padding: 0 6px;
+    font-size: 0.95rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+input,
+select {
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.95rem;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.error {
+    color: var(--color-danger);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.campo .error {
+    min-height: 1.2em;
+}
+
+.mensaje {
+    background-color: var(--color-danger-light);
+    border: 1px solid #f8b4b4;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.texto-secundario {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+}
+
+.centrado {
+    text-align: center;
+    padding: 12px;
+}
+
+/* Buscador de productos, mismo estilo que en ofertas-form */
+.sugerencias-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: white;
+    padding: 6px;
+}
+
+.sugerencia-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background-color: #faf7f2;
+}
+
+.sugerencia-item:hover {
+    background-color: var(--color-primary-light);
+}
+
+.sugerencia-item.ya-agregado {
+    opacity: 0.7;
+}
+
+.sugerencia-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.92rem;
+}
+
+.boton-agregar {
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-primary);
+    background-color: white;
+    color: var(--color-primary);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.boton-agregar:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.boton-agregar:disabled {
+    cursor: default;
+}
+
+/* Productos agregados a la compra */
+.items {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px dashed var(--color-border);
+    padding-top: 6px;
+    margin-top: 6px;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 1fr 80px 110px 100px 32px;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.item-error .cantidad,
+.item-error .precio {
+    border-color: var(--color-danger);
+}
+
+.cantidad,
+.precio {
+    width: 100%;
+    padding: 8px 10px;
+}
+
+.subtotal {
+    text-align: right;
+}
+
+.quitar {
+    border: none;
+    background: none;
+    color: var(--color-danger);
+    font-weight: 800;
+    cursor: pointer;
+    padding: 6px;
+}
+
+.vacio {
+    padding: 16px;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+}
+
+.total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 8px;
+    font-size: 1.1rem;
+}
+
+.total strong {
+    font-size: 1.4rem;
+    color: var(--color-primary);
+}
+
+.acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.etiqueta {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+}
+
+.encabezado-items {
+    padding: 6px 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+}
+
+.aviso-precio {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-accent-dark);
+}
+
+/* En pantallas chicas cantidad, precio y subtotal pasan abajo del nombre */
+@media (max-width: 560px) {
+    .item {
+        grid-template-columns: 1fr 1fr 32px;
+    }
+
+    .item-info,
+    .encabezado-items {
+        grid-column: 1 / -1;
+    }
+
+    .encabezado-items {
+        display: none;
+    }
+
+    .subtotal {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Celular: menos cajas dentro de cajas, sin scroll dentro del scroll y botones fáciles de tocar */
+@media (max-width: 600px) {
+    .contenedor-form {
+        margin-top: 16px;
+        padding: 0 12px;
+    }
+
+    form,
+    .formulario {
+        min-width: 0;
+        padding: 16px;
+    }
+
+    fieldset {
+        min-width: 0;
+        padding: 14px 12px;
+    }
+
+    .sugerencias-lista {
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    .boton-agregar {
+        min-height: 44px;
+        padding-inline: 14px;
+    }
+}

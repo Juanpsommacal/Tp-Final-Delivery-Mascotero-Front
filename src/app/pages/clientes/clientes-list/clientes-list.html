@@ -1,0 +1,111 @@
+<article class="contenedor-list">
+
+    <div class="encabezado">
+        <h1>Clientes</h1>
+        <a class="boton" routerLink="/clientes/nuevo">Nuevo cliente</a>
+    </div>
+
+    <div class="filtros">
+        <label class="buscar">
+            Buscar por nombre o teléfono
+            <input type="search" placeholder="Ej: Pérez o 2235551234"
+                   [value]="busqueda()" (input)="busqueda.set($any($event.target).value)" />
+        </label>
+
+        <label class="switch">
+            <input type="checkbox" role="switch"
+                   [checked]="soloConDeuda()"
+                   (change)="soloConDeuda.set($any($event.target).checked)" />
+            <span class="switch-pista" aria-hidden="true"></span>
+            Solo los que deben
+        </label>
+    </div>
+
+    @if (tabla.cargando()) {
+        <app-skeleton-lista modo="tabla" [cantidad]="8" texto="Cargando clientes…" />
+    } @else if (tabla.filasPagina().length === 0) {
+        @if (hayFiltros()) {
+            <div class="estado-vacio">
+                <strong>Ningún cliente con esos filtros</strong>
+                <span>Probá con otra búsqueda o limpiá los filtros.</span>
+                <button type="button" class="boton boton-secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+            </div>
+        } @else {
+            <div class="estado-vacio">
+                <strong>Todavía no hay clientes cargados</strong>
+                <a class="boton" routerLink="/clientes/nuevo">Cargar el primer cliente</a>
+            </div>
+        }
+    } @else {
+        <p class="resumen" aria-live="polite">
+            {{ tabla.rango().total }} {{ tabla.rango().total === 1 ? 'cliente' : 'clientes' }}
+        </p>
+
+        <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
+
+        <div class="tabla-contenedor" [attr.aria-busy]="tabla.actualizando()">
+            <table class="tabla-datos">
+                <caption class="solo-lector">Clientes. Los encabezados con botón cambian el orden.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" [attr.aria-sort]="tabla.ariaOrden('nombre')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('nombre')">
+                                Cliente <span class="flecha" aria-hidden="true">{{ tabla.flecha('nombre') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col">Teléfono</th>
+                        <th scope="col" class="col-fecha" [attr.aria-sort]="tabla.ariaOrden('ultimo')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('ultimo')">
+                                Último pedido <span class="flecha" aria-hidden="true">{{ tabla.flecha('ultimo') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('pedidos')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('pedidos')">
+                                Pedidos <span class="flecha" aria-hidden="true">{{ tabla.flecha('pedidos') }}</span>
+                            </button>
+                        </th>
+                        <th scope="col" class="col-monto" [attr.aria-sort]="tabla.ariaOrden('deuda')">
+                            <button type="button" class="orden" (click)="tabla.ordenarPor('deuda')">
+                                Debe <span class="flecha" aria-hidden="true">{{ tabla.flecha('deuda') }}</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (fila of tabla.filasPagina(); track fila.cliente.id) {
+                        <tr class="clicable" (click)="abrir(fila.cliente)">
+                            <td class="m-principal">
+                                <a class="celda-titulo" [routerLink]="['/clientes', fila.cliente.id]" (click)="$event.stopPropagation()">
+                                    {{ fila.cliente.nombre }} {{ fila.cliente.apellido }}
+                                </a>
+                            </td>
+                            <td class="numerico"><a class="telefono" [href]="'tel:' + fila.cliente.telefono" (click)="$event.stopPropagation()">{{ telefonoVisible(fila.cliente.telefono) }}</a></td>
+                            <td class="ultimo-pedido">
+                                @if (fila.ultimoPedido; as fecha) {
+                                    <a class="fecha-pedido" [routerLink]="['/pedidos', fila.ultimoPedidoId]" (click)="$event.stopPropagation()"
+                                       [attr.aria-label]="'Último pedido, número ' + fila.ultimoPedidoId + ', del ' + (fecha | date:'dd/MM/yyyy')">
+                                        {{ fecha | date:'dd/MM/yy' }}
+                                    </a>
+                                    <span class="celda-detalle">{{ haceCuanto(fecha) }}</span>
+                                } @else {
+                                    <span class="celda-secundaria">Sin pedidos</span>
+                                }
+                            </td>
+                            <td class="col-monto m-ocultar">{{ fila.pedidos }}</td>
+                            <td class="col-monto m-lateral" [class.con-deuda]="fila.deuda > 0">
+                                @if (fila.deuda > 0) {
+                                    {{ fila.deuda | pesos }}
+                                } @else {
+                                    <span class="sin-dato">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <app-paginacion [tabla]="tabla" nombre="clientes" />
+    }
+
+</article>

@@ -1,0 +1,307 @@
+.reparto {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.encabezado {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.encabezado p {
+    color: var(--color-text-muted);
+}
+
+.selector-dia {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.atajo {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background-color: white;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+
+.atajo.activo {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.selector-dia input {
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: white;
+    font: inherit;
+}
+
+.estado-carga {
+    color: var(--color-text-muted);
+}
+
+.resumen {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.dato {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary-light);
+}
+
+.dato span {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.dato strong {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    overflow-wrap: anywhere;
+}
+
+.cargar,
+.recorrido,
+.entrega {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.cargar {
+    padding: 14px 18px;
+}
+
+.cargar summary {
+    min-height: 28px;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    cursor: pointer;
+}
+
+.cargar ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 6px 18px;
+    margin-top: 10px;
+    list-style: none;
+}
+
+.recorrido {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+}
+
+.recorrido p {
+    flex: 1 1 280px;
+    font-size: 0.92rem;
+    color: var(--color-text-muted);
+}
+
+.recorrido strong {
+    color: var(--color-text);
+}
+
+.links-recorrido {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.links-recorrido .boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.entregas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    list-style: none;
+}
+
+.entrega {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+}
+
+.entrega.atrasada {
+    border-color: var(--color-accent);
+}
+
+.orden {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.mover {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: white;
+    color: var(--color-primary);
+    cursor: pointer;
+}
+
+.mover:disabled {
+    color: var(--color-border);
+    cursor: default;
+}
+
+.posicion {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.contenido {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fila-superior {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.destino {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.direccion {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-text);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.direccion:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.piso,
+.cliente {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.cobro {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+}
+
+.cobro strong {
+    font-size: 1.05rem;
+    color: var(--color-text);
+}
+
+.pagado {
+    font-weight: 700;
+    color: var(--color-success);
+}
+
+.aviso-atraso {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+}
+
+.productos {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-alt);
+    font-size: 0.92rem;
+    list-style: none;
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.acciones .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+}
+
+.icono-solo {
+    min-width: 44px;
+    padding-inline: 0;
+}
+
+@media (max-width: 480px) {
+    .resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .resumen .dato:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .entrega {
+        gap: 10px;
+        padding: 12px;
+    }
+}

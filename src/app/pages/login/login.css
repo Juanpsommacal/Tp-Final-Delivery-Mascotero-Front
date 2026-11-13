@@ -1,0 +1,286 @@
+.login-contenedor {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 140px 16px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card-wrapper {
+  --ancho-gatito: 104px;
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ========================================================
+   Gatito en patineta
+   La pista es el borde de arriba de la tarjeta: el skate apoya justo ahí
+   ======================================================== */
+.pista-gatito {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: calc(100% - 1px);
+  height: 116px;
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* Va de punta a punta de la pista y vuelve */
+.gatito-recorrido {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--ancho-gatito);
+  animation: pasear 9s ease-in-out infinite;
+}
+
+/* Da vuelta al gatito en cada punta para que mire hacia donde va */
+.gatito-sentido {
+  animation: darVuelta 9s steps(1, end) infinite;
+}
+
+.gatito-skate {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 3px 2px rgba(29, 35, 38, 0.12));
+  animation: traqueteo 0.5s ease-in-out infinite alternate;
+}
+
+/* Las 4 posiciones del recorrido usan el ancho real de la pista (100% del padre - ancho del gatito) */
+@keyframes pasear {
+  0%, 6% { transform: translateX(0); }
+  46%, 56% { transform: translateX(calc(min(400px, 100vw - 52px) - var(--ancho-gatito))); }
+  96%, 100% { transform: translateX(0); }
+}
+
+@keyframes darVuelta {
+  0% { transform: scaleX(1); }
+  51% { transform: scaleX(-1); }
+}
+
+/* Pequeño rebote del skate sobre el borde */
+@keyframes traqueteo {
+  from { transform: translateY(0) rotate(0deg); }
+  to { transform: translateY(-1px) rotate(-0.6deg); }
+}
+
+.rueda {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: girarRueda 0.6s linear infinite;
+}
+
+@keyframes girarRueda {
+  to { transform: rotate(360deg); }
+}
+
+.cola {
+  transform-box: fill-box;
+  transform-origin: 90% 100%;
+  animation: moverCola 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes moverCola {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(7deg); }
+}
+
+.anteojos {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ojos {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+/* Login incorrecto: frena en seco, se baja los anteojos despacio, entrecierra los ojos y niega con la cola */
+.login-card-wrapper[data-estado='frenando'] .gatito-recorrido,
+.login-card-wrapper[data-estado='frenando'] .gatito-sentido,
+.login-card-wrapper[data-estado='frenando'] .rueda {
+  animation-play-state: paused;
+}
+
+.login-card-wrapper[data-estado='frenando'] .gatito-skate {
+  animation: frenar 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.login-card-wrapper[data-estado='frenando'] .anteojos {
+  transform: translateY(22px);
+  transition: transform 0.55s cubic-bezier(0.33, 0, 0.2, 1) 0.25s;
+}
+
+.login-card-wrapper[data-estado='frenando'] .ojos {
+  opacity: 1;
+  transition: opacity 0.1s linear 0.5s;
+}
+
+.login-card-wrapper[data-estado='frenando'] .cola {
+  animation: negarCola 1.1s ease-in-out 0.6s both;
+}
+
+@keyframes negarCola {
+  0%, 100% { transform: rotate(0deg); }
+  16%, 62% { transform: rotate(-13deg); }
+  39%, 84% { transform: rotate(8deg); }
+}
+
+@keyframes frenar {
+  0% { transform: rotate(0deg); }
+  35% { transform: rotate(-9deg) translateX(-4px); }
+  65% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Login correcto: toma envión y sale hacia donde esté mirando */
+.login-card-wrapper[data-estado='saliendo'] .gatito-recorrido,
+.login-card-wrapper[data-estado='saliendo'] .gatito-sentido {
+  animation-play-state: paused;
+}
+
+.login-card-wrapper[data-estado='saliendo'] .gatito-skate {
+  animation: irse 0.75s cubic-bezier(0.55, 0, 0.75, 0.2) forwards;
+}
+
+@keyframes irse {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-10px, -16px) rotate(-12deg); }
+  45% { transform: translate(30px, 0) rotate(0deg); }
+  100% { transform: translate(110vw, 0) rotate(0deg); }
+}
+
+/* ========================================================
+   Tarjeta del formulario
+   ======================================================== */
+.login-card {
+  width: 100%;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 30px 28px 26px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.login-card-wrapper[data-estado='frenando'] .login-card {
+  animation: sacudir 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes sacudir {
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.login-card-wrapper[data-estado='saliendo'] .login-card {
+  transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+  opacity: 0.4;
+  transform: translateY(6px);
+}
+
+.login-header h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.login-header p {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.campo input {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.95rem;
+  background-color: #faf7f2;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.campo input:focus {
+  background-color: white;
+}
+
+.campo input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.boton-submit {
+  width: 100%;
+  padding: 11px;
+  font-size: 1rem;
+  margin-top: 6px;
+}
+
+.error-banner {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid #f8b4b4;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.error-banner[hidden] {
+  display: none;
+}
+
+.pie-login {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.pie-login a {
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+/* Sin animaciones: el gatito queda quieto en el medio de la tarjeta */
+@media (prefers-reduced-motion: reduce) {
+  .gatito-recorrido {
+    left: calc(50% - var(--ancho-gatito) / 2);
+    animation: none !important;
+  }
+
+  .gatito-sentido,
+  .gatito-skate,
+  .rueda,
+  .cola {
+    animation: none !important;
+  }
+
+  .anteojos,
+  .ojos {
+    transition: none !important;
+  }
+}

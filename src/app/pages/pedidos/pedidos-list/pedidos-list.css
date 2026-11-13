@@ -1,0 +1,491 @@
+.contenedor-list {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 16px;
+}
+
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.encabezado h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.filtros label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1 1 220px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.filtros input,
+.filtros select {
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.95rem;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.filtros input:focus,
+.filtros select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* Switch "Mostrar cancelados": checkbox nativo con forma de interruptor */
+.filtros .switch {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    align-self: flex-end;
+    gap: 10px;
+    min-height: 44px;
+    cursor: pointer;
+}
+
+.switch input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.switch-pista {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    background-color: var(--color-border);
+    transition: background-color 0.2s ease;
+}
+
+.switch-pista::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease;
+}
+
+.switch input:checked + .switch-pista {
+    background-color: var(--color-primary);
+}
+
+.switch input:checked + .switch-pista::after {
+    transform: translateX(18px);
+}
+
+.switch input:focus-visible + .switch-pista {
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+    outline: 2px solid var(--color-primary);
+}
+
+/* El buscador ocupa mas lugar que los selects de estado */
+.filtros .buscar {
+    flex: 2 1 280px;
+}
+
+.filtro-fechas {
+    display: block;
+    flex: 1 1 320px;
+}
+
+.resumen {
+    margin-bottom: 12px;
+    font-size: 0.92rem;
+    color: var(--color-text-muted);
+}
+
+.resumen strong {
+    color: var(--color-danger);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================================
+   Tabla de pedidos
+   ======================================================== */
+.tabla-contenedor {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+.tabla-pedidos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+}
+
+.tabla-pedidos thead th {
+    position: sticky;
+    top: 0;
+    padding: 0;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    background-color: var(--color-bg-alt);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+/* Las columnas sin orden igualan el padding del botón */
+.tabla-pedidos thead th:not(:has(.orden)) {
+    padding: 11px 14px;
+}
+
+.orden {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    cursor: pointer;
+}
+
+.col-monto .orden {
+    justify-content: flex-end;
+}
+
+.orden:hover {
+    color: var(--color-primary);
+}
+
+.flecha {
+    display: inline-block;
+    min-width: 0.8em;
+    font-size: 0.65rem;
+    color: var(--color-primary);
+}
+
+.tabla-pedidos tbody tr {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.tabla-pedidos tbody tr:hover {
+    background-color: #f5fafb;
+}
+
+.tabla-pedidos tbody tr:not(:last-child) td {
+    border-bottom: 1px solid #efe7da;
+}
+
+.tabla-pedidos td {
+    padding: 12px 14px;
+    vertical-align: middle;
+}
+
+.col-numero {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.enlace-fila {
+    font-weight: 800;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.enlace-fila:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.col-fecha {
+    white-space: nowrap;
+    color: var(--color-text-muted);
+}
+
+.col-cliente {
+    min-width: 200px;
+}
+
+.cliente {
+    display: block;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.direccion {
+    display: block;
+    font-size: 0.84rem;
+    color: var(--color-text-muted);
+}
+
+.col-monto {
+    text-align: right;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.con-saldo {
+    color: var(--color-danger);
+    font-weight: 700;
+}
+
+.sin-dato {
+    color: #a3aeb2;
+}
+
+.tabla-pedidos tr.cancelado td {
+    color: var(--color-text-muted);
+}
+
+.tabla-pedidos tr.cancelado .cliente {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(91, 106, 113, 0.5);
+}
+
+.saldo-celda {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.saldo-celda > span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.recordado {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.boton-wa-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: #12784a;
+    cursor: pointer;
+}
+
+.boton-wa-icono:hover {
+    background-color: #e8f5ee;
+    border-color: #b7dcc6;
+}
+
+/* ========================================================
+   Mobile: cada fila pasa a ser un bloque compacto de 2 líneas
+   ======================================================== */
+@media (max-width: 720px) {
+    .tabla-contenedor {
+        overflow: visible;
+    }
+
+    /* El orden se elige con "Ordenar por": los encabezados no se muestran ni reciben foco */
+    .tabla-pedidos thead {
+        display: none;
+    }
+
+    .enlace-fila {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        margin-block: -12px;
+    }
+
+    /* Fila 1: cliente y total. Fila 2: número, estados y saldo */
+    .tabla-pedidos tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #efe7da;
+    }
+
+    .tabla-pedidos tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .tabla-pedidos td {
+        padding: 0;
+        border: none !important;
+    }
+
+    /* Cliente + total suman el 100% de la fila, así el número baja a la segunda línea */
+    .tabla-pedidos td.col-cliente { order: 1; flex: 0 0 calc(100% - 120px); min-width: 0; }
+    .tabla-pedidos td[data-titulo="Total"] { order: 2; flex: 0 0 110px; }
+    .tabla-pedidos td.col-numero { order: 3; width: auto; flex: 0 0 auto; }
+    .tabla-pedidos td[data-titulo="Entrega"] { order: 4; }
+    .tabla-pedidos td[data-titulo="Pago"] { order: 5; }
+    .tabla-pedidos td[data-titulo="Saldo"] { order: 6; margin-left: auto; }
+    .tabla-pedidos td.col-fecha { display: none; }
+
+    .tabla-pedidos td .sin-dato {
+        display: none;
+    }
+}
+
+/* Accesos a cada etapa del pedido */
+.etapas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.etapa {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    font: inherit;
+    color: var(--color-text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.etapa:hover {
+    border-color: var(--color-primary);
+}
+
+.etapa.activa {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.etapa-cantidad {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.etapa-texto {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.etapa-texto span {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+}
+
+.para-conseguir {
+    margin-bottom: 20px;
+    padding: 16px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-accent-light);
+}
+
+.para-conseguir-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.para-conseguir h2 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-accent-dark);
+}
+
+.para-conseguir ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+}
+
+.para-conseguir li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 10px;
+}
+
+.faltan {
+    font-weight: 800;
+    color: var(--color-accent-dark);
+}
+
+.producto-falta {
+    font-weight: 700;
+}
+
+.detalle-falta {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.fecha-entrega,
+.ya-alcanza {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.fecha-entrega {
+    color: var(--color-primary);
+}
+
+.ya-alcanza {
+    color: var(--color-success);
+}
+
+@media (max-width: 720px) {
+    .etapas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fecha-entrega,
+    .ya-alcanza {
+        display: inline;
+        margin: 0 0 0 6px;
+    }
+}

@@ -1,0 +1,114 @@
+<article class="contenedor-list">
+  <div class="encabezado">
+    <h1>Proveedores</h1>
+    <a class="boton" routerLink="/proveedores/nuevo">Nuevo proveedor</a>
+  </div>
+
+  <div class="filtros">
+    <label class="buscar">
+      Buscar por nombre o teléfono
+      <input
+        type="search"
+        placeholder="Ej: Distribuidora Sur"
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)"
+      />
+    </label>
+
+    <label class="switch">
+      <input type="checkbox" role="switch"
+             [checked]="mostrarInactivos()"
+             (change)="mostrarInactivos.set($any($event.target).checked)" />
+      <span class="switch-pista" aria-hidden="true"></span>
+      Mostrar dados de baja
+    </label>
+  </div>
+
+  @if (cargando()) {
+    <app-skeleton-lista modo="tabla" [cantidad]="5" texto="Cargando proveedores…" />
+  } @else if (proveedoresFiltrados().length === 0) {
+    @if (busqueda()) {
+      <div class="estado-vacio">
+        <strong>Ningún proveedor coincide con "{{ busqueda() }}"</strong>
+        <button type="button" class="boton boton-secundario" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+    } @else if (proveedores().length > 0) {
+      <div class="estado-vacio">
+        <strong>No hay proveedores activos</strong>
+        <span>Prendé "Mostrar dados de baja" para ver los demás.</span>
+      </div>
+    } @else {
+      <div class="estado-vacio">
+        <strong>Todavía no hay proveedores</strong>
+        <a class="boton" routerLink="/proveedores/nuevo">Cargar el primer proveedor</a>
+      </div>
+    }
+  } @else {
+    <p class="resumen" aria-live="polite">
+      {{ tabla.rango().total }} {{ tabla.rango().total === 1 ? 'proveedor' : 'proveedores' }}
+    </p>
+
+    <app-orden-mobile [valor]="tabla.ordenActual()" [opciones]="opcionesOrden" (cambio)="tabla.ordenarComo($event)" />
+
+    <div class="tabla-contenedor">
+      <table class="tabla-datos">
+        <caption class="solo-lector">Proveedores. Los encabezados con botón cambian el orden.</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="col-numero" [attr.aria-sort]="tabla.ariaOrden('id')">
+              <button type="button" class="orden" (click)="tabla.ordenarPor('id')">
+                N.º <span class="flecha" aria-hidden="true">{{ tabla.flecha('id') }}</span>
+              </button>
+            </th>
+            <th scope="col" [attr.aria-sort]="tabla.ariaOrden('nombre')">
+              <button type="button" class="orden" (click)="tabla.ordenarPor('nombre')">
+                Proveedor <span class="flecha" aria-hidden="true">{{ tabla.flecha('nombre') }}</span>
+              </button>
+            </th>
+            <th scope="col">Teléfono</th>
+            <th scope="col">Estado</th>
+            <th scope="col" class="col-acciones"><span class="solo-lector">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (proveedor of tabla.filasPagina(); track proveedor.id) {
+            <tr [class.inactiva]="!proveedor.activo">
+              <td class="col-numero m-ocultar">{{ proveedor.id }}</td>
+              <td class="m-principal"><span class="celda-titulo">{{ proveedor.nombre }}</span></td>
+              <td class="numerico">
+                @if (proveedor.telefono) { {{ proveedor.telefono }} } @else { <span class="sin-dato">—</span> }
+              </td>
+              <td>
+                <span class="chip" [class.chip-exito]="proveedor.activo" [class.chip-apagado]="!proveedor.activo">
+                  {{ proveedor.activo ? 'Activo' : 'Dado de baja' }}
+                </span>
+              </td>
+              <td class="col-acciones m-final">
+                <div class="acciones-celda">
+                  <a class="boton boton-secundario boton-sm" [routerLink]="['/proveedores', proveedor.id, 'editar']"
+                     [attr.aria-label]="'Editar ' + proveedor.nombre">
+                    Editar
+                  </a>
+                  <!-- Uno dado de baja ya no se puede eliminar de nuevo -->
+                  @if (proveedor.activo) {
+                    <button
+                      type="button"
+                      class="boton boton-peligro boton-sm"
+                      [attr.aria-label]="'Eliminar ' + proveedor.nombre"
+                      [disabled]="eliminandoId() === proveedor.id"
+                      (click)="eliminarProveedor(proveedor)"
+                    >
+                      {{ eliminandoId() === proveedor.id ? 'Eliminando…' : 'Eliminar' }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <app-paginacion [tabla]="tabla" nombre="proveedores" />
+  }
+</article>

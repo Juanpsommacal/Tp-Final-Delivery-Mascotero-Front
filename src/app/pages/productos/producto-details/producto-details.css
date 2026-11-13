@@ -1,0 +1,76 @@
+.contenedor-detalle {
+    max-width: 680px;
+    margin: 32px auto;
+    padding: 0 16px;
+}
+
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+.detalle h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.tipo {
+    align-self: flex-start;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.precio {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.precio.oferta {
+    color: var(--color-accent);
+}
+
+.precio-anterior {
+    font-size: 1.1rem;
+    text-decoration: line-through;
+    color: var(--color-text-muted);
+}
+
+.datos {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 12px 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.datos dt {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.datos dd {
+    color: var(--color-text);
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}

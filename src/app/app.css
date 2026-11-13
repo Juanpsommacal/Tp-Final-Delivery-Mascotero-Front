@@ -1,22 +1,61 @@
 .contenedor-general {
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    grid-template-areas: 
-        'header'
-        'main'
-        'footer';
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    width: 100%;
+}
+
+/* En el inicio / login (sin sesión): distribución vertical normal con header arriba y footer abajo */
+.contenedor-general.sin-auth {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
 }
 
-#header {
-    grid-area: header;
+/* Área de contenido principal a la derecha del sidebar */
+.contenido-principal {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #main {
-    grid-area: main;
-    background-color: #ebeca8;
+    flex: 1;
+    min-width: 0;
+    background-color: var(--color-bg);
 }
 
 #footer {
-    grid-area: footer;
+    margin-top: auto;
+    width: 100%;
+}
+
+/* Márgenes adaptados al sidebar en Desktop (autenticado) */
+@media (min-width: 992px) {
+    .contenido-principal {
+        margin-left: 260px;
+    }
+
+    .contenedor-general.sidebar-compacto .contenido-principal,
+    .sidebar-compacto .contenido-principal,
+    :host-context(.sidebar-compacto) .contenido-principal {
+        margin-left: 74px;
+    }
+}
+
+/* En Mobile: sin margen lateral, con espacio arriba para la barra superior */
+@media (max-width: 991px) {
+    .contenido-principal {
+        margin-left: 0;
+        padding-top: 58px;
+    }
+}
+
+/* En login sin autenticar: sin márgenes laterales ni espaciados de sidebar */
+.contenedor-general.sin-auth .contenido-principal {
+    margin-left: 0 !important;
+    padding-top: 0 !important;
 }

@@ -2,7 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
-import { AuthService } from '../../services/auth-service';
+import { AuthService } from '../../services/authentication/auth-service';
+import { AlertaService } from '../../services/alerta/alerta-service';
 import { noVacio } from '../../validators/producto-validators';
 import { clavesIguales, SOLO_LETRAS } from '../../validators/usuario-validators';
 import { extraerMensajeError } from '../../utils/error-util';
@@ -17,6 +18,7 @@ export class Registro {
 
   private fb = inject(FormBuilder)
   private auth = inject(AuthService)
+  private alertaService = inject(AlertaService)
   private router = inject(Router)
 
   guardando = signal(false)
@@ -33,24 +35,24 @@ export class Registro {
 
   private mensajes: Record<string, Record<string, string>> = {
     'nombre': {
-      required: 'El nombre no puede estar vacio',
-      noVacio: 'El nombre no puede estar vacio',
+      required: 'El nombre no puede estar vacío',
+      noVacio: 'El nombre no puede estar vacío',
       pattern: 'El nombre solo puede contener letras',
       maxlength: 'El nombre no puede exceder los 30 caracteres'
     },
     'apellido': {
-      required: 'El apellido no puede estar vacio',
-      noVacio: 'El apellido no puede estar vacio',
+      required: 'El apellido no puede estar vacío',
+      noVacio: 'El apellido no puede estar vacío',
       pattern: 'El apellido solo puede contener letras',
       maxlength: 'El apellido no puede exceder los 30 caracteres'
     },
     'email': {
-      required: 'El email no puede estar vacio',
-      email: 'El email no es valido',
+      required: 'El email no puede estar vacío',
+      email: 'El email no es válido',
       maxlength: 'El mail no puede exceder los 40 caracteres'
     },
     'password': {
-      required: 'La contraseña no puede estar vacia',
+      required: 'La contraseña no puede estar vacía',
       minlength: 'La contraseña debe contener entre 3 y 8 caracteres',
       maxlength: 'La contraseña debe contener entre 3 y 8 caracteres'
     },
@@ -62,7 +64,7 @@ export class Registro {
     if (!control?.touched || !control.errors) return null
 
     const error = Object.keys(control.errors)[0]
-    return this.mensajes[campo]?.[error] ?? 'Valor invalido'
+    return this.mensajes[campo]?.[error] ?? 'Valor inválido'
   }
 
   errorClaves(): boolean {
@@ -90,8 +92,8 @@ export class Registro {
     this.auth.register(datos).pipe(
       switchMap(() => this.auth.login({ email: datos.email, password: datos.password }))
     ).subscribe({
-      next: () => {
-        alert('Cuenta creada correctamente')
+      next: async () => {
+        await this.alertaService.exito('Cuenta creada correctamente')
         this.router.navigate(['/productos'])
       },
       error: (error) => {

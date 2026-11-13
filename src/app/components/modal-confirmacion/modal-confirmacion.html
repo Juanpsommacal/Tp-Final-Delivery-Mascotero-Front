@@ -1,0 +1,57 @@
+@if (estaVisible()) {
+  <div class="modal-overlay" (appCerrarAlFondo)="alCancelar()">
+    <div
+      #tarjeta
+      class="modal-tarjeta"
+      [class]="'tipo-' + datosModal().tipo"
+      (click)="$event.stopPropagation()"
+      (keydown)="alTeclear($event)"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirmacion-titulo"
+      aria-describedby="confirmacion-mensaje"
+    >
+      <div class="modal-cabecera">
+        <div class="icono-contenedor" [class]="'icono-' + datosModal().tipo">
+          <app-icono [nombre]="datosModal().icono" />
+        </div>
+        <div class="texto-cabecera">
+          <h3 class="modal-titulo" id="confirmacion-titulo">{{ datosModal().titulo }}</h3>
+        </div>
+        <button
+          type="button"
+          class="boton-cerrar"
+          aria-label="Cerrar"
+          (click)="alCancelar()"
+        >
+          <app-icono nombre="cerrar" [tamano]="18" />
+        </button>
+      </div>
+
+      <div class="modal-cuerpo">
+        <p class="modal-mensaje" id="confirmacion-mensaje">{{ datosModal().mensaje }}</p>
+      </div>
+
+      <div class="modal-acciones">
+        <button
+          #botonCancelar
+          type="button"
+          class="boton boton-secundario"
+          (click)="alCancelar()"
+        >
+          {{ datosModal().textoCancelar }}
+        </button>
+        <button
+          #botonConfirmar
+          type="button"
+          class="boton"
+          [class.boton-peligro]="datosModal().tipo === 'peligro'"
+          [class.boton-accent]="datosModal().tipo === 'advertencia'"
+          (click)="alConfirmar()"
+        >
+          {{ datosModal().textoConfirmar }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

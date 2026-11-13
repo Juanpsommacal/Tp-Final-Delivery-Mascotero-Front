@@ -1,15 +1,19 @@
-<div class="contenedor-general">
+<div class="contenedor-general"
+     [class.sin-auth]="!auth.logueado()"
+     [class.sidebar-compacto]="sidebar.colapsado()">
 
-  <div id="header">
-    <app-header></app-header>
+  <app-header></app-header>
+
+  <div class="contenido-principal">
+    <main id="main">
+      <router-outlet></router-outlet>
+    </main>
+
+    <div id="footer">
+      <app-footer></app-footer>
+    </div>
   </div>
 
-  <main id="main">
-    <router-outlet></router-outlet>
-  </main>
-
-  <div id="footer">
-    <app-footer></app-footer>
-  </div>
-
+  <app-modal-confirmacion></app-modal-confirmacion>
+  <app-modal-alerta></app-modal-alerta>
 </div>

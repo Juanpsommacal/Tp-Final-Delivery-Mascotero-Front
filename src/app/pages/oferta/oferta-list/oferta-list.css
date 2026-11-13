@@ -1,0 +1,17 @@
+/* La tabla, los filtros y la paginación vienen de styles.css (.contenedor-list / .tabla-datos) */
+
+.descripcion {
+    max-width: 360px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.descuento {
+    font-weight: 800;
+    color: var(--color-accent-dark);
+}
+
+.celda-secundaria {
+    color: var(--color-text-muted);
+}

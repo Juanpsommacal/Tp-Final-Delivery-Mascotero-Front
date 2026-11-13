@@ -1,0 +1,21 @@
+/* La tabla, los filtros y la paginación vienen de styles.css (.contenedor-list / .tabla-datos) */
+
+.precio-oferta {
+    display: block;
+    color: var(--color-accent-dark);
+    font-weight: 700;
+}
+
+.stock {
+    font-size: 0.93rem;
+}
+
+.solo-mobile {
+    display: none;
+}
+
+@media (max-width: 720px) {
+    .solo-mobile {
+        display: inline;
+    }
+}
