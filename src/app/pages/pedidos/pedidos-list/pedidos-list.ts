@@ -60,7 +60,7 @@ export class PedidosList {
   contadores = signal<Partial<Record<EstadoPedido, number>>>({})
   faltantes = signal<FaltanteProducto[]>([])
 
-  // Pedido con el modal de WhatsApp abierto (siempre con la plantilla de saldo)
+  // Pedido con el modal de WhatsApp abierto
   pedidoWhatsapp = signal<Pedido | null>(null)
   readonly haceCuanto = haceCuanto
 
