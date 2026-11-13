@@ -48,7 +48,7 @@ export class Home implements OnInit {
   conStockBajo = signal<Producto[]>([])
   cantidadStockBajo = signal(0)
 
-  // Pedido con el modal de WhatsApp abierto (siempre con la plantilla de saldo)
+  // Pedido con el modal de WhatsApp abierto
   pedidoWhatsapp = signal<Pedido | null>(null)
   readonly haceCuanto = haceCuanto
 

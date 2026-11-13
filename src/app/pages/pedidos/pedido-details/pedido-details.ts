@@ -107,7 +107,7 @@ export class PedidoDetails implements OnInit {
     return valor && valor !== 'Sin especificar' ? valor : null
   })
 
-  // WhatsApp abre con el recordatorio si hay saldo, si no con el detalle del pedido
+  // WhatsApp abre por defecto con el detalle del pedido
   abrirWhatsapp() {
     const pedido = this.pedido()
     this.modalWhatsapp.set(pedido && pedido.estadoPedido !== 'CANCELADO' && this.saldo() > 0 ? 'saldo' : 'detalle')

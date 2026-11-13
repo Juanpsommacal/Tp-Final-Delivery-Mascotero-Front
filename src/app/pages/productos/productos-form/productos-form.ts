@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ProductosService, ProductoRequest } from '../../../services/productos/productos-service';
 import { AlertaService } from '../../../services/alerta/alerta-service';
 import {
@@ -9,6 +10,7 @@ import {
 } from '../../../models/Enums';
 import Alimento from '../../../models/Alimento';
 import Antipulgas from '../../../models/Antipulgas';
+import Producto from '../../../models/Producto';
 import { digitos, noVacio, rangoPeso } from '../../../validators/producto-validators';
 import { extraerMensajeError } from '../../../utils/error-util';
 import { FormatoEnumPipe } from '../../../pipes/formato-enum-pipe';
@@ -72,7 +74,8 @@ export class ProductosForm implements OnInit {
     'nombre': {
       required: 'El nombre no puede estar vacío',
       noVacio: 'El nombre no puede estar vacío',
-      maxlength: 'El nombre no puede exceder los 30 caracteres'
+      maxlength: 'El nombre no puede exceder los 30 caracteres',
+      duplicado: 'Ya existe un producto con el mismo nombre, marca, tipo y tipo de animal'
     },
     'descripcion': { maxlength: 'La descripción no puede exceder los 100 caracteres' },
     'precio': {
@@ -112,12 +115,27 @@ export class ProductosForm implements OnInit {
     'antipulgas.tipoAntipulgas': { required: 'El tipo de antipulgas no puede estar vacío' },
   }
 
+  private productosExistentes: Producto[] = []
+
   constructor() {
     this.formulario.controls.alimento.disable()
     this.formulario.controls.antipulgas.disable()
+
+    this.formulario.valueChanges.subscribe(() => {
+      if (this.formulario.controls.nombre.hasError('duplicado')) {
+        const errores = { ...this.formulario.controls.nombre.errors }
+        delete errores['duplicado']
+        this.formulario.controls.nombre.setErrors(Object.keys(errores).length ? errores : null)
+      }
+      if (this.mensaje()) {
+        this.mensaje.set('')
+      }
+    })
   }
 
   ngOnInit(): void {
+    this.cargarProductosExistentes()
+
     const parametros = this.route.snapshot.paramMap
     const id = parametros.get('id')
     if (!id) return
@@ -130,6 +148,13 @@ export class ProductosForm implements OnInit {
 
     this.id.set(Number(id))
     this.cargarProducto(tipo, Number(id))
+  }
+
+  cargarProductosExistentes() {
+    this.productosService.getAllProductos().subscribe({
+      next: (productos) => { this.productosExistentes = productos },
+      error: () => {}
+    })
   }
 
   cargarProducto(tipo: TipoProducto, id: number) {
@@ -187,7 +212,67 @@ export class ProductosForm implements OnInit {
     return !!grupo.errors?.['rangoPeso'] && grupo.controls.kgMax.touched
   }
 
-  guardar() {
+  private normalizar(texto: string | null | undefined): string {
+    return (texto ?? '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+  }
+
+  private async verificarProductoDuplicado(
+    tipo: TipoProducto,
+    marca: string,
+    nombre: string,
+    tipoAnimal: TipoAnimal | null | undefined,
+    idActual: number | null
+  ): Promise<boolean> {
+    if (!tipoAnimal) return false
+
+    let productos = this.productosExistentes
+    try {
+      productos = await firstValueFrom(this.productosService.getAllProductos())
+      this.productosExistentes = productos
+    } catch {
+      // Si la consulta en vivo falla, usamos los productos precargados
+    }
+
+    const marcaNorm = this.normalizar(marca)
+    const nombreNorm = this.normalizar(nombre)
+
+    const candidatos = productos.filter(p =>
+      (idActual == null || p.id !== idActual) &&
+      p.tipoProducto === tipo &&
+      this.normalizar(p.marca) === marcaNorm &&
+      this.normalizar(p.nombre) === nombreNorm
+    )
+
+    if (candidatos.length === 0) {
+      return false
+    }
+
+    for (const candidato of candidatos) {
+      let animalCandidato = candidato.tipoAnimal
+      if (!animalCandidato && candidato.id != null) {
+        try {
+          const detalle = await firstValueFrom(this.productosService.getProductoById(tipo, candidato.id))
+          animalCandidato = detalle.tipoAnimal
+          candidato.tipoAnimal = animalCandidato
+        } catch {
+          // Si no se puede obtener el detalle, se evalúa el siguiente
+        }
+      }
+
+      if (animalCandidato === tipoAnimal) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  async guardar() {
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched()
       return
@@ -199,6 +284,27 @@ export class ProductosForm implements OnInit {
     const valores = this.formulario.getRawValue()
     const tipo = valores.tipoProducto!
     const especificos = { ALIMENTO: valores.alimento, ANTIPULGAS: valores.antipulgas }[tipo]
+    const tipoAnimal = especificos?.tipoAnimal
+
+    try {
+      const duplicado = await this.verificarProductoDuplicado(
+        tipo,
+        valores.marca!,
+        valores.nombre!,
+        tipoAnimal,
+        this.id()
+      )
+
+      if (duplicado) {
+        this.guardando.set(false)
+        this.mensaje.set('Ya existe un producto con el mismo nombre, marca, tipo de producto y tipo de animal')
+        this.formulario.controls.nombre.setErrors({ duplicado: true })
+        this.formulario.controls.nombre.markAsTouched()
+        return
+      }
+    } catch {
+      // Si falla la verificación, dejamos continuar con el flujo normal
+    }
 
     const producto = {
       nombre: valores.nombre!.trim(),
