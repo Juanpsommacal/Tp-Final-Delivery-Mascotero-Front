@@ -21,7 +21,7 @@ export class UsuariosList implements OnInit {
   private router = inject(Router);
   private auth = inject(AuthService);
 
-  // Solo el superadmin puede quitar el rol de admin
+  // Solo el superadmin puede dar o quitar el rol de admin
   readonly esSuperAdmin = this.auth.esSuperAdmin;
 
   usuarios = signal<Usuario[]>([]);

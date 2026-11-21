@@ -95,20 +95,18 @@
                   @if (usuario.Role === 'SUPERADMIN') {
                     <!-- Al superadmin nadie le cambia el rol ni lo da de baja -->
                     <span class="sin-acciones">Sin acciones</span>
-                  } @else if (usuario.Role === 'ADMIN') {
-                    <!-- Solo el superadmin puede quitar el admin -->
-                    @if (esSuperAdmin()) {
-                      <button
-                        type="button"
-                        class="btn-accion btn-revocar"
-                        [disabled]="procesandoId() === usuario.id"
-                        (click)="cambiarRol(usuario)"
-                        title="Degradar a rol USER"
-                      >
-                        Quitar Admin
-                      </button>
-                    }
-                  } @else {
+                  } @else if (esSuperAdmin() && usuario.Role === 'ADMIN') {
+                    <!-- Solo el superadmin da o quita el admin: un admin no ve estos botones -->
+                    <button
+                      type="button"
+                      class="btn-accion btn-revocar"
+                      [disabled]="procesandoId() === usuario.id"
+                      (click)="cambiarRol(usuario)"
+                      title="Degradar a rol USER"
+                    >
+                      Quitar Admin
+                    </button>
+                  } @else if (esSuperAdmin()) {
                     <button
                       type="button"
                       class="btn-accion btn-elevar"
