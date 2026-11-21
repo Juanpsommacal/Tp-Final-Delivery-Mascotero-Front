@@ -30,7 +30,9 @@
     </a>
 
     <div class="topbar-acciones">
-      @if (auth.esAdmin()) {
+      @if (auth.esSuperAdmin()) {
+        <span class="badge-rol admin" title="Superadministrador">Superadmin</span>
+      } @else if (auth.esAdmin()) {
         <span class="badge-rol admin" title="Administrador">Admin</span>
       } @else {
         <span class="badge-rol user" title="Operador">Operador</span>
@@ -265,7 +267,9 @@
     <!-- Pie del Sidebar: Rol, Botón colapsar y Cerrar sesión -->
     <div class="sidebar-footer">
       <div class="usuario-info">
-        @if (auth.esAdmin()) {
+        @if (auth.esSuperAdmin()) {
+          <span class="badge-rol admin" title="Rol: Superadministrador">Superadmin</span>
+        } @else if (auth.esAdmin()) {
           <span class="badge-rol admin" title="Rol: Administrador">Admin</span>
         } @else {
           <span class="badge-rol user" title="Rol: Operador">Operador</span>
