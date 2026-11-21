@@ -155,6 +155,29 @@ textarea.ng-invalid.ng-touched {
   background-color: #f0f0f0;
 }
 
+.sugerencia-item.bloqueado:hover {
+  background-color: #faf7f2;
+}
+
+/* Etiqueta chica con la oferta que ya tiene el producto */
+.etiqueta-oferta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  line-height: 1.5;
+}
+
+.etiqueta-activa {
+  color: var(--color-accent-dark);
+  background-color: var(--color-accent-light);
+}
+
+.etiqueta-vencida {
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-alt);
+}
+
 .sugerencia-info {
   display: flex;
   align-items: center;

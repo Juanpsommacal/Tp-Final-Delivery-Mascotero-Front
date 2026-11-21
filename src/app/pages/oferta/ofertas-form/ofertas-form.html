@@ -76,18 +76,26 @@
           } @else {
             <div class="sugerencias-lista">
               @for (p of productosFiltrados(); track p.id) {
-                <div class="sugerencia-item" [class.ya-agregado]="estaSeleccionado(p.id)">
+                <div class="sugerencia-item" [class.ya-agregado]="estaSeleccionado(p.id)" [class.bloqueado]="enOtraOfertaActiva(p)">
                   <div class="sugerencia-info">
                     <strong class="sugerencia-nombre">{{ p.marca }} {{ p.nombre }}</strong>
                     <span class="sugerencia-precio">{{ p.precio | pesos }}</span>
+                    @if (etiquetaOferta(p); as etiqueta) {
+                      <span
+                        class="etiqueta-oferta"
+                        [class.etiqueta-activa]="enOtraOfertaActiva(p)"
+                        [class.etiqueta-vencida]="p.ofertaEstado === 'VENCIDA'"
+                      >{{ etiqueta }}</span>
+                    }
                   </div>
                   <button
                     type="button"
                     class="boton-agregar"
-                    [disabled]="estaSeleccionado(p.id)"
+                    [disabled]="estaSeleccionado(p.id) || enOtraOfertaActiva(p)"
+                    [title]="enOtraOfertaActiva(p) ? 'Ya está en otra oferta. Sacalo de esa oferta para agregarlo acá.' : ''"
                     (click)="seleccionarProducto(p)"
                   >
-                    {{ estaSeleccionado(p.id) ? '✓ Agregado' : '+ Agregar' }}
+                    {{ estaSeleccionado(p.id) ? '✓ Agregado' : enOtraOfertaActiva(p) ? 'En otra oferta' : '+ Agregar' }}
                   </button>
                 </div>
               } @empty {

@@ -222,8 +222,39 @@ export class OfertasForm implements OnInit {
     return [];
   }
 
+  // El producto esta en OTRA oferta vigente o programada: el back no deja agregarlo.
+  // Si esa oferta ya vencio, se puede pasar a esta.
+  enOtraOfertaActiva(producto: Producto): boolean {
+    const estado = producto.ofertaEstado;
+    if (estado !== 'VIGENTE' && estado !== 'PROGRAMADA') return false;
+    return producto.ofertaId != null && String(producto.ofertaId) !== String(this.id());
+  }
+
+  // Texto de la etiqueta chica al lado del producto (null si no tiene oferta)
+  etiquetaOferta(producto: Producto): string | null {
+    if (!producto.ofertaEstado || !producto.ofertaNombre) return null;
+    if (producto.ofertaId != null && String(producto.ofertaId) === String(this.id())) return null;
+
+    const porcentaje = formatearPorcentajeVisual(producto.ofertaPorcentaje);
+    switch (producto.ofertaEstado) {
+      case 'VIGENTE':
+        return `En oferta: ${producto.ofertaNombre} −${porcentaje}% hasta ${this.fechaCorta(producto.ofertaFechaFin)}`;
+      case 'PROGRAMADA':
+        return `Oferta programada: ${producto.ofertaNombre} desde ${this.fechaCorta(producto.ofertaFechaInicio)}`;
+      default:
+        return `Oferta vencida: ${producto.ofertaNombre}`;
+    }
+  }
+
+  // "2026-11-30" -> "30/11"
+  private fechaCorta(fecha?: string | null): string {
+    if (!fecha) return '';
+    const [, mes, dia] = fecha.slice(0, 10).split('-');
+    return `${dia}/${mes}`;
+  }
+
   seleccionarProducto(producto: Producto): void {
-    if (producto.id == null) return;
+    if (producto.id == null || this.enOtraOfertaActiva(producto)) return;
 
     const actuales = this.productosSeleccionados();
     const yaExiste = actuales.some((p) => p.id === producto.id);
