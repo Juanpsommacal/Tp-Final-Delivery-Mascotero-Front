@@ -6,6 +6,7 @@ import { AlertaService } from '../../../services/alerta/alerta-service';
 import { ConfirmacionService } from '../../../services/confirmacion/confirmacion-service';
 import { RoleType, Usuario } from '../../../models/Usuario';
 import { extraerMensajeError } from '../../../utils/error-util';
+import { AuthService } from '../../../services/authentication/auth-service';
 
 @Component({
   imports: [CommonModule],
@@ -18,6 +19,10 @@ export class UsuariosList implements OnInit {
   private alertaService = inject(AlertaService);
   private confirmacionService = inject(ConfirmacionService);
   private router = inject(Router);
+  private auth = inject(AuthService);
+
+  // Solo el superadmin puede quitar el rol de admin
+  readonly esSuperAdmin = this.auth.esSuperAdmin;
 
   usuarios = signal<Usuario[]>([]);
   cargando = signal(true);
@@ -31,7 +36,8 @@ export class UsuariosList implements OnInit {
     const rol = this.filtroRol();
 
     return this.usuarios().filter((u) => {
-      const coincideRol = rol === 'TODOS' || u.Role === rol;
+      // El superadmin entra en el filtro de administradores
+      const coincideRol = rol === 'TODOS' || u.Role === rol || (rol === 'ADMIN' && u.Role === 'SUPERADMIN');
       const coincideTexto =
         `${u.nombre} ${u.apellido} ${u.email}`.toLowerCase().includes(texto);
 
@@ -40,7 +46,7 @@ export class UsuariosList implements OnInit {
   });
 
   totalAdmins = computed(
-    () => this.usuarios().filter((u) => u.Role === 'ADMIN').length
+    () => this.usuarios().filter((u) => u.Role === 'ADMIN' || u.Role === 'SUPERADMIN').length
   );
   totalUsers = computed(
     () => this.usuarios().filter((u) => u.Role === 'USER').length

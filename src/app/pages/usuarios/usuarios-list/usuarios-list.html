@@ -56,7 +56,7 @@
             <tr [class.fila-procesando]="procesandoId() === usuario.id">
               <td>
                 <div class="usuario-info">
-                  <div class="avatar" [class.avatar-admin]="usuario.Role === 'ADMIN'">
+                  <div class="avatar" [class.avatar-admin]="usuario.Role !== 'USER'">
                     {{ usuario.nombre.charAt(0) }}{{ usuario.apellido.charAt(0) }}
                   </div>
                   <div>
@@ -69,7 +69,11 @@
                 <span class="usuario-email">{{ usuario.email }}</span>
               </td>
               <td>
-                @if (usuario.Role === 'ADMIN') {
+                @if (usuario.Role === 'SUPERADMIN') {
+                  <span class="badge badge-superadmin">
+                    ⭐ SUPERADMIN
+                  </span>
+                } @else if (usuario.Role === 'ADMIN') {
                   <span class="badge badge-admin">
                     🛡️ ADMIN
                   </span>
@@ -88,16 +92,22 @@
               </td>
               <td class="col-acciones">
                 <div class="acciones-grupo">
-                  @if (usuario.Role === 'ADMIN') {
-                    <button
-                      type="button"
-                      class="btn-accion btn-revocar"
-                      [disabled]="procesandoId() === usuario.id"
-                      (click)="cambiarRol(usuario)"
-                      title="Degradar a rol USER"
-                    >
-                      Quitar Admin
-                    </button>
+                  @if (usuario.Role === 'SUPERADMIN') {
+                    <!-- Al superadmin nadie le cambia el rol ni lo da de baja -->
+                    <span class="sin-acciones">Sin acciones</span>
+                  } @else if (usuario.Role === 'ADMIN') {
+                    <!-- Solo el superadmin puede quitar el admin -->
+                    @if (esSuperAdmin()) {
+                      <button
+                        type="button"
+                        class="btn-accion btn-revocar"
+                        [disabled]="procesandoId() === usuario.id"
+                        (click)="cambiarRol(usuario)"
+                        title="Degradar a rol USER"
+                      >
+                        Quitar Admin
+                      </button>
+                    }
                   } @else {
                     <button
                       type="button"
@@ -110,17 +120,19 @@
                     </button>
                   }
 
-                  <button
-                    type="button"
-                    class="btn-accion btn-estado"
-                    [class.btn-dar-baja]="usuario.active"
-                    [class.btn-activar]="!usuario.active"
-                    [disabled]="procesandoId() === usuario.id"
-                    (click)="toggleEstado(usuario)"
-                    [title]="usuario.active ? 'Desactivar cuenta' : 'Activar cuenta'"
-                  >
-                    {{ usuario.active ? 'Desactivar' : 'Activar' }}
-                  </button>
+                  @if (usuario.Role !== 'SUPERADMIN') {
+                    <button
+                      type="button"
+                      class="btn-accion btn-estado"
+                      [class.btn-dar-baja]="usuario.active"
+                      [class.btn-activar]="!usuario.active"
+                      [disabled]="procesandoId() === usuario.id"
+                      (click)="toggleEstado(usuario)"
+                      [title]="usuario.active ? 'Desactivar cuenta' : 'Activar cuenta'"
+                    >
+                      {{ usuario.active ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  }
                 </div>
               </td>
             </tr>

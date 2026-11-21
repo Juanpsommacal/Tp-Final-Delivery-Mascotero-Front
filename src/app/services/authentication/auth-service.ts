@@ -76,11 +76,15 @@ export class AuthService {
         return !!payload?.exp && payload.exp * 1000 > Date.now();
     }
 
-    tieneRol(rol: 'ADMIN' | 'USER'): boolean {
+    tieneRol(rol: 'SUPERADMIN' | 'ADMIN' | 'USER'): boolean {
         return this.leerPayload()?.role?.includes(`ROLE_${rol}`) ?? false;
     }
 
-    readonly esAdmin = computed(() => this.tieneRol('ADMIN'))
+    // El superadmin tambien trae ROLE_ADMIN en el token, asi que esAdmin es true para el
+    readonly esAdmin = computed(() => this.token() !== null && this.tieneRol('ADMIN'))
+
+    // Solo el superadmin puede quitarle el rol de admin a alguien
+    readonly esSuperAdmin = computed(() => this.token() !== null && this.tieneRol('SUPERADMIN'))
 
 
 }
